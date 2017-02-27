@@ -1,0 +1,1 @@
+C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus\bin\Debug\IoTModbus.exe.config
