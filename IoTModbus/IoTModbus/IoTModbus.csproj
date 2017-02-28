@@ -52,8 +52,13 @@
     <Compile Include="GUI.Designer.cs">
       <DependentUpon>GUI.cs</DependentUpon>
     </Compile>
+    <Compile Include="GUIFacade.cs" />
+    <Compile Include="ModbusADU.cs" />
+    <Compile Include="ModbusMessage.cs" />
+    <Compile Include="ModbusTCP.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Report.cs" />
     <EmbeddedResource Include="GUI.resx">
       <DependentUpon>GUI.cs</DependentUpon>
     </EmbeddedResource>
