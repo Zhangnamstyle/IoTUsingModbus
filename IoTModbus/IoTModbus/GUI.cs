@@ -16,5 +16,10 @@ namespace IoTModbus
         {
             InitializeComponent();
         }
+
+        private void btnConnect_Click(object sender, EventArgs e)
+        {
+            ModbusTCP mTCP = new ModbusTCP("192.168.1.1", 80);
+        }
     }
 }
