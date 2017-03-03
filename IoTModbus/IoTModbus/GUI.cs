@@ -12,6 +12,8 @@ namespace IoTModbus
 {
     public partial class GUI : Form
     {
+        ComHandler comHandler;
+
         public GUI()
         {
             InitializeComponent();
@@ -19,7 +21,19 @@ namespace IoTModbus
 
         private void btnConnect_Click(object sender, EventArgs e)
         {
-            ModbusTCP mTCP = new ModbusTCP("192.168.1.1", 80);
+            if (comHandler == null)
+            {
+                comHandler = new ComHandler();
+            }
+        }
+
+        private void btnDisconnect_Click(object sender, EventArgs e)
+        {
+            if(comHandler != null)
+            {
+                comHandler.disconnect();
+                comHandler = null;
+            }
         }
     }
 }

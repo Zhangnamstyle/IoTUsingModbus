@@ -18,10 +18,15 @@ namespace IoTModbus
         private NetworkStream netStream;
         private static ushort _timeout = 500;
         private static bool _connected = false;
-        public ModbusTCP(string ip,ushort port)
+        Report _report;
+        public ModbusTCP(string ip,ushort port, Report report)
         {
+            _report = report;
             connect(ip, port);
         }
+        /// <summary>Connects to the Modbus slave</summary>
+        /// <param name="ip">IP adress of modbus slave.</param>
+        /// <param name="port">Port number of modbus slave. Usually port 502 is used.</param>
         private void connect(string ip, ushort port)
         {
             try
@@ -38,11 +43,26 @@ namespace IoTModbus
                 tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, _timeout);
                 netStream = tcpClient.GetStream();
                 _connected = true;
+                _report.startTime = DateTime.Now;
             }
             catch(Exception error)
             {
                 _connected = false;
                 throw (error);
+            }
+        }
+        public void disconnect()
+        {
+            if(tcpClient != null)
+            {
+                if(tcpClient.Connected)
+                {
+                    netStream.Close();
+                    tcpClient.Close();       
+                }
+                netStream = null;
+                tcpClient = null;
+                _report.stopTime = DateTime.Now;
             }
         }
         /// <summary>Returns a Modbus Application Header for writing as a byte array</summary>
