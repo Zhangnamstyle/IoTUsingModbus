@@ -8,5 +8,10 @@ namespace IoTModbus
 {
     class ModbusADU
     {
+        
+        public ModbusADU()
+        {
+            
+        }
     }
 }

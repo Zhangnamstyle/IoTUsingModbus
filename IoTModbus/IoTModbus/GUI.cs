@@ -12,9 +12,28 @@ namespace IoTModbus
 {
     public partial class GUI : Form
     {
+        ComHandler comHandler;
+
         public GUI()
         {
             InitializeComponent();
+        }
+
+        private void btnConnect_Click(object sender, EventArgs e)
+        {
+            if (comHandler == null)
+            {
+                comHandler = new ComHandler();
+            }
+        }
+
+        private void btnDisconnect_Click(object sender, EventArgs e)
+        {
+            if(comHandler != null)
+            {
+                comHandler.disconnect();
+                comHandler = null;
+            }
         }
     }
 }
