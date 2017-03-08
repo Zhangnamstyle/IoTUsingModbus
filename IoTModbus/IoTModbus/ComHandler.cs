@@ -17,7 +17,7 @@ namespace IoTModbus
         public void connect()
         {
             report = new Report();
-            modbusTCP = new ModbusTCP("192.168.1.1", 80, report);
+            modbusTCP = new ModbusTCP("192.168.1.101", 502, report);
         }
         public void disconnect()
         {
@@ -26,6 +26,24 @@ namespace IoTModbus
                 modbusTCP.disconnect();
                 modbusTCP = null;
             }
+        }
+        public void sendOff()
+        {
+            //WRITE TEST
+            byte[] test = { 0,0 };
+            modbusTCP.send(1, 1, 0, 1, test);
+
+
+        }
+        public void sendOn()
+        {
+            //WRITE TEST
+            byte[] test = BitConverter.GetBytes(65500);
+            modbusTCP.send(1, 1, 0, 1, test);
+        }
+        public void sendRead()
+        {
+            modbusTCP.send(1, 1, 0, 4);
         }
     }
 }

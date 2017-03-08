@@ -56,6 +56,7 @@
     <Compile Include="GUIFacade.cs" />
     <Compile Include="ModbusADU.cs" />
     <Compile Include="ModbusMessage.cs" />
+    <Compile Include="ModbusPDU.cs" />
     <Compile Include="ModbusTCP.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

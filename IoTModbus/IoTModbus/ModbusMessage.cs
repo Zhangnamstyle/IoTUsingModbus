@@ -6,7 +6,16 @@ using System.Threading.Tasks;
 
 namespace IoTModbus
 {
-    class ModbusMessage
+    static class ModbusMessage
     {
+        public static byte[] createPDU(ushort startAddress, ushort numData, ushort numBytes, byte funcNr)
+        {
+            
+            byte[] data = new byte[numBytes];
+
+           
+
+            return data;
+        }
     }
 }

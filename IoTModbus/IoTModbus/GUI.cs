@@ -35,5 +35,20 @@ namespace IoTModbus
                 comHandler = null;
             }
         }
+
+        private void btnSend_Click(object sender, EventArgs e)
+        {
+            comHandler.sendOff();
+        }
+
+        private void btnSendOn_Click(object sender, EventArgs e)
+        {
+            comHandler.sendOn();
+        }
+
+        private void btnRead_Click(object sender, EventArgs e)
+        {
+            comHandler.sendRead();
+        }
     }
 }
