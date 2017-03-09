@@ -10,6 +10,7 @@ namespace IoTModbus
     {
         ModbusTCP modbusTCP;
         Report report;
+
         public ComHandler()
         {
             connect();
@@ -30,20 +31,20 @@ namespace IoTModbus
         public void sendOff()
         {
             //WRITE TEST
-            byte[] test = { 0,0 };
-            modbusTCP.send(1, 1, 0, 1, test);
-
+            byte[] test = BitConverter.GetBytes(0);
+            modbusTCP.send(5,1, 1, 0, 1, test);
 
         }
         public void sendOn()
         {
             //WRITE TEST
-            byte[] test = BitConverter.GetBytes(65500);
-            modbusTCP.send(1, 1, 0, 1, test);
+            byte[] test = BitConverter.GetBytes(255);
+            modbusTCP.send(5,1, 1, 0, 1, test);
+
         }
         public void sendRead()
         {
-            modbusTCP.send(1, 1, 0, 4);
+            modbusTCP.send(2,1, 1, 0, 4);
         }
     }
 }

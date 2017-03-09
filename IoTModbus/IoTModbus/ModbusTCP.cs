@@ -16,7 +16,7 @@ namespace IoTModbus
     {
         private TcpClient tcpClient;
         private NetworkStream netStream;
-        private static ushort _timeout = 1500;
+        private static ushort _timeout = 500;
         private static bool _connected = false;
         private byte[] tcpBuffer = new byte[15];
         Report _report;
@@ -29,25 +29,30 @@ namespace IoTModbus
         }
 
         /// <summary>Send modbus message for reading over TCP</summary>
-        public void send(ushort id, byte unit, ushort startAddress, ushort numInputs)
+        public void send(byte funcNr,ushort id, byte unit, ushort startAddress, ushort numInputs)
         {
             byte[] head;
             byte[] pdu;
             byte[] adu;
             head = createMBAP(id, unit);
-            pdu = ModbusPDU.CreatePDU(3, startAddress, numInputs);
+            pdu = ModbusPDU.CreatePDU(funcNr, startAddress, numInputs);
             adu = ModbusADU.createADU(head, pdu);
             WriteData(adu, id);
         }
         /// <summary>Send modbus message for writing over TCP</summary>
-        public void send(ushort id, byte unit, ushort startAddress,ushort numBits, byte[] values)
+        public void send(byte funcNr,ushort id, byte unit, ushort startAddress,ushort numBits, byte[] values)
         {
-            byte numBytes = Convert.ToByte(values.Length);
+            byte numBytes;
+            if (values.Length < 4)
+            {
+                numBytes = Convert.ToByte(values.Length);
+            }
+            else { numBytes = 1; }
             byte[] head;
             byte[] pdu;
             byte[] adu;
             head = createMBAP(id, unit, numBytes);
-            pdu = ModbusPDU.CreatePDU(5, startAddress, numBytes,1,values);
+            pdu = ModbusPDU.CreatePDU(funcNr, startAddress, numBytes,1,values);
             adu = ModbusADU.createADU(head, pdu);
             WriteData(adu, id);
         }
@@ -66,13 +71,25 @@ namespace IoTModbus
                     IPHostEntry hst = Dns.GetHostEntry(ip);
                     ip = hst.AddressList[0].ToString();
                 }
+
+                int size = sizeof(UInt32);
+                UInt32 on = 1;
+                UInt32 keepAliveInterval = 750; //Send a packet once every second.
+                UInt32 retryInterval = 200; //If no response, resend every second.
+                byte[] inArray = new byte[size * 3];
+                Array.Copy(BitConverter.GetBytes(on), 0, inArray, 0, size);
+                Array.Copy(BitConverter.GetBytes(keepAliveInterval), 0, inArray, size, size);
+                Array.Copy(BitConverter.GetBytes(retryInterval), 0, inArray, size * 2, size);
+
+
                 tcpClient = new TcpClient();
                 tcpClient.Connect(IPAddress.Parse(ip), port);
                 tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendTimeout, _timeout);
                 tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, _timeout);
                 tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay,true);
+                tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive,true);
+                tcpClient.Client.IOControl(IOControlCode.KeepAliveValues,inArray,null);
                 
-
                 netStream = tcpClient.GetStream();
                 _connected = true;
                 _report.startTime = DateTime.Now;
@@ -135,6 +152,8 @@ namespace IoTModbus
                 {
                     if (netStream.CanWrite)
                     {
+                        string s = ByteArrayToString(adu);
+                        System.Diagnostics.Debug.WriteLine(s);
                         netStream.BeginWrite(adu, 0, adu.Length, new AsyncCallback(recieveCallBack), netStream);
                         netStream.BeginRead(tcpBuffer, 0, tcpBuffer.Length, new AsyncCallback(OnReceive), netStream);
                     }
@@ -145,6 +164,13 @@ namespace IoTModbus
                 }
             }
         }
+        public static string ByteArrayToString(byte[] ba)
+        {
+            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            foreach (byte b in ba)
+                hex.AppendFormat("{0:x2}", b);
+            return hex.ToString();
+        }
 
         private void recieveCallBack(IAsyncResult ar)
         {
@@ -154,8 +180,6 @@ namespace IoTModbus
         {
             
         }
-
-
 
     }
     }

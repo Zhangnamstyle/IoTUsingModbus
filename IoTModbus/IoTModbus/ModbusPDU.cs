@@ -13,7 +13,7 @@ namespace IoTModbus
         public static byte[] CreatePDU(byte funcNr,ushort startAddress,ushort numBytes,ushort numData,byte[] values)
         {
 
-            byte[] pdu = new byte[numBytes + 6];
+            byte[] pdu = new byte[numBytes + 4];
             pdu[0] = funcNr;
             byte[] _adr = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)startAddress));
             pdu[1] = _adr[0];

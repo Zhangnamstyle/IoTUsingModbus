@@ -13,6 +13,7 @@ namespace IoTModbus
     public partial class GUI : Form
     {
         ComHandler comHandler;
+        private string _message;
 
         public GUI()
         {
@@ -50,5 +51,6 @@ namespace IoTModbus
         {
             comHandler.sendRead();
         }
+
     }
 }
