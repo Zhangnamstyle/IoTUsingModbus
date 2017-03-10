@@ -11,24 +11,37 @@ namespace IoTModbus
     /// <summary>
     /// Facade class for Modbus Communication using TCP/IP portocol.
     /// </summary>
-    /// '
     class ModbusTCP
     {
+        // ------------------------------------------------------------------------
+        // Private declarations
         private TcpClient tcpClient;
         private NetworkStream netStream;
+        private Report _report;
+            
         private static ushort _timeout = 500;
         private static bool _connected = false;
         private byte[] tcpBuffer = new byte[15];
-        Report _report;
 
+
+        // ------------------------------------------------------------------------
+        /// <summary>Write multiple registers in slave asynchronous. The result is given in the response function.</summary>
+        /// <param name="ip">IP adress of modbus slave.</param>
+        /// <param name="port">Port number of modbus slave. Usually port 502 is used.</param>
+        /// <param name="report">Object of class Report.</param>
         public ModbusTCP(string ip, ushort port, Report report)
         {
-            
             _report = report; 
             connect(ip, port);
         }
 
+        // ------------------------------------------------------------------------
         /// <summary>Send modbus message for reading over TCP</summary>
+        /// <param name="funcNr">Modbus Function Code.</param>
+        /// <param name="id">Unique id that marks the transaction. In asynchonous mode this id is given to the callback function.</param>
+        /// <param name="unit">Unit identifier (previously slave address). In asynchonous mode this unit is given to the callback function.</param>
+        /// <param name="startAddress">Address from where the data read begins.</param>
+        /// <param name="numInputs">Length of data.</param>
         public void send(byte funcNr,ushort id, byte unit, ushort startAddress, ushort numInputs)
         {
             byte[] head;
@@ -38,16 +51,22 @@ namespace IoTModbus
             pdu = ModbusPDU.CreatePDU(funcNr, startAddress, numInputs);
             adu = ModbusADU.createADU(head, pdu);
             WriteData(adu, id);
+            
         }
+
+        // ------------------------------------------------------------------------
         /// <summary>Send modbus message for writing over TCP</summary>
+        /// <param name="funcNr">Modbus Function Code.</param>
+        /// <param name="id">Unique id that marks the transaction. In asynchonous mode this id is given to the callback function.</param>
+        /// <param name="unit">Unit identifier (previously slave address). In asynchonous mode this unit is given to the callback function.</param>
+        /// <param name="startAddress">Address from where the data read begins.</param>
+        /// <param name="numBits">Specifys number of bits.</param>
+        /// <param name="values">Contains the bit information in byte format.</param>
         public void send(byte funcNr,ushort id, byte unit, ushort startAddress,ushort numBits, byte[] values)
         {
             byte numBytes;
-            if (values.Length < 4)
-            {
-                numBytes = Convert.ToByte(values.Length);
-            }
-            else { numBytes = 1; }
+            if (values.Length > 4) numBytes = Convert.ToByte(values.Length); //TODO: Debug and find right way to set numBytes
+            else  numBytes = 1; 
             byte[] head;
             byte[] pdu;
             byte[] adu;
@@ -57,7 +76,7 @@ namespace IoTModbus
             WriteData(adu, id);
         }
 
-
+        // ------------------------------------------------------------------------
         /// <summary>Connects to the Modbus slave</summary>
         /// <param name="ip">IP adress of modbus slave.</param>
         /// <param name="port">Port number of modbus slave. Usually port 502 is used.</param>
@@ -72,23 +91,11 @@ namespace IoTModbus
                     ip = hst.AddressList[0].ToString();
                 }
 
-                int size = sizeof(UInt32);
-                UInt32 on = 1;
-                UInt32 keepAliveInterval = 750; //Send a packet once every second.
-                UInt32 retryInterval = 200; //If no response, resend every second.
-                byte[] inArray = new byte[size * 3];
-                Array.Copy(BitConverter.GetBytes(on), 0, inArray, 0, size);
-                Array.Copy(BitConverter.GetBytes(keepAliveInterval), 0, inArray, size, size);
-                Array.Copy(BitConverter.GetBytes(retryInterval), 0, inArray, size * 2, size);
-
-
                 tcpClient = new TcpClient();
                 tcpClient.Connect(IPAddress.Parse(ip), port);
                 tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendTimeout, _timeout);
                 tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, _timeout);
                 tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay,true);
-                tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive,true);
-                tcpClient.Client.IOControl(IOControlCode.KeepAliveValues,inArray,null);
                 
                 netStream = tcpClient.GetStream();
                 _connected = true;
@@ -100,6 +107,9 @@ namespace IoTModbus
                 throw (error);
             }
         }
+
+        // ------------------------------------------------------------------------
+        /// <summary>Write multiple coils in slave asynchronous. The result is given in the response function.</summary>
         public void disconnect()
         {
             if (tcpClient != null)
@@ -114,6 +124,8 @@ namespace IoTModbus
                 _report.stopTime = DateTime.Now;
             }
         }
+
+        // ------------------------------------------------------------------------
         /// <summary>Returns a Modbus Application Header for writing registers as a byte array</summary>
         private byte[] createMBAP(ushort id, byte unit, ushort numBytes)
         {
@@ -129,6 +141,8 @@ namespace IoTModbus
 
             return mbap;
         }
+
+        // ------------------------------------------------------------------------
         /// <summary>Returns a Modbus Application Header for reading registers as a byte array</summary>
         private byte[] createMBAP(ushort id, byte unit)
         {
@@ -143,6 +157,7 @@ namespace IoTModbus
             return mbap;
         }
 
+        // ------------------------------------------------------------------------
         /// <summary>Writes the adu to the Modbus Slave</summary>
         private void WriteData(byte[] adu, ushort id)
         {
@@ -164,6 +179,9 @@ namespace IoTModbus
                 }
             }
         }
+
+        // ------------------------------------------------------------------------
+        /// <summary>Writes the adu to the Modbus Slave</summary>
         public static string ByteArrayToString(byte[] ba)
         {
             StringBuilder hex = new StringBuilder(ba.Length * 2);
@@ -172,14 +190,27 @@ namespace IoTModbus
             return hex.ToString();
         }
 
+        // ------------------------------------------------------------------------
+        /// <summary>Writes the adu to the Modbus Slave</summary>
         private void recieveCallBack(IAsyncResult ar)
         {
-            netStream.EndWrite(ar);
+            if (ar.IsCompleted == false) { } //TODO: Add Exeption
+            netStream.EndWrite(ar); 
         }
-        private void OnReceive(System.IAsyncResult result)
+
+        // ------------------------------------------------------------------------
+        /// <summary>Handles the response from modbus slave</summary>
+        private void OnReceive(System.IAsyncResult ar)
         {
-            
+            if (ar.IsCompleted == false) { } //TODO: Add Exeption
+
+            byte[] pdu;
+            byte[] mbap = ModbusADU.decodeADU(tcpBuffer,out pdu);
+
+
+
         }
+
 
     }
     }

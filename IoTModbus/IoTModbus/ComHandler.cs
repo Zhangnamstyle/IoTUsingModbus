@@ -7,19 +7,29 @@ using System.Threading.Tasks;
 namespace IoTModbus
 {
     class ComHandler
-    {
-        ModbusTCP modbusTCP;
-        Report report;
+    {        
+        // ------------------------------------------------------------------------
+        // Private declarations
+        private ModbusTCP modbusTCP;
+        private Report report;
 
+        // ------------------------------------------------------------------------
+        /// <summary>Constructor for Report class</summary>
         public ComHandler()
         {
             connect();
         }
+
+        // ------------------------------------------------------------------------
+        /// <summary>Connects to the Modbus slave</summary>
         public void connect()
         {
             report = new Report();
             modbusTCP = new ModbusTCP("192.168.1.101", 502, report);
         }
+
+        // ------------------------------------------------------------------------
+        /// <summary>Disconnect from the Modbus slave</summary>
         public void disconnect()
         {
             if(modbusTCP != null)
@@ -28,6 +38,8 @@ namespace IoTModbus
                 modbusTCP = null;
             }
         }
+
+
         public void sendOff()
         {
             //WRITE TEST

@@ -9,18 +9,22 @@ namespace IoTModbus
     
     class Report
     {
+        // ------------------------------------------------------------------------
+        // Private declarations
         private DateTime _startTime;
         private DateTime _stopTime;
         private bool firstStart;
         private bool firstStop;
-        
+
+        // ------------------------------------------------------------------------
+        /// <summary>Constructor for Report class</summary>
         public Report()
         {
             firstStart = true;
             firstStop = true;
         }
 
-
+        // ------------------------------------------------------------------------
         /// <summary>Method for getting and setting a DateTime connectionTime used for logging when the connection was started</summary>
         public DateTime startTime
         {
@@ -39,6 +43,7 @@ namespace IoTModbus
             }
         }
 
+        // ------------------------------------------------------------------------
         /// <summary>Method for getting and setting a DateTime connectionTime used for logging when the connection was started</summary>
         public DateTime stopTime
         {
@@ -58,6 +63,7 @@ namespace IoTModbus
                 }
             }
         }
+
 
 
     }
