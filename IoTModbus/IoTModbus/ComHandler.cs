@@ -51,8 +51,8 @@ namespace IoTModbus
         {
             //WRITE TEST
             byte[] test = BitConverter.GetBytes(255);
-            modbusTCP.send(5,1, 1, 1, 1, test);
-            
+            //modbusTCP.send(5,1, 1, 1, 1, test);
+            modbusTCP.send(5, 1, 1, 16, 1,test);
 
         }
         public void sendRead()

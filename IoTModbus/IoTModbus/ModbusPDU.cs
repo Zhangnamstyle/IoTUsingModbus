@@ -12,6 +12,8 @@ namespace IoTModbus
     /// </summary>
     static class ModbusPDU
     {
+
+
         // ------------------------------------------------------------------------
         // Supported Modbus Function Codes
         private const byte fctReadCoil = 1;
@@ -29,8 +31,18 @@ namespace IoTModbus
 
         // ------------------------------------------------------------------------
         // Supported Modbus Exeption Codes
+        private const byte exIllegalFunction = 1;
+        private const byte exIllegalDataAddress = 2;
+        private const byte exIllegalDataValue = 3;
+        private const byte exSlaveDeviceFailure = 4;
+        private const byte exAcknowledge = 5;
+        private const byte exSlaveDeviceBusy = 6;
+        private const byte exMemoryParityError = 8;
+        private const byte exGatewayPathUnavailable = 10;
+        private const byte exGatewayTargetNoResponse = 11;
+        private const byte exTimeout = 12;
 
-
+        private const byte excExceptionOffset = 128;
 
         // ------------------------------------------------------------------------
         /// <summary>Returns a PDU for Writing to registers</summary>
@@ -86,14 +98,61 @@ namespace IoTModbus
         {
             byte[] data = new byte[pdu.Length - 1];
             byte funcNr = pdu[0];
+
             _funcNr = funcNr;
             if(funcNr > fctWriteMultipleRegister)
             {
-
+                byte funcEx = pdu[1];
+                funcNr -= excExceptionOffset;
+                string e = exMessage(funcEx);
+                System.Diagnostics.Debug.WriteLine(e);
             }
             Buffer.BlockCopy(pdu, 1, data, 0, data.Length);
             return data;
         }
+
+        // ------------------------------------------------------------------------
+        /// <summary>Returns the exeption type </summary>
+        /// <param name="FuncEx">Modbus Exeption Code.</param>
+        private static string exMessage(byte funcEx)
+        {
+            string ex;
+            switch (funcEx)
+            {
+                case exIllegalFunction:
+                    ex = "Illegal Function";
+                    break;
+                case exIllegalDataAddress:
+                    ex = "Illegal Data Address";
+                    break;
+                case exIllegalDataValue:
+                    ex = "Illegal Data Value";
+                    break;
+                case exSlaveDeviceFailure:
+                    ex = "Slave Devie Failure";
+                    break;
+                case exAcknowledge:
+                    ex = "Acknowledge";
+                    break;
+                case exSlaveDeviceBusy:
+                    ex = "Slave Device Busy";
+                    break;
+                case exMemoryParityError:
+                    ex = "Memory Parity Error";
+                    break;
+                case exGatewayPathUnavailable:
+                    ex = "Gateway Path Unavailable";
+                    break;
+                case exGatewayTargetNoResponse:
+                    ex = "Gateway Target Device Failed to Respond";
+                    break;
+                default:
+                    ex = "Unkown Exeption Code";
+                    break;
+            }
+            return ex;           
+        }
+
 
 
     }
