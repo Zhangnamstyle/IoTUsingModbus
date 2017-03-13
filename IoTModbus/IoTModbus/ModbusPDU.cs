@@ -84,12 +84,15 @@ namespace IoTModbus
 
         public static byte[] ReadPDU(byte[] pdu,out byte _funcNr) //TODO: Add test for exeption code
         {
+            byte[] data = new byte[pdu.Length - 1];
             byte funcNr = pdu[0];
-            
+            _funcNr = funcNr;
             if(funcNr > fctWriteMultipleRegister)
             {
 
             }
+            Buffer.BlockCopy(pdu, 1, data, 0, data.Length);
+            return data;
         }
 
 

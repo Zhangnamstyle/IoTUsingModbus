@@ -44,14 +44,15 @@ namespace IoTModbus
         {
             //WRITE TEST
             byte[] test = BitConverter.GetBytes(0);
-            modbusTCP.send(5,1, 1, 0, 1, test);
+            modbusTCP.send(5,1, 1, 1, 1, test);
 
         }
         public void sendOn()
         {
             //WRITE TEST
             byte[] test = BitConverter.GetBytes(255);
-            modbusTCP.send(5,1, 1, 0, 1, test);
+            modbusTCP.send(5,1, 1, 1, 1, test);
+            
 
         }
         public void sendRead()

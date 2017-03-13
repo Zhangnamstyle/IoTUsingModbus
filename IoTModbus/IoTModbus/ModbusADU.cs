@@ -76,5 +76,5 @@ namespace IoTModbus
                 return header;
             }
         }
-    }
 }
+

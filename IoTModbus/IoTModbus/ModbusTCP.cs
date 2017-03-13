@@ -205,8 +205,10 @@ namespace IoTModbus
             if (ar.IsCompleted == false) { } //TODO: Add Exeption
 
             byte[] pdu;
+            byte funcNr;
             byte[] mbap = ModbusADU.decodeADU(tcpBuffer,out pdu);
-
+            byte[] data = ModbusPDU.ReadPDU(pdu,out funcNr);
+            System.Diagnostics.Debug.WriteLine("Output data = " +" FuncNumber = " + funcNr.ToString() +" Value " +  ByteArrayToString(data));
 
 
         }
