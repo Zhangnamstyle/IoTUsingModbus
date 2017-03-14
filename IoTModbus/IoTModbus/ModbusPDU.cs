@@ -12,8 +12,6 @@ namespace IoTModbus
     /// </summary>
     static class ModbusPDU
     {
-
-
         // ------------------------------------------------------------------------
         // Supported Modbus Function Codes
         private const byte fctReadCoil = 1;
@@ -150,10 +148,8 @@ namespace IoTModbus
                     ex = "Unkown Exeption Code";
                     break;
             }
+            
             return ex;           
         }
-
-
-
     }
 }

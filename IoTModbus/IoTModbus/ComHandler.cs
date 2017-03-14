@@ -13,6 +13,23 @@ namespace IoTModbus
         private ModbusTCP modbusTCP;
         private Report report;
 
+        /// <summary>Exception data event. This event is called when the data is incorrect</summary>
+        public delegate void ExceptionData(ushort id, byte unit, byte function, byte exception);
+        /// <summary>Exception data event. This event is called when the data is incorrect</summary>
+        public event ExceptionData OnException;
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public delegate void ResponseData(ushort id, byte unit, byte function, byte[] data);
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public event ResponseData OnResponseData;
+
+        internal void CallException(ushort id, byte unit, byte function, byte exception)
+        {
+            disconnect();
+            if (OnException != null) OnException(id, unit, function, exception);
+           
+        }
+
+
         // ------------------------------------------------------------------------
         /// <summary>Constructor for Report class</summary>
         public ComHandler()

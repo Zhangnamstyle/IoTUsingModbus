@@ -24,6 +24,7 @@ namespace IoTModbus
         private byte[] tcpBuffer = new byte[15];
 
 
+
         // ------------------------------------------------------------------------
         /// <summary>Write multiple registers in slave asynchronous. The result is given in the response function.</summary>
         /// <param name="ip">IP adress of modbus slave.</param>
@@ -34,7 +35,6 @@ namespace IoTModbus
             _report = report; 
             connect(ip, port);
         }
-
         // ------------------------------------------------------------------------
         /// <summary>Send modbus message for reading over TCP</summary>
         /// <param name="funcNr">Modbus Function Code.</param>
@@ -153,7 +153,6 @@ namespace IoTModbus
             mbap[1] = _id[0];				// Slave id low byte
             mbap[5] = 6;					// Message size
             mbap[6] = unit;					// Slave address
-
             return mbap;
         }
 
