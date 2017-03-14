@@ -71,6 +71,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -84,6 +85,42 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\aOutB.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\aOutR.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\greenOff.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\greenOn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\greyOff.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\KnobL.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\KnobM.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\KnobR.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\redOn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\switchL.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\switchM.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\switchR.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
