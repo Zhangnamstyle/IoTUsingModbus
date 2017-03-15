@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace IoTModbus
 {
+    
     class ComHandler 
     {        
         // ------------------------------------------------------------------------
@@ -36,18 +37,9 @@ namespace IoTModbus
         /// <summary>Response data event. This event is called when new data arrives</summary>
         public event ResponseData OnResponseData;
 
-        internal void RaiseOnException(ushort id, byte unit, byte function, byte exception)
-        {
-            string exM = exMessage(exception);
-            disconnect();
-            if (OnException != null) OnException(id, unit, function, exM);  
-        }
 
-        protected void RaiseOnResponseData(ushort id, byte unit, byte function, byte[] data)
-        {
-            if(OnResponseData != null)OnResponseData(id, unit, function, data);
-        }
 
+        byte cnt = 1;
         // ------------------------------------------------------------------------
         /// <summary>Returns the exeption type </summary>
         /// <param name="FuncEx">Modbus Exeption Code.</param>
@@ -105,6 +97,20 @@ namespace IoTModbus
         {
             report = new Report();
             modbusTCP = new ModbusTCP("192.168.1.101", 502, report);
+            modbusTCP.OnResponseDataTCP += new ModbusTCP.ResponseDataTCP(ModbusTCP_OnResponseData);
+            modbusTCP.OnExceptionTCP += new ModbusTCP.ExceptionDataTCP(ModbusTCP_OnException); 
+        }
+
+        private void ModbusTCP_OnException(ushort id, byte unit, byte function, byte exception)
+        {
+            string exM = exMessage(exception);
+            disconnect();
+            if (OnException != null) OnException(id, unit, function, exM);
+        }
+
+        private void ModbusTCP_OnResponseData(ushort id, byte unit, byte function, byte[] data)
+        {
+            if (OnResponseData != null) OnResponseData(id, unit, function, data);
         }
 
         // ------------------------------------------------------------------------
@@ -123,7 +129,8 @@ namespace IoTModbus
         {
             //WRITE TEST
             byte[] test = BitConverter.GetBytes(0);
-            modbusTCP.sendTCP(5,1, 1, 1, 1, test);
+            modbusTCP.sendTCP(5,cnt, 1, 1, 1, test);
+            cnt++;
 
         }
         public void sendOn()
@@ -131,8 +138,8 @@ namespace IoTModbus
             //WRITE TEST
             byte[] test = BitConverter.GetBytes(255);
             //modbusTCP.send(5,1, 1, 1, 1, test);
-            modbusTCP.sendTCP(5, 1, 1, 16, 1,test);
-
+            modbusTCP.sendTCP(5, cnt, 1, 1, 1,test);
+            cnt++;
         }
         public void sendRead()
         {

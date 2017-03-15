@@ -40,7 +40,7 @@ namespace IoTModbus
                 this.BeginInvoke(new ComHandler.ResponseData(comHandler_OnResponseData), new object[] { id, unit, function, data });
                 return;
             }
-            this.txtMessages.AppendText("ID: " + id.ToString() + " Unit: " + unit.ToString() + " Function: " + function.ToString() +" Values: " +ByteArrayToString(data));
+            this.txtMessages.AppendText("ID: " + id.ToString() + " Unit: " + unit.ToString() + " Function: " + function.ToString() +" Values: " +ByteArrayToString(data) + "\r\n");
         }
 
 
@@ -56,6 +56,7 @@ namespace IoTModbus
 
         private void comHandler_OnException(ushort id, byte unit, byte function, string exMessage)
         {
+            tmr1.Stop();
             MessageBox.Show(exMessage, "Modbus Exception");
         }
 

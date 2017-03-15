@@ -23,7 +23,15 @@ namespace IoTModbus
         private static bool _connected = false;
         private byte[] tcpBuffer = new byte[15];
 
-
+        // ------------------------------------------------------------------------
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public delegate void ResponseDataTCP(ushort id, byte unit, byte function, byte[] data);
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public event ResponseDataTCP OnResponseDataTCP;
+        /// <summary>Exception data event. This event is called when the data is incorrect</summary>
+        public delegate void ExceptionDataTCP(ushort id, byte unit, byte function, byte exception);
+        /// <summary>Exception data event. This event is called when the data is incorrect</summary>
+        public event ExceptionDataTCP OnExceptionTCP;
 
         // ------------------------------------------------------------------------
         /// <summary>Write multiple registers in slave asynchronous. The result is given in the response function.</summary>
@@ -213,12 +221,13 @@ namespace IoTModbus
             byte unit = mbap[6];
             if(!ex)
             {
-                RaiseOnResponseData(id, unit, funcNr, data);
+                if (OnResponseDataTCP != null) OnResponseDataTCP(id, unit, funcNr, data);
                 System.Diagnostics.Debug.WriteLine("Response data = " + " FuncNumber = " + funcNr.ToString() + " Value " + ByteArrayToString(data));
             }
             else if(ex)
             {
-                RaiseOnException(id, unit, funcNr, data[0]);
+                if (OnExceptionTCP != null) OnExceptionTCP(id, unit, funcNr,data[0]);
+                System.Diagnostics.Debug.WriteLine("ExceptionData = " + " FuncNumber = " + funcNr.ToString() + " Value " + ByteArrayToString(data));
             }
 
         }

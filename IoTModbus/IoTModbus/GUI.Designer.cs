@@ -82,6 +82,7 @@
             this.ledDO3 = new System.Windows.Forms.PictureBox();
             this.ledDO1 = new System.Windows.Forms.PictureBox();
             this.Messages = new System.Windows.Forms.TabPage();
+            this.txtMessages = new System.Windows.Forms.TextBox();
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
@@ -92,7 +93,6 @@
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.grpSettings = new System.Windows.Forms.GroupBox();
-            this.txtMessages = new System.Windows.Forms.TextBox();
             this.tbcMain.SuspendLayout();
             this.tpgValues.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -154,7 +154,7 @@
             // 
             // btnSendOn
             // 
-            this.btnSendOn.Location = new System.Drawing.Point(355, 130);
+            this.btnSendOn.Location = new System.Drawing.Point(355, 49);
             this.btnSendOn.Margin = new System.Windows.Forms.Padding(2);
             this.btnSendOn.Name = "btnSendOn";
             this.btnSendOn.Size = new System.Drawing.Size(117, 27);
@@ -661,6 +661,14 @@
             this.Messages.Text = "Messages";
             this.Messages.UseVisualStyleBackColor = true;
             // 
+            // txtMessages
+            // 
+            this.txtMessages.Location = new System.Drawing.Point(4, 4);
+            this.txtMessages.Multiline = true;
+            this.txtMessages.Name = "txtMessages";
+            this.txtMessages.Size = new System.Drawing.Size(550, 349);
+            this.txtMessages.TabIndex = 5;
+            // 
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(168, 399);
@@ -763,14 +771,6 @@
             this.grpSettings.TabIndex = 7;
             this.grpSettings.TabStop = false;
             this.grpSettings.Text = "Settings";
-            // 
-            // txtMessages
-            // 
-            this.txtMessages.Location = new System.Drawing.Point(4, 4);
-            this.txtMessages.Multiline = true;
-            this.txtMessages.Name = "txtMessages";
-            this.txtMessages.Size = new System.Drawing.Size(550, 349);
-            this.txtMessages.TabIndex = 5;
             // 
             // GUI
             // 
