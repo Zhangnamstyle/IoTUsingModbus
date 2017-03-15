@@ -2,7 +2,6 @@ C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus
 C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\bin\Debug\IoTModbus.exe.config
 C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\bin\Debug\IoTModbus.exe
 C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\bin\Debug\IoTModbus.pdb
-C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\obj\Debug\IoTModbus.csprojResolveAssemblyReference.cache
 C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\obj\Debug\IoTModbus.GUI.resources
 C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\obj\Debug\IoTModbus.Properties.Resources.resources
 C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\obj\Debug\IoTModbus.csproj.GenerateResource.Cache

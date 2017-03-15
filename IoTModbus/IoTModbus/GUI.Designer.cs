@@ -33,7 +33,6 @@
             this.btnSend = new System.Windows.Forms.Button();
             this.btnSendOn = new System.Windows.Forms.Button();
             this.btnRead = new System.Windows.Forms.Button();
-            this.txtTransactions = new System.Windows.Forms.TextBox();
             this.tabRaw = new System.Windows.Forms.TabPage();
             this.tbcMain = new System.Windows.Forms.TabControl();
             this.tpgValues = new System.Windows.Forms.TabPage();
@@ -87,12 +86,13 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.btnResume = new System.Windows.Forms.Button();
+            this.btnPause = new System.Windows.Forms.Button();
             this.radioButton3 = new System.Windows.Forms.RadioButton();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.listView1 = new System.Windows.Forms.ListView();
-            this.btnPause = new System.Windows.Forms.Button();
-            this.btnResume = new System.Windows.Forms.Button();
+            this.grpSettings = new System.Windows.Forms.GroupBox();
+            this.txtMessages = new System.Windows.Forms.TextBox();
             this.tbcMain.SuspendLayout();
             this.tpgValues.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -118,13 +118,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.ledDO1)).BeginInit();
             this.Messages.SuspendLayout();
             this.groupBox5.SuspendLayout();
+            this.grpSettings.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnConnect
             // 
-            this.btnConnect.Location = new System.Drawing.Point(298, 22);
+            this.btnConnect.Location = new System.Drawing.Point(397, 28);
             this.btnConnect.Name = "btnConnect";
-            this.btnConnect.Size = new System.Drawing.Size(75, 23);
+            this.btnConnect.Size = new System.Drawing.Size(98, 23);
             this.btnConnect.TabIndex = 0;
             this.btnConnect.Text = "Connect";
             this.btnConnect.UseVisualStyleBackColor = true;
@@ -132,9 +133,9 @@
             // 
             // btnDisconnect
             // 
-            this.btnDisconnect.Location = new System.Drawing.Point(298, 51);
+            this.btnDisconnect.Location = new System.Drawing.Point(397, 57);
             this.btnDisconnect.Name = "btnDisconnect";
-            this.btnDisconnect.Size = new System.Drawing.Size(75, 23);
+            this.btnDisconnect.Size = new System.Drawing.Size(98, 23);
             this.btnDisconnect.TabIndex = 1;
             this.btnDisconnect.Text = "Disconnect";
             this.btnDisconnect.UseVisualStyleBackColor = true;
@@ -172,14 +173,6 @@
             this.btnRead.Text = "Send Read";
             this.btnRead.UseVisualStyleBackColor = true;
             this.btnRead.Click += new System.EventHandler(this.btnRead_Click);
-            // 
-            // txtTransactions
-            // 
-            this.txtTransactions.Location = new System.Drawing.Point(133, 11);
-            this.txtTransactions.Multiline = true;
-            this.txtTransactions.Name = "txtTransactions";
-            this.txtTransactions.Size = new System.Drawing.Size(125, 120);
-            this.txtTransactions.TabIndex = 5;
             // 
             // tabRaw
             // 
@@ -656,11 +649,11 @@
             // 
             // Messages
             // 
+            this.Messages.Controls.Add(this.txtMessages);
             this.Messages.Controls.Add(this.button3);
             this.Messages.Controls.Add(this.button2);
             this.Messages.Controls.Add(this.button1);
             this.Messages.Controls.Add(this.groupBox5);
-            this.Messages.Controls.Add(this.listView1);
             this.Messages.Location = new System.Drawing.Point(4, 22);
             this.Messages.Name = "Messages";
             this.Messages.Size = new System.Drawing.Size(557, 399);
@@ -709,6 +702,24 @@
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Representation";
             // 
+            // btnResume
+            // 
+            this.btnResume.Location = new System.Drawing.Point(314, 11);
+            this.btnResume.Name = "btnResume";
+            this.btnResume.Size = new System.Drawing.Size(75, 23);
+            this.btnResume.TabIndex = 4;
+            this.btnResume.Text = "Resume";
+            this.btnResume.UseVisualStyleBackColor = true;
+            // 
+            // btnPause
+            // 
+            this.btnPause.Location = new System.Drawing.Point(233, 11);
+            this.btnPause.Name = "btnPause";
+            this.btnPause.Size = new System.Drawing.Size(75, 23);
+            this.btnPause.TabIndex = 3;
+            this.btnPause.Text = "Pause";
+            this.btnPause.UseVisualStyleBackColor = true;
+            // 
             // radioButton3
             // 
             this.radioButton3.AutoSize = true;
@@ -742,41 +753,32 @@
             this.radioButton1.Text = "Hex";
             this.radioButton1.UseVisualStyleBackColor = true;
             // 
-            // listView1
+            // grpSettings
             // 
-            this.listView1.Location = new System.Drawing.Point(3, 3);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(549, 350);
-            this.listView1.TabIndex = 0;
-            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.grpSettings.Controls.Add(this.btnConnect);
+            this.grpSettings.Controls.Add(this.btnDisconnect);
+            this.grpSettings.Location = new System.Drawing.Point(15, 12);
+            this.grpSettings.Name = "grpSettings";
+            this.grpSettings.Size = new System.Drawing.Size(554, 95);
+            this.grpSettings.TabIndex = 7;
+            this.grpSettings.TabStop = false;
+            this.grpSettings.Text = "Settings";
             // 
-            // btnPause
+            // txtMessages
             // 
-            this.btnPause.Location = new System.Drawing.Point(233, 11);
-            this.btnPause.Name = "btnPause";
-            this.btnPause.Size = new System.Drawing.Size(75, 23);
-            this.btnPause.TabIndex = 3;
-            this.btnPause.Text = "Pause";
-            this.btnPause.UseVisualStyleBackColor = true;
-            // 
-            // btnResume
-            // 
-            this.btnResume.Location = new System.Drawing.Point(314, 11);
-            this.btnResume.Name = "btnResume";
-            this.btnResume.Size = new System.Drawing.Size(75, 23);
-            this.btnResume.TabIndex = 4;
-            this.btnResume.Text = "Resume";
-            this.btnResume.UseVisualStyleBackColor = true;
+            this.txtMessages.Location = new System.Drawing.Point(4, 4);
+            this.txtMessages.Multiline = true;
+            this.txtMessages.Name = "txtMessages";
+            this.txtMessages.Size = new System.Drawing.Size(550, 349);
+            this.txtMessages.TabIndex = 5;
             // 
             // GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(581, 590);
+            this.Controls.Add(this.grpSettings);
             this.Controls.Add(this.tbcMain);
-            this.Controls.Add(this.txtTransactions);
-            this.Controls.Add(this.btnDisconnect);
-            this.Controls.Add(this.btnConnect);
             this.Name = "GUI";
             this.Text = "Modbus Client For IoT";
             this.tbcMain.ResumeLayout(false);
@@ -807,10 +809,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.ledDO3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ledDO1)).EndInit();
             this.Messages.ResumeLayout(false);
+            this.Messages.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
+            this.grpSettings.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -821,7 +824,6 @@
         private System.Windows.Forms.Button btnSend;
         private System.Windows.Forms.Button btnSendOn;
         private System.Windows.Forms.Button btnRead;
-        private System.Windows.Forms.TextBox txtTransactions;
         private System.Windows.Forms.TabPage tabRaw;
         private System.Windows.Forms.TabControl tbcMain;
         private System.Windows.Forms.TabPage tpgValues;
@@ -878,9 +880,10 @@
         private System.Windows.Forms.RadioButton radioButton3;
         private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.Button btnResume;
         private System.Windows.Forms.Button btnPause;
+        private System.Windows.Forms.GroupBox grpSettings;
+        private System.Windows.Forms.TextBox txtMessages;
     }
 }
 

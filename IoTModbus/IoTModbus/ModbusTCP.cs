@@ -11,7 +11,7 @@ namespace IoTModbus
     /// <summary>
     /// Facade class for Modbus Communication using TCP/IP portocol.
     /// </summary>
-    class ModbusTCP
+    class ModbusTCP 
     {
         // ------------------------------------------------------------------------
         // Private declarations
@@ -30,10 +30,10 @@ namespace IoTModbus
         /// <param name="ip">IP adress of modbus slave.</param>
         /// <param name="port">Port number of modbus slave. Usually port 502 is used.</param>
         /// <param name="report">Object of class Report.</param>
-        public ModbusTCP(string ip, ushort port, Report report)
+        public ModbusTCP(string ip, ushort port, Report rep)
         {
-            _report = report; 
-            connect(ip, port);
+            _report = rep;
+            connectTCP(ip, port);
         }
         // ------------------------------------------------------------------------
         /// <summary>Send modbus message for reading over TCP</summary>
@@ -42,7 +42,7 @@ namespace IoTModbus
         /// <param name="unit">Unit identifier (previously slave address). In asynchonous mode this unit is given to the callback function.</param>
         /// <param name="startAddress">Address from where the data read begins.</param>
         /// <param name="numInputs">Length of data.</param>
-        public void send(byte funcNr,ushort id, byte unit, ushort startAddress, ushort numInputs)
+        public void sendTCP(byte funcNr,ushort id, byte unit, ushort startAddress, ushort numInputs)
         {
             byte[] head;
             byte[] pdu;
@@ -62,7 +62,7 @@ namespace IoTModbus
         /// <param name="startAddress">Address from where the data read begins.</param>
         /// <param name="numBits">Specifys number of bits.</param>
         /// <param name="values">Contains the bit information in byte format.</param>
-        public void send(byte funcNr,ushort id, byte unit, ushort startAddress,ushort numBits, byte[] values)
+        public void sendTCP(byte funcNr,ushort id, byte unit, ushort startAddress,ushort numBits, byte[] values)
         {
             byte numBytes;
             if (values.Length > 4) numBytes = Convert.ToByte(values.Length); //TODO: Debug and find right way to set numBytes
@@ -80,7 +80,7 @@ namespace IoTModbus
         /// <summary>Connects to the Modbus slave</summary>
         /// <param name="ip">IP adress of modbus slave.</param>
         /// <param name="port">Port number of modbus slave. Usually port 502 is used.</param>
-        private void connect(string ip, ushort port)
+        private void connectTCP(string ip, ushort port)
         {
             try
             {
@@ -205,13 +205,29 @@ namespace IoTModbus
 
             byte[] pdu;
             byte funcNr;
+            bool ex;
             byte[] mbap = ModbusADU.decodeADU(tcpBuffer,out pdu);
-            byte[] data = ModbusPDU.ReadPDU(pdu,out funcNr);
-            System.Diagnostics.Debug.WriteLine("Output data = " +" FuncNumber = " + funcNr.ToString() +" Value " +  ByteArrayToString(data));
+            byte[] data = ModbusPDU.ReadPDU(pdu,out funcNr,out ex);
 
+            ushort id = SwapUInt16(BitConverter.ToUInt16(mbap, 0));
+            byte unit = mbap[6];
+            if(!ex)
+            {
+                RaiseOnResponseData(id, unit, funcNr, data);
+                System.Diagnostics.Debug.WriteLine("Response data = " + " FuncNumber = " + funcNr.ToString() + " Value " + ByteArrayToString(data));
+            }
+            else if(ex)
+            {
+                RaiseOnException(id, unit, funcNr, data[0]);
+            }
 
         }
 
+        internal static UInt16 SwapUInt16(UInt16 inValue)
+        {
+            return (UInt16)(((inValue & 0xff00) >> 8) |
+                     ((inValue & 0x00ff) << 8));
+        }
 
     }
     }

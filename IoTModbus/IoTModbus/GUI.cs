@@ -28,7 +28,35 @@ namespace IoTModbus
             if (comHandler == null)
             {
                 comHandler = new ComHandler();
+                comHandler.OnResponseData += new IoTModbus.ComHandler.ResponseData(comHandler_OnResponseData);
+                comHandler.OnException += new IoTModbus.ComHandler.ExceptionData(comHandler_OnException);
             }
+        }
+
+        private void comHandler_OnResponseData(ushort id, byte unit, byte function, byte[] data)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new ComHandler.ResponseData(comHandler_OnResponseData), new object[] { id, unit, function, data });
+                return;
+            }
+            this.txtMessages.AppendText("ID: " + id.ToString() + " Unit: " + unit.ToString() + " Function: " + function.ToString() +" Values: " +ByteArrayToString(data));
+        }
+
+
+        // ------------------------------------------------------------------------
+        /// <summary>Writes the adu to the Modbus Slave</summary>
+        public static string ByteArrayToString(byte[] ba)
+        {
+            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            foreach (byte b in ba)
+                hex.AppendFormat("{0:x2}", b);
+            return hex.ToString();
+        }
+
+        private void comHandler_OnException(ushort id, byte unit, byte function, string exMessage)
+        {
+            MessageBox.Show(exMessage, "Modbus Exception");
         }
 
         private void btnDisconnect_Click(object sender, EventArgs e)
