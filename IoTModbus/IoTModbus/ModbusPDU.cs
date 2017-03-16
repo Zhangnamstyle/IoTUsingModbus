@@ -22,7 +22,7 @@ namespace IoTModbus
         private const byte fctWriteSingleRegister = 6;
         private const byte fctWriteMultipleCoils = 15;
         private const byte fctWriteMultipleRegister = 16;
-        private const byte fctDiagnostics = 8;
+        private const byte fctDiagnostics = 8; // Not Implement
         private const byte fctReportSlaveId = 11;
 
         private const byte excExceptionOffset = 128;
@@ -43,11 +43,27 @@ namespace IoTModbus
             pdu[2] = _adr[1];
             if(funcNr >= fctWriteMultipleCoils) //Larger or equal to function number for multiple coils
             {
-                byte[] _cnt = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)numData));
-                pdu[3] = _cnt[0];			// Number of bytes
-                pdu[4] = _cnt[1];			// Number of bytes
-                pdu[5] = (byte)(numBytes - 2);
-                Array.Copy(values, 0, pdu, 6, numBytes);
+                numBytes = Convert.ToUInt16(numBytes - 2);
+
+                if (funcNr == fctWriteMultipleRegister)
+                {
+                    
+                    numData = Convert.ToUInt16((numBytes ) / 2);
+                    byte[] _cnt = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)numData));
+                    pdu[3] = _cnt[0];           // Number of bytes
+                    pdu[4] = _cnt[1];           // Number of bytes
+                    pdu[5] = (byte)(numBytes - 2);
+                    Array.Copy(values, 0, pdu, 6, numBytes);
+                }
+                else if (funcNr == fctWriteMultipleCoils)
+                {
+
+                    byte[] _cnt = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)numData));
+                    pdu[3] = _cnt[0];           // Number of bytes
+                    pdu[4] = _cnt[1];           // Number of bytes
+                    pdu[5] = (byte)(numBytes);
+                    Array.Copy(values, 0, pdu, 6, numBytes);
+                }
             }
             else
             {
@@ -64,7 +80,6 @@ namespace IoTModbus
         /// <param name="length">Number of data to read</param>
         public static byte[] CreatePDU(byte funcNr, ushort startAddress,ushort length)
         {
-
             byte[] pdu = new byte[5];
             pdu[0] = funcNr;
             byte[] _adr = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)startAddress));

@@ -75,7 +75,7 @@ namespace IoTModbus
         private void btnSend_Click(object sender, EventArgs e)
         {
             tmr1 = new Timer();
-            tmr1.Interval = 1000;
+            tmr1.Interval = 100;
             tmr1.Tick += Tmr1_Tick;
             tmr1.Start();
             
@@ -86,6 +86,7 @@ namespace IoTModbus
             if (cnt == 0)
             {
                 comHandler.sendOn();
+
                 cnt = 1;
             }
             else if(cnt == 1)
@@ -98,12 +99,15 @@ namespace IoTModbus
 
         private void btnSendOn_Click(object sender, EventArgs e)
         {
-            tmr1.Stop();
+            if (tmr1 != null)
+            {
+                tmr1.Stop();
+            }
         }
 
         private void btnRead_Click(object sender, EventArgs e)
         {
-            PDF.createPDF();
+            //PDF.createPDF();
         }
 
     }

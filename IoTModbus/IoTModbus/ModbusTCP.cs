@@ -23,6 +23,10 @@ namespace IoTModbus
         private static bool _connected = false;
         private byte[] tcpBuffer = new byte[15];
 
+        private ushort _id;
+
+        List<Transaction> transactions = new List<Transaction>();
+
         // ------------------------------------------------------------------------
         /// <summary>Response data event. This event is called when new data arrives</summary>
         public delegate void ResponseDataTCP(ushort id, byte unit, byte function, byte[] data);
@@ -73,13 +77,12 @@ namespace IoTModbus
         public void sendTCP(byte funcNr,ushort id, byte unit, ushort startAddress,ushort numBits, byte[] values)
         {
             byte numBytes;
-            if (values.Length > 4) numBytes = Convert.ToByte(values.Length); //TODO: Debug and find right way to set numBytes
-            else  numBytes = 1; 
+            numBytes = Convert.ToByte(values.Length); //TODO: Debug and find right way to set numBytes
             byte[] head;
             byte[] pdu;
             byte[] adu;
             head = createMBAP(id, unit, numBytes);
-            pdu = ModbusPDU.CreatePDU(funcNr, startAddress, numBytes,1,values);
+            pdu = ModbusPDU.CreatePDU(funcNr, startAddress, (byte)(numBytes + 2),numBits,values);
             adu = ModbusADU.createADU(head, pdu);
             WriteData(adu, id);
         }
@@ -142,7 +145,7 @@ namespace IoTModbus
             byte[] _id = BitConverter.GetBytes((short)id);
             mbap[0] = _id[1];           //Slave id high byte
             mbap[1] = _id[0];           //Slave id low byte
-            byte[] _size = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)(5 + 5))); //TODO: Needs to find size of numBytes
+            byte[] _size = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)(5 + numBytes))); //TODO: Needs to find size of numBytes
             mbap[4] = _size[0];			// Complete message size in bytes
             mbap[5] = _size[1];         // Complete message size in bytes
             mbap[6] = unit;             // Slave Adress
@@ -174,10 +177,17 @@ namespace IoTModbus
                 {
                     if (netStream.CanWrite)
                     {
-                        string s = ByteArrayToString(adu);
-                        System.Diagnostics.Debug.WriteLine(s);
-                        netStream.BeginWrite(adu, 0, adu.Length, new AsyncCallback(recieveCallBack), netStream);
-                        netStream.BeginRead(tcpBuffer, 0, tcpBuffer.Length, new AsyncCallback(OnReceive), netStream);
+                        bool notUnique = transactions.Any(p => p.tId == id);
+                        if (notUnique) { }    //TODO: Create Error handling 
+                        else
+                        {
+
+                            string s = ByteArrayToString(adu);
+                            System.Diagnostics.Debug.WriteLine(s); //Remove when release
+                            _id = id;
+                            netStream.BeginWrite(adu, 0, adu.Length, new AsyncCallback(recieveCallBack), id);
+                            netStream.BeginRead(tcpBuffer, 0, tcpBuffer.Length, new AsyncCallback(OnReceive), id);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -202,7 +212,9 @@ namespace IoTModbus
         private void recieveCallBack(IAsyncResult ar)
         {
             if (ar.IsCompleted == false) { } //TODO: Add Exeption
-            netStream.EndWrite(ar); 
+            ushort tId = (ushort)ar.AsyncState;
+            netStream.EndWrite(ar);
+            transactions.Add(new Transaction(tId));
         }
 
         // ------------------------------------------------------------------------
@@ -210,6 +222,12 @@ namespace IoTModbus
         private void OnReceive(System.IAsyncResult ar)
         {
             if (ar.IsCompleted == false) { } //TODO: Add Exeption
+
+            ushort tId = (ushort)ar.AsyncState;
+            var itemToRemove = transactions.SingleOrDefault(p => p.tId == tId);
+            if (itemToRemove != null) transactions.Remove(itemToRemove);
+            checkForTimeout();
+
 
             byte[] pdu;
             byte funcNr;
@@ -232,11 +250,33 @@ namespace IoTModbus
 
         }
 
+        private void checkForTimeout()
+        {
+            //foreach(Transaction transaction in transactions)
+            //{
+            //    bool tOut = transaction.Timeout();
+            //    if (tOut)
+            //    {
+            //        //TODO: Add code for reporting timeout object
+            //        transactions.Remove(transaction);
+            //    }
+            //}
+            var itemToRemove = transactions.SingleOrDefault(p => p.tDiff >= 5);
+            if (itemToRemove != null)
+            {
+                //TODO: Report Id and timeouttime
+                transactions.Remove(itemToRemove);
+            }
+
+        }
+
         internal static UInt16 SwapUInt16(UInt16 inValue)
         {
             return (UInt16)(((inValue & 0xff00) >> 8) |
                      ((inValue & 0x00ff) << 8));
         }
+
+        
 
     }
     }
