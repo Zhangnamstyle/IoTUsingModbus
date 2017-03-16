@@ -33,9 +33,10 @@ namespace IoTModbus
         /// <param name="numBytes">Specifys number of bytes.</param>
         /// <param name="numData">Specifys number of Data.</param>
         /// <param name="values">Contains the bit information in byte format.</param>
-        public static byte[] CreatePDU(byte funcNr,ushort startAddress,ushort numBytes,ushort numData,byte[] values)
+        public static byte[] CreatePDU(byte funcNr,ushort startAddress,ushort numBytes,ushort numData,byte[] values,out ushort _numBytes)
         {
-
+            if (funcNr >= fctWriteMultipleCoils) numBytes = (byte)(numBytes + 2);
+            _numBytes = numBytes;
             byte[] pdu = new byte[numBytes + 4];
             pdu[0] = funcNr;
             byte[] _adr = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)startAddress));
@@ -44,15 +45,14 @@ namespace IoTModbus
             if(funcNr >= fctWriteMultipleCoils) //Larger or equal to function number for multiple coils
             {
                 numBytes = Convert.ToUInt16(numBytes - 2);
-
                 if (funcNr == fctWriteMultipleRegister)
                 {
-                    
+                    if (numBytes % 2 > 0) numBytes++;
                     numData = Convert.ToUInt16((numBytes ) / 2);
                     byte[] _cnt = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)numData));
                     pdu[3] = _cnt[0];           // Number of bytes
                     pdu[4] = _cnt[1];           // Number of bytes
-                    pdu[5] = (byte)(numBytes - 2);
+                    pdu[5] = (byte)(numBytes);
                     Array.Copy(values, 0, pdu, 6, numBytes);
                 }
                 else if (funcNr == fctWriteMultipleCoils)
@@ -65,11 +65,16 @@ namespace IoTModbus
                     Array.Copy(values, 0, pdu, 6, numBytes);
                 }
             }
+            else if(funcNr == fctWriteSingleCoil)
+            {
+                pdu[3] = values[0];
+            }
             else
             {
                 pdu[3] = values[0];
                 pdu[4] = values[1];
             }
+
             return pdu;
         }
 

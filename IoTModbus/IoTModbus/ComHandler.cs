@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Net;
+using System.Collections;
 
 namespace IoTModbus
 {
@@ -126,83 +128,33 @@ namespace IoTModbus
             }
         }
 
-
-        public void sendOff()
+        // ------------------------------------------------------------------------
+        /// <summary>Sends a write message to IoT Device </summary>
+        /// <param name="funcNr">Modbus Function Code.</param>
+        /// <param name="tId">Transaction Id. This needs to be unique</param>
+        /// <param name="unit"></param>
+        /// <param name="startAddress"></param>
+        /// <param name="numBits"></param>
+        /// <param name="values"></param>
+        public void send(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numBits, byte[] values)
         {
-            //WRITE TEST
-            //bool[] input = new bool[4] { true, false, false,false};
-            //byte[] test = BitConverter.GetBytes(0);
-
-            //modbusTCP.sendTCP(5, cnt, 1, 0, 1,test);
-            //cnt++;
-            //Thread.Sleep(50);
-            //modbusTCP.sendTCP(5, cnt, 1, 1, 1, test);
-            //cnt++;
-            //Thread.Sleep(50);
-            //modbusTCP.sendTCP(5, cnt, 1, 2, 1, test);
-            //cnt++;
-            //Thread.Sleep(50);
-            //modbusTCP.sendTCP(5, cnt, 1, 3, 1, test);
-            //cnt++;
-            //Thread.Sleep(50);
-            ushort[] input = new ushort[] { 30000, 25000 };
-            byte[] target = new byte[input.Length * 2];
-            Buffer.BlockCopy(input, 0, target, 0, input.Length * 2);
-            modbusTCP.sendTCP(16, cnt, 1, 4, 2, target);
-
-        }
-        public void sendOn()
-        {
-            //WRITE TEST
-            ////bool[] input = new bool[4] { true, true, false, false};
-            //byte[] test = { 255 };
-            ////modbusTCP.send(5,1, 1, 1, 1, test);
-            //modbusTCP.sendTCP(15, cnt, 1, 0, 4,test);
-            //byte[] test = BitConverter.GetBytes(255);
-
-            //modbusTCP.sendTCP(5, cnt, 1, 0, 1, test);
-            //cnt++;
-            //Thread.Sleep(50);
-            //modbusTCP.sendTCP(5, cnt, 1, 1, 1, test);
-            //cnt++;
-            //Thread.Sleep(50);
-            //modbusTCP.sendTCP(5, cnt, 1, 2, 1, test);
-            //cnt++;
-            //Thread.Sleep(50);
-            //modbusTCP.sendTCP(5, cnt, 1, 3, 1, test);
-            //cnt++;
-            //Thread.Sleep(50);
-        }
-        public void sendRead()
-        {
-            modbusTCP.sendTCP(2,1, 1, 0, 4);
+            modbusTCP.sendTCP(funcNr, tId, unit, startAddress, numBits, values);
         }
 
-        public static byte[] conToBA(bool[] bits)
+        // ------------------------------------------------------------------------
+        /// <summary>Sends a read message to IoT Device </summary>
+        /// <param name="funcNr">Modbus Function Code.</param>
+        /// <param name="tId">Transaction Id. This needs to be unique</param>
+        /// <param name="unit"></param>
+        /// <param name="startAddress"></param>
+        /// <param name="numBits"></param>
+        /// <param name="values"></param>
+        public void send(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numInputs)
         {
-            int numBytes = bits.Length / 8;
-            int bitEven = bits.Length % 8;
-            if(bitEven != 0)
-            {
-                numBytes++;
-            }
-            Array.Reverse(bits);
-            byte[] bytes = new byte[numBytes];
-            int byteIndex = 0; int bitIndex = 0;
-            for (int i = 0; i < bits.Length; i++)
-            {
-                if (bits[i])
-                    bytes[byteIndex] |= (byte)(1 << (7 - bitIndex));
-
-                bitIndex++;
-                if (bitIndex == 8)
-                {
-                    bitIndex = 0;
-                    byteIndex++;
-                }
-            }
-            Array.Reverse(bytes);
-            return bytes;
+            modbusTCP.sendTCP(funcNr, tId, unit, startAddress, numInputs);
         }
+
+
+
     }
 }

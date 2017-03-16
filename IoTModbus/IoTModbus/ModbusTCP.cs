@@ -54,15 +54,15 @@ namespace IoTModbus
         /// <param name="unit">Unit identifier (previously slave address). In asynchonous mode this unit is given to the callback function.</param>
         /// <param name="startAddress">Address from where the data read begins.</param>
         /// <param name="numInputs">Length of data.</param>
-        public void sendTCP(byte funcNr,ushort id, byte unit, ushort startAddress, ushort numInputs)
+        public void sendTCP(byte funcNr,ushort tId, byte unit, ushort startAddress, ushort numInputs)
         {
             byte[] head;
             byte[] pdu;
             byte[] adu;
-            head = createMBAP(id, unit);
+            head = createMBAP(tId, unit);
             pdu = ModbusPDU.CreatePDU(funcNr, startAddress, numInputs);
             adu = ModbusADU.createADU(head, pdu);
-            WriteData(adu, id);
+            WriteData(adu, tId);
             
         }
 
@@ -74,17 +74,18 @@ namespace IoTModbus
         /// <param name="startAddress">Address from where the data read begins.</param>
         /// <param name="numBits">Specifys number of bits.</param>
         /// <param name="values">Contains the bit information in byte format.</param>
-        public void sendTCP(byte funcNr,ushort id, byte unit, ushort startAddress,ushort numBits, byte[] values)
+        public void sendTCP(byte funcNr,ushort tId, byte unit, ushort startAddress,ushort numBits, byte[] values)
         {
             byte numBytes;
             numBytes = Convert.ToByte(values.Length); //TODO: Debug and find right way to set numBytes
             byte[] head;
             byte[] pdu;
             byte[] adu;
-            head = createMBAP(id, unit, numBytes);
-            pdu = ModbusPDU.CreatePDU(funcNr, startAddress, (byte)(numBytes + 2),numBits,values);
+            ushort nBytes;
+            pdu = ModbusPDU.CreatePDU(funcNr, startAddress, numBytes, numBits, values, out nBytes);
+            head = createMBAP(tId, unit, nBytes);
             adu = ModbusADU.createADU(head, pdu);
-            WriteData(adu, id);
+            WriteData(adu, tId);
         }
 
         // ------------------------------------------------------------------------
@@ -252,15 +253,7 @@ namespace IoTModbus
 
         private void checkForTimeout()
         {
-            //foreach(Transaction transaction in transactions)
-            //{
-            //    bool tOut = transaction.Timeout();
-            //    if (tOut)
-            //    {
-            //        //TODO: Add code for reporting timeout object
-            //        transactions.Remove(transaction);
-            //    }
-            //}
+
             var itemToRemove = transactions.SingleOrDefault(p => p.tDiff >= 5);
             if (itemToRemove != null)
             {

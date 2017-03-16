@@ -30,12 +30,17 @@
         {
             this.btnConnect = new System.Windows.Forms.Button();
             this.btnDisconnect = new System.Windows.Forms.Button();
-            this.btnSend = new System.Windows.Forms.Button();
-            this.btnSendOn = new System.Windows.Forms.Button();
             this.btnRead = new System.Windows.Forms.Button();
             this.tabRaw = new System.Windows.Forms.TabPage();
             this.tbcMain = new System.Windows.Forms.TabControl();
             this.tpgValues = new System.Windows.Forms.TabPage();
+            this.btnWriteSR = new System.Windows.Forms.Button();
+            this.btnWriteSCoil = new System.Windows.Forms.Button();
+            this.btnReadInputReg = new System.Windows.Forms.Button();
+            this.btnReadDis = new System.Windows.Forms.Button();
+            this.btnReadHoldings = new System.Windows.Forms.Button();
+            this.btnWriteHoldings = new System.Windows.Forms.Button();
+            this.btnWriteCoils = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.textBox21 = new System.Windows.Forms.TextBox();
             this.textBox20 = new System.Windows.Forms.TextBox();
@@ -66,7 +71,21 @@
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.tbpSimulator = new System.Windows.Forms.TabPage();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.pictureBox3 = new System.Windows.Forms.PictureBox();
+            this.pictureBox4 = new System.Windows.Forms.PictureBox();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.ledAO2 = new System.Windows.Forms.PictureBox();
+            this.ledAO1 = new System.Windows.Forms.PictureBox();
+            this.knoAI2 = new System.Windows.Forms.PictureBox();
+            this.knoAI1 = new System.Windows.Forms.PictureBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.swiDI2 = new System.Windows.Forms.PictureBox();
+            this.swiDI1 = new System.Windows.Forms.PictureBox();
+            this.ledDO2 = new System.Windows.Forms.PictureBox();
+            this.ledDO4 = new System.Windows.Forms.PictureBox();
+            this.ledDO3 = new System.Windows.Forms.PictureBox();
+            this.ledDO1 = new System.Windows.Forms.PictureBox();
             this.Messages = new System.Windows.Forms.TabPage();
             this.txtMessages = new System.Windows.Forms.TextBox();
             this.button3 = new System.Windows.Forms.Button();
@@ -79,24 +98,10 @@
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.grpSettings = new System.Windows.Forms.GroupBox();
-            this.txtIP = new System.Windows.Forms.TextBox();
-            this.txtPort = new System.Windows.Forms.TextBox();
-            this.lblIP = new System.Windows.Forms.Label();
             this.lblPort = new System.Windows.Forms.Label();
-            this.pictureBox3 = new System.Windows.Forms.PictureBox();
-            this.pictureBox4 = new System.Windows.Forms.PictureBox();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.ledAO2 = new System.Windows.Forms.PictureBox();
-            this.ledAO1 = new System.Windows.Forms.PictureBox();
-            this.knoAI2 = new System.Windows.Forms.PictureBox();
-            this.knoAI1 = new System.Windows.Forms.PictureBox();
-            this.swiDI2 = new System.Windows.Forms.PictureBox();
-            this.swiDI1 = new System.Windows.Forms.PictureBox();
-            this.ledDO2 = new System.Windows.Forms.PictureBox();
-            this.ledDO4 = new System.Windows.Forms.PictureBox();
-            this.ledDO3 = new System.Windows.Forms.PictureBox();
-            this.ledDO1 = new System.Windows.Forms.PictureBox();
+            this.lblIP = new System.Windows.Forms.Label();
+            this.txtPort = new System.Windows.Forms.TextBox();
+            this.txtIP = new System.Windows.Forms.TextBox();
             this.tbcMain.SuspendLayout();
             this.tpgValues.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -105,10 +110,6 @@
             this.groupBox1.SuspendLayout();
             this.tbpSimulator.SuspendLayout();
             this.panel2.SuspendLayout();
-            this.panel1.SuspendLayout();
-            this.Messages.SuspendLayout();
-            this.groupBox5.SuspendLayout();
-            this.grpSettings.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -117,12 +118,16 @@
             ((System.ComponentModel.ISupportInitialize)(this.ledAO1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.knoAI2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.knoAI1)).BeginInit();
+            this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.swiDI2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.swiDI1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ledDO2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ledDO4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ledDO3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ledDO1)).BeginInit();
+            this.Messages.SuspendLayout();
+            this.groupBox5.SuspendLayout();
+            this.grpSettings.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnConnect
@@ -145,36 +150,14 @@
             this.btnDisconnect.UseVisualStyleBackColor = true;
             this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
             // 
-            // btnSend
-            // 
-            this.btnSend.Location = new System.Drawing.Point(355, 105);
-            this.btnSend.Margin = new System.Windows.Forms.Padding(2);
-            this.btnSend.Name = "btnSend";
-            this.btnSend.Size = new System.Drawing.Size(117, 21);
-            this.btnSend.TabIndex = 2;
-            this.btnSend.Text = "Send Off";
-            this.btnSend.UseVisualStyleBackColor = true;
-            this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
-            // 
-            // btnSendOn
-            // 
-            this.btnSendOn.Location = new System.Drawing.Point(355, 49);
-            this.btnSendOn.Margin = new System.Windows.Forms.Padding(2);
-            this.btnSendOn.Name = "btnSendOn";
-            this.btnSendOn.Size = new System.Drawing.Size(117, 27);
-            this.btnSendOn.TabIndex = 3;
-            this.btnSendOn.Text = "Send On";
-            this.btnSendOn.UseVisualStyleBackColor = true;
-            this.btnSendOn.Click += new System.EventHandler(this.btnSendOn_Click);
-            // 
             // btnRead
             // 
-            this.btnRead.Location = new System.Drawing.Point(452, 112);
+            this.btnRead.Location = new System.Drawing.Point(353, 53);
             this.btnRead.Margin = new System.Windows.Forms.Padding(2);
             this.btnRead.Name = "btnRead";
-            this.btnRead.Size = new System.Drawing.Size(117, 21);
+            this.btnRead.Size = new System.Drawing.Size(89, 21);
             this.btnRead.TabIndex = 4;
-            this.btnRead.Text = "Create PDF";
+            this.btnRead.Text = "Read Coils";
             this.btnRead.UseVisualStyleBackColor = true;
             this.btnRead.Click += new System.EventHandler(this.btnRead_Click);
             // 
@@ -200,11 +183,17 @@
             // 
             // tpgValues
             // 
+            this.tpgValues.Controls.Add(this.btnWriteSR);
+            this.tpgValues.Controls.Add(this.btnWriteSCoil);
+            this.tpgValues.Controls.Add(this.btnReadInputReg);
+            this.tpgValues.Controls.Add(this.btnReadDis);
+            this.tpgValues.Controls.Add(this.btnReadHoldings);
+            this.tpgValues.Controls.Add(this.btnWriteHoldings);
+            this.tpgValues.Controls.Add(this.btnWriteCoils);
+            this.tpgValues.Controls.Add(this.btnRead);
             this.tpgValues.Controls.Add(this.groupBox4);
             this.tpgValues.Controls.Add(this.groupBox3);
             this.tpgValues.Controls.Add(this.groupBox2);
-            this.tpgValues.Controls.Add(this.btnSendOn);
-            this.tpgValues.Controls.Add(this.btnSend);
             this.tpgValues.Controls.Add(this.groupBox1);
             this.tpgValues.Location = new System.Drawing.Point(4, 22);
             this.tpgValues.Name = "tpgValues";
@@ -213,6 +202,76 @@
             this.tpgValues.TabIndex = 0;
             this.tpgValues.Text = "Values";
             this.tpgValues.UseVisualStyleBackColor = true;
+            // 
+            // btnWriteSR
+            // 
+            this.btnWriteSR.Location = new System.Drawing.Point(448, 139);
+            this.btnWriteSR.Name = "btnWriteSR";
+            this.btnWriteSR.Size = new System.Drawing.Size(89, 23);
+            this.btnWriteSR.TabIndex = 12;
+            this.btnWriteSR.Text = "Write S. Reg";
+            this.btnWriteSR.UseVisualStyleBackColor = true;
+            this.btnWriteSR.Click += new System.EventHandler(this.btnWriteSR_Click);
+            // 
+            // btnWriteSCoil
+            // 
+            this.btnWriteSCoil.Location = new System.Drawing.Point(447, 109);
+            this.btnWriteSCoil.Name = "btnWriteSCoil";
+            this.btnWriteSCoil.Size = new System.Drawing.Size(89, 23);
+            this.btnWriteSCoil.TabIndex = 11;
+            this.btnWriteSCoil.Text = "Write S. Coil";
+            this.btnWriteSCoil.UseVisualStyleBackColor = true;
+            this.btnWriteSCoil.Click += new System.EventHandler(this.btnWriteSCoil_Click);
+            // 
+            // btnReadInputReg
+            // 
+            this.btnReadInputReg.Location = new System.Drawing.Point(353, 139);
+            this.btnReadInputReg.Name = "btnReadInputReg";
+            this.btnReadInputReg.Size = new System.Drawing.Size(89, 23);
+            this.btnReadInputReg.TabIndex = 10;
+            this.btnReadInputReg.Text = "Read I. Reg";
+            this.btnReadInputReg.UseVisualStyleBackColor = true;
+            this.btnReadInputReg.Click += new System.EventHandler(this.btnReadInputReg_Click);
+            // 
+            // btnReadDis
+            // 
+            this.btnReadDis.Location = new System.Drawing.Point(353, 110);
+            this.btnReadDis.Name = "btnReadDis";
+            this.btnReadDis.Size = new System.Drawing.Size(89, 23);
+            this.btnReadDis.TabIndex = 9;
+            this.btnReadDis.Text = "Read Discrete";
+            this.btnReadDis.UseVisualStyleBackColor = true;
+            this.btnReadDis.Click += new System.EventHandler(this.btnReadDis_Click);
+            // 
+            // btnReadHoldings
+            // 
+            this.btnReadHoldings.Location = new System.Drawing.Point(353, 80);
+            this.btnReadHoldings.Name = "btnReadHoldings";
+            this.btnReadHoldings.Size = new System.Drawing.Size(89, 23);
+            this.btnReadHoldings.TabIndex = 8;
+            this.btnReadHoldings.Text = "Read Holdings";
+            this.btnReadHoldings.UseVisualStyleBackColor = true;
+            this.btnReadHoldings.Click += new System.EventHandler(this.btnReadHoldings_Click);
+            // 
+            // btnWriteHoldings
+            // 
+            this.btnWriteHoldings.Location = new System.Drawing.Point(448, 80);
+            this.btnWriteHoldings.Name = "btnWriteHoldings";
+            this.btnWriteHoldings.Size = new System.Drawing.Size(89, 23);
+            this.btnWriteHoldings.TabIndex = 7;
+            this.btnWriteHoldings.Text = "Write Holdings";
+            this.btnWriteHoldings.UseVisualStyleBackColor = true;
+            this.btnWriteHoldings.Click += new System.EventHandler(this.btnWriteHoldings_Click);
+            // 
+            // btnWriteCoils
+            // 
+            this.btnWriteCoils.Location = new System.Drawing.Point(447, 53);
+            this.btnWriteCoils.Name = "btnWriteCoils";
+            this.btnWriteCoils.Size = new System.Drawing.Size(89, 21);
+            this.btnWriteCoils.TabIndex = 6;
+            this.btnWriteCoils.Text = "Write Coils";
+            this.btnWriteCoils.UseVisualStyleBackColor = true;
+            this.btnWriteCoils.Click += new System.EventHandler(this.btnWriteCoils_Click);
             // 
             // groupBox4
             // 
@@ -500,6 +559,82 @@
             this.panel2.Size = new System.Drawing.Size(329, 242);
             this.panel2.TabIndex = 1;
             // 
+            // pictureBox3
+            // 
+            this.pictureBox3.Image = global::IoTModbus.Properties.Resources.aOutR;
+            this.pictureBox3.Location = new System.Drawing.Point(273, 24);
+            this.pictureBox3.Name = "pictureBox3";
+            this.pictureBox3.Size = new System.Drawing.Size(28, 28);
+            this.pictureBox3.TabIndex = 10;
+            this.pictureBox3.TabStop = false;
+            // 
+            // pictureBox4
+            // 
+            this.pictureBox4.Image = global::IoTModbus.Properties.Resources.aOutB;
+            this.pictureBox4.Location = new System.Drawing.Point(273, 81);
+            this.pictureBox4.Name = "pictureBox4";
+            this.pictureBox4.Size = new System.Drawing.Size(28, 28);
+            this.pictureBox4.TabIndex = 9;
+            this.pictureBox4.TabStop = false;
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Image = global::IoTModbus.Properties.Resources.aOutR;
+            this.pictureBox2.Location = new System.Drawing.Point(273, 141);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(28, 28);
+            this.pictureBox2.TabIndex = 8;
+            this.pictureBox2.TabStop = false;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = global::IoTModbus.Properties.Resources.aOutB;
+            this.pictureBox1.Location = new System.Drawing.Point(273, 195);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(28, 28);
+            this.pictureBox1.TabIndex = 7;
+            this.pictureBox1.TabStop = false;
+            // 
+            // ledAO2
+            // 
+            this.ledAO2.Image = global::IoTModbus.Properties.Resources.greyOff;
+            this.ledAO2.InitialImage = null;
+            this.ledAO2.Location = new System.Drawing.Point(163, 169);
+            this.ledAO2.Name = "ledAO2";
+            this.ledAO2.Size = new System.Drawing.Size(25, 25);
+            this.ledAO2.TabIndex = 6;
+            this.ledAO2.TabStop = false;
+            // 
+            // ledAO1
+            // 
+            this.ledAO1.Image = global::IoTModbus.Properties.Resources.greyOff;
+            this.ledAO1.InitialImage = null;
+            this.ledAO1.Location = new System.Drawing.Point(163, 54);
+            this.ledAO1.Name = "ledAO1";
+            this.ledAO1.Size = new System.Drawing.Size(25, 25);
+            this.ledAO1.TabIndex = 6;
+            this.ledAO1.TabStop = false;
+            // 
+            // knoAI2
+            // 
+            this.knoAI2.Image = global::IoTModbus.Properties.Resources.KnobM;
+            this.knoAI2.InitialImage = null;
+            this.knoAI2.Location = new System.Drawing.Point(51, 142);
+            this.knoAI2.Name = "knoAI2";
+            this.knoAI2.Size = new System.Drawing.Size(78, 78);
+            this.knoAI2.TabIndex = 1;
+            this.knoAI2.TabStop = false;
+            // 
+            // knoAI1
+            // 
+            this.knoAI1.Image = global::IoTModbus.Properties.Resources.KnobM;
+            this.knoAI1.InitialImage = null;
+            this.knoAI1.Location = new System.Drawing.Point(51, 25);
+            this.knoAI1.Name = "knoAI1";
+            this.knoAI1.Size = new System.Drawing.Size(78, 78);
+            this.knoAI1.TabIndex = 0;
+            this.knoAI1.TabStop = false;
+            // 
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -513,6 +648,66 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(224, 242);
             this.panel1.TabIndex = 0;
+            // 
+            // swiDI2
+            // 
+            this.swiDI2.Image = global::IoTModbus.Properties.Resources.switchM;
+            this.swiDI2.InitialImage = null;
+            this.swiDI2.Location = new System.Drawing.Point(87, 169);
+            this.swiDI2.Name = "swiDI2";
+            this.swiDI2.Size = new System.Drawing.Size(28, 28);
+            this.swiDI2.TabIndex = 5;
+            this.swiDI2.TabStop = false;
+            // 
+            // swiDI1
+            // 
+            this.swiDI1.Image = global::IoTModbus.Properties.Resources.switchM;
+            this.swiDI1.InitialImage = null;
+            this.swiDI1.Location = new System.Drawing.Point(87, 51);
+            this.swiDI1.Name = "swiDI1";
+            this.swiDI1.Size = new System.Drawing.Size(28, 28);
+            this.swiDI1.TabIndex = 4;
+            this.swiDI1.TabStop = false;
+            // 
+            // ledDO2
+            // 
+            this.ledDO2.Image = global::IoTModbus.Properties.Resources.greenOff;
+            this.ledDO2.InitialImage = null;
+            this.ledDO2.Location = new System.Drawing.Point(167, 54);
+            this.ledDO2.Name = "ledDO2";
+            this.ledDO2.Size = new System.Drawing.Size(25, 25);
+            this.ledDO2.TabIndex = 3;
+            this.ledDO2.TabStop = false;
+            // 
+            // ledDO4
+            // 
+            this.ledDO4.Image = global::IoTModbus.Properties.Resources.greenOff;
+            this.ledDO4.InitialImage = null;
+            this.ledDO4.Location = new System.Drawing.Point(167, 169);
+            this.ledDO4.Name = "ledDO4";
+            this.ledDO4.Size = new System.Drawing.Size(25, 25);
+            this.ledDO4.TabIndex = 2;
+            this.ledDO4.TabStop = false;
+            // 
+            // ledDO3
+            // 
+            this.ledDO3.Image = global::IoTModbus.Properties.Resources.greenOff;
+            this.ledDO3.InitialImage = null;
+            this.ledDO3.Location = new System.Drawing.Point(14, 169);
+            this.ledDO3.Name = "ledDO3";
+            this.ledDO3.Size = new System.Drawing.Size(25, 25);
+            this.ledDO3.TabIndex = 1;
+            this.ledDO3.TabStop = false;
+            // 
+            // ledDO1
+            // 
+            this.ledDO1.Image = global::IoTModbus.Properties.Resources.greenOff;
+            this.ledDO1.InitialImage = null;
+            this.ledDO1.Location = new System.Drawing.Point(14, 54);
+            this.ledDO1.Name = "ledDO1";
+            this.ledDO1.Size = new System.Drawing.Size(25, 25);
+            this.ledDO1.TabIndex = 0;
+            this.ledDO1.TabStop = false;
             // 
             // Messages
             // 
@@ -643,21 +838,14 @@
             this.grpSettings.TabStop = false;
             this.grpSettings.Text = "Settings";
             // 
-            // txtIP
+            // lblPort
             // 
-            this.txtIP.Location = new System.Drawing.Point(6, 42);
-            this.txtIP.Name = "txtIP";
-            this.txtIP.Size = new System.Drawing.Size(100, 20);
-            this.txtIP.TabIndex = 2;
-            this.txtIP.Text = "192.168.1.101";
-            // 
-            // txtPort
-            // 
-            this.txtPort.Location = new System.Drawing.Point(121, 42);
-            this.txtPort.Name = "txtPort";
-            this.txtPort.Size = new System.Drawing.Size(100, 20);
-            this.txtPort.TabIndex = 3;
-            this.txtPort.Text = "502";
+            this.lblPort.AutoSize = true;
+            this.lblPort.Location = new System.Drawing.Point(118, 26);
+            this.lblPort.Name = "lblPort";
+            this.lblPort.Size = new System.Drawing.Size(26, 13);
+            this.lblPort.TabIndex = 5;
+            this.lblPort.Text = "Port";
             // 
             // lblIP
             // 
@@ -668,150 +856,21 @@
             this.lblIP.TabIndex = 4;
             this.lblIP.Text = "IP";
             // 
-            // lblPort
+            // txtPort
             // 
-            this.lblPort.AutoSize = true;
-            this.lblPort.Location = new System.Drawing.Point(118, 26);
-            this.lblPort.Name = "lblPort";
-            this.lblPort.Size = new System.Drawing.Size(26, 13);
-            this.lblPort.TabIndex = 5;
-            this.lblPort.Text = "Port";
+            this.txtPort.Location = new System.Drawing.Point(121, 42);
+            this.txtPort.Name = "txtPort";
+            this.txtPort.Size = new System.Drawing.Size(100, 20);
+            this.txtPort.TabIndex = 3;
+            this.txtPort.Text = "502";
             // 
-            // pictureBox3
+            // txtIP
             // 
-            this.pictureBox3.Image = global::IoTModbus.Properties.Resources.aOutR;
-            this.pictureBox3.Location = new System.Drawing.Point(273, 24);
-            this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(28, 28);
-            this.pictureBox3.TabIndex = 10;
-            this.pictureBox3.TabStop = false;
-            // 
-            // pictureBox4
-            // 
-            this.pictureBox4.Image = global::IoTModbus.Properties.Resources.aOutB;
-            this.pictureBox4.Location = new System.Drawing.Point(273, 81);
-            this.pictureBox4.Name = "pictureBox4";
-            this.pictureBox4.Size = new System.Drawing.Size(28, 28);
-            this.pictureBox4.TabIndex = 9;
-            this.pictureBox4.TabStop = false;
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.Image = global::IoTModbus.Properties.Resources.aOutR;
-            this.pictureBox2.Location = new System.Drawing.Point(273, 141);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(28, 28);
-            this.pictureBox2.TabIndex = 8;
-            this.pictureBox2.TabStop = false;
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = global::IoTModbus.Properties.Resources.aOutB;
-            this.pictureBox1.Location = new System.Drawing.Point(273, 195);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(28, 28);
-            this.pictureBox1.TabIndex = 7;
-            this.pictureBox1.TabStop = false;
-            // 
-            // ledAO2
-            // 
-            this.ledAO2.Image = global::IoTModbus.Properties.Resources.greyOff;
-            this.ledAO2.InitialImage = null;
-            this.ledAO2.Location = new System.Drawing.Point(163, 169);
-            this.ledAO2.Name = "ledAO2";
-            this.ledAO2.Size = new System.Drawing.Size(25, 25);
-            this.ledAO2.TabIndex = 6;
-            this.ledAO2.TabStop = false;
-            // 
-            // ledAO1
-            // 
-            this.ledAO1.Image = global::IoTModbus.Properties.Resources.greyOff;
-            this.ledAO1.InitialImage = null;
-            this.ledAO1.Location = new System.Drawing.Point(163, 54);
-            this.ledAO1.Name = "ledAO1";
-            this.ledAO1.Size = new System.Drawing.Size(25, 25);
-            this.ledAO1.TabIndex = 6;
-            this.ledAO1.TabStop = false;
-            // 
-            // knoAI2
-            // 
-            this.knoAI2.Image = global::IoTModbus.Properties.Resources.KnobM;
-            this.knoAI2.InitialImage = null;
-            this.knoAI2.Location = new System.Drawing.Point(51, 142);
-            this.knoAI2.Name = "knoAI2";
-            this.knoAI2.Size = new System.Drawing.Size(78, 78);
-            this.knoAI2.TabIndex = 1;
-            this.knoAI2.TabStop = false;
-            // 
-            // knoAI1
-            // 
-            this.knoAI1.Image = global::IoTModbus.Properties.Resources.KnobM;
-            this.knoAI1.InitialImage = null;
-            this.knoAI1.Location = new System.Drawing.Point(51, 25);
-            this.knoAI1.Name = "knoAI1";
-            this.knoAI1.Size = new System.Drawing.Size(78, 78);
-            this.knoAI1.TabIndex = 0;
-            this.knoAI1.TabStop = false;
-            // 
-            // swiDI2
-            // 
-            this.swiDI2.Image = global::IoTModbus.Properties.Resources.switchM;
-            this.swiDI2.InitialImage = null;
-            this.swiDI2.Location = new System.Drawing.Point(87, 169);
-            this.swiDI2.Name = "swiDI2";
-            this.swiDI2.Size = new System.Drawing.Size(28, 28);
-            this.swiDI2.TabIndex = 5;
-            this.swiDI2.TabStop = false;
-            // 
-            // swiDI1
-            // 
-            this.swiDI1.Image = global::IoTModbus.Properties.Resources.switchM;
-            this.swiDI1.InitialImage = null;
-            this.swiDI1.Location = new System.Drawing.Point(87, 51);
-            this.swiDI1.Name = "swiDI1";
-            this.swiDI1.Size = new System.Drawing.Size(28, 28);
-            this.swiDI1.TabIndex = 4;
-            this.swiDI1.TabStop = false;
-            // 
-            // ledDO2
-            // 
-            this.ledDO2.Image = global::IoTModbus.Properties.Resources.greenOff;
-            this.ledDO2.InitialImage = null;
-            this.ledDO2.Location = new System.Drawing.Point(167, 54);
-            this.ledDO2.Name = "ledDO2";
-            this.ledDO2.Size = new System.Drawing.Size(25, 25);
-            this.ledDO2.TabIndex = 3;
-            this.ledDO2.TabStop = false;
-            // 
-            // ledDO4
-            // 
-            this.ledDO4.Image = global::IoTModbus.Properties.Resources.greenOff;
-            this.ledDO4.InitialImage = null;
-            this.ledDO4.Location = new System.Drawing.Point(167, 169);
-            this.ledDO4.Name = "ledDO4";
-            this.ledDO4.Size = new System.Drawing.Size(25, 25);
-            this.ledDO4.TabIndex = 2;
-            this.ledDO4.TabStop = false;
-            // 
-            // ledDO3
-            // 
-            this.ledDO3.Image = global::IoTModbus.Properties.Resources.greenOff;
-            this.ledDO3.InitialImage = null;
-            this.ledDO3.Location = new System.Drawing.Point(14, 169);
-            this.ledDO3.Name = "ledDO3";
-            this.ledDO3.Size = new System.Drawing.Size(25, 25);
-            this.ledDO3.TabIndex = 1;
-            this.ledDO3.TabStop = false;
-            // 
-            // ledDO1
-            // 
-            this.ledDO1.Image = global::IoTModbus.Properties.Resources.greenOff;
-            this.ledDO1.InitialImage = null;
-            this.ledDO1.Location = new System.Drawing.Point(14, 54);
-            this.ledDO1.Name = "ledDO1";
-            this.ledDO1.Size = new System.Drawing.Size(25, 25);
-            this.ledDO1.TabIndex = 0;
-            this.ledDO1.TabStop = false;
+            this.txtIP.Location = new System.Drawing.Point(6, 42);
+            this.txtIP.Name = "txtIP";
+            this.txtIP.Size = new System.Drawing.Size(100, 20);
+            this.txtIP.TabIndex = 2;
+            this.txtIP.Text = "192.168.1.101";
             // 
             // GUI
             // 
@@ -820,7 +879,6 @@
             this.ClientSize = new System.Drawing.Size(581, 590);
             this.Controls.Add(this.grpSettings);
             this.Controls.Add(this.tbcMain);
-            this.Controls.Add(this.btnRead);
             this.Name = "GUI";
             this.Text = "Modbus Client For IoT";
             this.tbcMain.ResumeLayout(false);
@@ -835,13 +893,6 @@
             this.groupBox1.PerformLayout();
             this.tbpSimulator.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            this.Messages.ResumeLayout(false);
-            this.Messages.PerformLayout();
-            this.groupBox5.ResumeLayout(false);
-            this.groupBox5.PerformLayout();
-            this.grpSettings.ResumeLayout(false);
-            this.grpSettings.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
@@ -850,12 +901,19 @@
             ((System.ComponentModel.ISupportInitialize)(this.ledAO1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.knoAI2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.knoAI1)).EndInit();
+            this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.swiDI2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.swiDI1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ledDO2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ledDO4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ledDO3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ledDO1)).EndInit();
+            this.Messages.ResumeLayout(false);
+            this.Messages.PerformLayout();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
+            this.grpSettings.ResumeLayout(false);
+            this.grpSettings.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -864,8 +922,6 @@
 
         private System.Windows.Forms.Button btnConnect;
         private System.Windows.Forms.Button btnDisconnect;
-        private System.Windows.Forms.Button btnSend;
-        private System.Windows.Forms.Button btnSendOn;
         private System.Windows.Forms.Button btnRead;
         private System.Windows.Forms.TabPage tabRaw;
         private System.Windows.Forms.TabControl tbcMain;
@@ -931,6 +987,13 @@
         private System.Windows.Forms.Label lblIP;
         private System.Windows.Forms.TextBox txtPort;
         private System.Windows.Forms.TextBox txtIP;
+        private System.Windows.Forms.Button btnWriteCoils;
+        private System.Windows.Forms.Button btnWriteHoldings;
+        private System.Windows.Forms.Button btnReadHoldings;
+        private System.Windows.Forms.Button btnReadDis;
+        private System.Windows.Forms.Button btnWriteSCoil;
+        private System.Windows.Forms.Button btnReadInputReg;
+        private System.Windows.Forms.Button btnWriteSR;
     }
 }
 
