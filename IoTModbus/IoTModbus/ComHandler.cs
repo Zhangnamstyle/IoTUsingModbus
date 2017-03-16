@@ -88,14 +88,15 @@ namespace IoTModbus
         /// <summary>Constructor for Report class</summary>
         public ComHandler()
         {
-            connect();
+            report = new Report();
+            
         }
 
         // ------------------------------------------------------------------------
         /// <summary>Connects to the Modbus slave</summary>
-        public void connect()
+        public void connect(string ip,int port)
         {
-            report = new Report();
+
             modbusTCP = new ModbusTCP("192.168.1.101", 502, report);
             modbusTCP.OnResponseDataTCP += new ModbusTCP.ResponseDataTCP(ModbusTCP_OnResponseData);
             modbusTCP.OnExceptionTCP += new ModbusTCP.ExceptionDataTCP(ModbusTCP_OnException); 
