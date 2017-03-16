@@ -143,6 +143,16 @@ namespace IoTModbus.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Modbus_IoT {
+            get {
+                object obj = ResourceManager.GetObject("Modbus_IoT", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap redOn {
             get {
                 object obj = ResourceManager.GetObject("redOn", resourceCulture);

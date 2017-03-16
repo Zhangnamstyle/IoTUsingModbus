@@ -1,0 +1,8 @@
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\bin\Release\IoTModbus.exe.config
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\bin\Release\IoTModbus.exe
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\bin\Release\IoTModbus.pdb
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\obj\Release\IoTModbus.GUI.resources
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\obj\Release\IoTModbus.Properties.Resources.resources
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\obj\Release\IoTModbus.csproj.GenerateResource.Cache
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\obj\Release\IoTModbus.exe
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\obj\Release\IoTModbus.pdb

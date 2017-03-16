@@ -21,16 +21,19 @@ namespace IoTModbus
         {
             InitializeComponent();
             cnt = 0;
-        }
-
-        private void btnConnect_Click(object sender, EventArgs e)
-        {
             if (comHandler == null)
             {
                 comHandler = new ComHandler();
                 comHandler.OnResponseData += new IoTModbus.ComHandler.ResponseData(comHandler_OnResponseData);
                 comHandler.OnException += new IoTModbus.ComHandler.ExceptionData(comHandler_OnException);
             }
+        }
+
+        private void btnConnect_Click(object sender, EventArgs e)
+        {
+            string ip = txtIP.ToString();
+            int port = Convert.ToInt16(txtPort.Text.ToString()); 
+            comHandler.connect(ip,port);
         }
 
         private void comHandler_OnResponseData(ushort id, byte unit, byte function, byte[] data)
@@ -100,7 +103,7 @@ namespace IoTModbus
 
         private void btnRead_Click(object sender, EventArgs e)
         {
-            comHandler.sendRead();
+            PDF.createPDF();
         }
 
     }
