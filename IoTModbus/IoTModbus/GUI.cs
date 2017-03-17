@@ -16,8 +16,7 @@ namespace IoTModbus
     {
         ComHandler comHandler;
         private string _message;
-        private int cnt;
-        Timer tmr1;
+        int cnt;
 
         public GUI()
         {
@@ -66,7 +65,7 @@ namespace IoTModbus
 
         private void btnDisconnect_Click(object sender, EventArgs e)
         {
-                comHandler.disconnect();        
+            comHandler.disconnect();        
         }
 
         private void btnRead_Click(object sender, EventArgs e)
@@ -79,7 +78,7 @@ namespace IoTModbus
             int num = 4;
             ushort ID = 2;
             byte unit = 1;
-            ushort startAddress = 9;
+            ushort startAddress = 0;
 
             bool[] bits = new bool[num];
             bits[0] = false;
@@ -106,7 +105,7 @@ namespace IoTModbus
             int[] temp = new int[num];
             for(int i = 0; i<num;i++)
             {
-                temp[i] = 32000;
+                temp[i] = 0;
             }
 
             byte[] data = new Byte[num * 2];
@@ -169,6 +168,11 @@ namespace IoTModbus
             }
 
             comHandler.send(6, ID, unit, startAddress, (byte)num, data);
+        }
+
+        private void btnReportSlaveID_Click(object sender, EventArgs e)
+        {
+            comHandler.reportSlaveID(9, 1);
         }
     }
 }

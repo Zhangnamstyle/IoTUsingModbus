@@ -102,6 +102,7 @@
             this.lblIP = new System.Windows.Forms.Label();
             this.txtPort = new System.Windows.Forms.TextBox();
             this.txtIP = new System.Windows.Forms.TextBox();
+            this.btnReportSlaveID = new System.Windows.Forms.Button();
             this.tbcMain.SuspendLayout();
             this.tpgValues.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -183,6 +184,7 @@
             // 
             // tpgValues
             // 
+            this.tpgValues.Controls.Add(this.btnReportSlaveID);
             this.tpgValues.Controls.Add(this.btnWriteSR);
             this.tpgValues.Controls.Add(this.btnWriteSCoil);
             this.tpgValues.Controls.Add(this.btnReadInputReg);
@@ -872,6 +874,16 @@
             this.txtIP.TabIndex = 2;
             this.txtIP.Text = "192.168.1.101";
             // 
+            // btnReportSlaveID
+            // 
+            this.btnReportSlaveID.Location = new System.Drawing.Point(353, 228);
+            this.btnReportSlaveID.Name = "btnReportSlaveID";
+            this.btnReportSlaveID.Size = new System.Drawing.Size(183, 23);
+            this.btnReportSlaveID.TabIndex = 13;
+            this.btnReportSlaveID.Text = "Report Slave ID";
+            this.btnReportSlaveID.UseVisualStyleBackColor = true;
+            this.btnReportSlaveID.Click += new System.EventHandler(this.btnReportSlaveID_Click);
+            // 
             // GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -994,6 +1006,7 @@
         private System.Windows.Forms.Button btnWriteSCoil;
         private System.Windows.Forms.Button btnReadInputReg;
         private System.Windows.Forms.Button btnWriteSR;
+        private System.Windows.Forms.Button btnReportSlaveID;
     }
 }
 

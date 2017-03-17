@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
 
 namespace IoTModbus
 {
@@ -11,19 +12,39 @@ namespace IoTModbus
     {
         // ------------------------------------------------------------------------
         // Private declarations
+        DataTable functionTable;
+        DataTable exceptionTable;
         private DateTime _startTime;
         private DateTime _stopTime;
-        private bool firstStart;
-        private bool firstStop;
 
         // ------------------------------------------------------------------------
         /// <summary>Constructor for Report class</summary>
         public Report()
         {
-            firstStart = true;
-            firstStop = true;
-        }
+            functionTable = getFunctionTable();
+            exceptionTable = getExceptionTable();
 
+        }
+        static DataTable getFunctionTable()
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("Function Code", typeof(byte));
+            dt.Columns.Add("Function Name", typeof(string));
+            dt.Columns.Add("Unit Id", typeof(byte));
+            dt.Columns.Add("StartAddress", typeof(ushort));
+            dt.Columns.Add("EndAddress",typeof(ushort));
+            dt.Columns.Add("Number of Function Calls", typeof(int));
+
+            return dt;
+        }
+        static DataTable getExceptionTable()
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("Exception Code", typeof(byte));
+            dt.Columns.Add("Exception Name", typeof(string));
+            dt.Columns.Add("Exceptions Occurd", typeof(int));            
+            return dt;
+        }
         // ------------------------------------------------------------------------
         /// <summary>Method for getting and setting a DateTime connectionTime used for logging when the connection was started</summary>
         public DateTime startTime
@@ -34,12 +55,8 @@ namespace IoTModbus
             }
             set
             {
-                if (this.firstStart == true)
-                {
                     this._startTime = value;
                     System.Diagnostics.Debug.WriteLine("Start Time: " + this.startTime.ToString());
-                    this.firstStart = false;
-                }
             }
         }
 
@@ -52,18 +69,13 @@ namespace IoTModbus
                 return this._stopTime;
             }
             set
-            {
-                if (this.firstStop == true)
-                {
-                    this._stopTime = value;
-                    System.Diagnostics.Debug.WriteLine("Stop Time: " + this.stopTime.ToString());
-                    TimeSpan duration = stopTime - startTime;
-                    System.Diagnostics.Debug.WriteLine("Duration: " + duration.ToString());
-                    this.firstStop = false;
-                }
+            { 
+                this._stopTime = value;
+                TimeSpan duration = stopTime - startTime;
+                System.Diagnostics.Debug.WriteLine("Stop Time: " + this.stopTime.ToString());
+                System.Diagnostics.Debug.WriteLine("Duration: " + duration.ToString()); 
             }
         }
-
 
 
     }

@@ -88,6 +88,15 @@ namespace IoTModbus
             WriteData(adu, tId);
         }
 
+        public void reportSlaveID(ushort tId,byte unit)
+        {
+            byte[] head = createMBAP(tId, unit,1);
+            byte[] pdu = new byte[1];
+            pdu[0] = 17;
+            byte[] adu = ModbusADU.createADU(head, pdu);
+            WriteData(adu, tId);
+        }
+
         // ------------------------------------------------------------------------
         /// <summary>Connects to the Modbus slave</summary>
         /// <param name="ip">IP adress of modbus slave.</param>
@@ -144,8 +153,8 @@ namespace IoTModbus
             byte[] mbap = new byte[7]; //TODO: Check size of header
 
             byte[] _id = BitConverter.GetBytes((short)id);
-            mbap[0] = _id[1];           //Slave id high byte
-            mbap[1] = _id[0];           //Slave id low byte
+            mbap[0] = _id[1];           //Transaction id high byte
+            mbap[1] = _id[0];           //Transaction id low byte
             byte[] _size = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)(5 + numBytes))); //TODO: Needs to find size of numBytes
             mbap[4] = _size[0];			// Complete message size in bytes
             mbap[5] = _size[1];         // Complete message size in bytes

@@ -103,7 +103,7 @@ namespace IoTModbus
             bool ex = false;
 
             _funcNr = funcNr;
-            if(funcNr > fctWriteMultipleRegister)
+            if(funcNr > fctWriteMultipleRegister && funcNr != 17)
             {
                 funcNr -= excExceptionOffset;
                 ex = true;

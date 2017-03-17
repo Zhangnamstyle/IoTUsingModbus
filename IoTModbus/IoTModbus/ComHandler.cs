@@ -154,6 +154,10 @@ namespace IoTModbus
             modbusTCP.sendTCP(funcNr, tId, unit, startAddress, numInputs);
         }
 
+        public void reportSlaveID(byte tId,byte unit)
+        {
+            modbusTCP.reportSlaveID(tId, unit);
+        }
 
 
     }
