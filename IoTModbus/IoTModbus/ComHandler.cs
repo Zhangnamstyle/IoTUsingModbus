@@ -158,7 +158,10 @@ namespace IoTModbus
         {
             modbusTCP.reportSlaveID(tId, unit);
         }
-
+        public void generateReport()
+        {
+            report.generateReport();
+        }
 
     }
 }

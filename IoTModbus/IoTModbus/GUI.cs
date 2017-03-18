@@ -174,5 +174,10 @@ namespace IoTModbus
         {
             comHandler.reportSlaveID(9, 1);
         }
+
+        private void btnGenerate_Click(object sender, EventArgs e)
+        {
+            comHandler.generateReport();
+        }
     }
 }

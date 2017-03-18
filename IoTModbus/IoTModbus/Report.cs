@@ -35,6 +35,14 @@ namespace IoTModbus
             dt.Columns.Add("EndAddress",typeof(ushort));
             dt.Columns.Add("Number of Function Calls", typeof(int));
 
+            dt.Rows.Add(1, "Read Coil", 1, null, null, 0);
+            dt.Rows.Add(2, "Read Discrete Input", 1, null, null, 0);
+            dt.Rows.Add(3, "Read Holding Register", 1, null, null, 0);
+            dt.Rows.Add(4, "Read Input Register", 1, null, null, 0);
+            dt.Rows.Add(5, "Write Singel Coil", 1, null, null, 0);
+            dt.Rows.Add(6, "Write Singel Register", 1, null, null, 0);
+            dt.Rows.Add(15, "Write Multiple Coils", 1, null, null, 0);
+            dt.Rows.Add(16, "Write Multiple Registers", 1, null, null, 0);
             return dt;
         }
         static DataTable getExceptionTable()
@@ -44,6 +52,28 @@ namespace IoTModbus
             dt.Columns.Add("Exception Name", typeof(string));
             dt.Columns.Add("Exceptions Occurd", typeof(int));            
             return dt;
+        }
+
+        public void recordFunctionTransaction(byte funcNr, byte unit, ushort startAddress, ushort length)
+        {
+            DataRow[] funcRow = functionTable.Select("[Function Code] =" + funcNr);
+
+            if (funcRow[0]["StartAddress"].ToString().Length == 0)
+            {
+                funcRow[0]["StartAddress"] = startAddress;
+            }
+            else if ((ushort)funcRow[0]["StartAddress"] > startAddress) funcRow[0]["StartAddress"] = startAddress;
+            
+            if (funcRow[0]["EndAddress"].ToString().Length == 0)
+            {
+                funcRow[0]["EndAddress"] = startAddress + length;
+            }
+            else if ((ushort)funcRow[0]["EndAddress"] < startAddress + length ) funcRow[0]["StartAddress"] = startAddress + length ;
+
+            int tempCount = (int)funcRow[0]["Number of Function Calls"];
+
+            funcRow[0]["Number of Function Calls"] = tempCount + 1;
+
         }
         // ------------------------------------------------------------------------
         /// <summary>Method for getting and setting a DateTime connectionTime used for logging when the connection was started</summary>
@@ -76,7 +106,10 @@ namespace IoTModbus
                 System.Diagnostics.Debug.WriteLine("Duration: " + duration.ToString()); 
             }
         }
-
+        public void generateReport()
+        {
+            PDF.createPDF(functionTable);
+        }
 
     }
 

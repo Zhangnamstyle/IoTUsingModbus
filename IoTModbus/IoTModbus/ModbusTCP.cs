@@ -179,7 +179,7 @@ namespace IoTModbus
 
         // ------------------------------------------------------------------------
         /// <summary>Writes the adu to the Modbus Slave</summary>
-        private void WriteData(byte[] adu, ushort id)
+        private void WriteData(byte[] adu, ushort id,)
         {
             if ((tcpClient != null) && (tcpClient.Connected))
             {
@@ -193,8 +193,7 @@ namespace IoTModbus
                         {
 
                             string s = ByteArrayToString(adu);
-                            System.Diagnostics.Debug.WriteLine(s); //Remove when release
-                            _id = id;
+                            System.Diagnostics.Debug.WriteLine(s); //Remove when release      
                             netStream.BeginWrite(adu, 0, adu.Length, new AsyncCallback(recieveCallBack), id);
                             netStream.BeginRead(tcpBuffer, 0, tcpBuffer.Length, new AsyncCallback(OnReceive), id);
                         }
@@ -237,7 +236,7 @@ namespace IoTModbus
             var itemToRemove = transactions.SingleOrDefault(p => p.tId == tId);
             if (itemToRemove != null) transactions.Remove(itemToRemove);
             checkForTimeout();
-
+           
 
             byte[] pdu;
             byte funcNr;
