@@ -35,6 +35,7 @@ namespace IoTModbus
             string ip = txtIP.ToString();
             int port = Convert.ToInt16(txtPort.Text.ToString()); 
             comHandler.connect(ip,port);
+            enableWritingToHolding();
         }
 
         private void comHandler_OnResponseData(ushort id, byte unit, byte function, byte[] data)
@@ -79,12 +80,23 @@ namespace IoTModbus
             ushort ID = 2;
             byte unit = 1;
             ushort startAddress = 0;
+            bool state = false;
 
             bool[] bits = new bool[num];
-            bits[0] = false;
-            bits[1] = false;
-            bits[2] = false;
-            bits[3] = false;
+            if (state)
+            {
+                bits[0] = true;
+                bits[1] = true;
+                bits[2] = true;
+                bits[3] = true;
+            }
+            else
+            {
+                bits[0] = false;
+                bits[1] = false;
+                bits[2] = false;
+                bits[3] = false;
+            }
 
 
             int nBytes = (byte)(num / 8 + (num % 8 > 0 ? 1 : 0));
@@ -121,7 +133,7 @@ namespace IoTModbus
 
         private void btnReadHoldings_Click(object sender, EventArgs e)
         {
-            comHandler.send(3, 4, 1, 0, 32);
+            comHandler.send(3, 4, 1, 0, 4);
         }
 
         private void btnReadDis_Click(object sender, EventArgs e)
@@ -136,12 +148,13 @@ namespace IoTModbus
 
         private void btnWriteSCoil_Click(object sender, EventArgs e)
         {
+
             int num = 1;
             ushort ID = 7;
             byte unit = 1;
-            ushort startAddress = 1;
+            ushort startAddress = 0;
 
-            bool bit = true;
+            bool bit = false;
             byte[] data = new byte[1];
             if (bit) data[0] = 255;
             else data[0] = 0;
@@ -178,6 +191,25 @@ namespace IoTModbus
         private void btnGenerate_Click(object sender, EventArgs e)
         {
             comHandler.generateReport();
+        }
+
+        private void enableWritingToHolding()
+        {
+            int num = 2;
+            ushort ID = 2;
+            byte unit = 1;
+            ushort startAddress = 4;
+
+            bool[] bits = new bool[num];
+            bits[0] = true;
+            bits[1] = true;
+
+            int nBytes = (byte)(num / 8 + (num % 8 > 0 ? 1 : 0));
+            byte[] data = new Byte[nBytes];
+            BitArray bitArray = new BitArray(bits);
+            bitArray.CopyTo(data, 0);
+
+            comHandler.send(15, ID, unit, startAddress, (byte)num, data);
         }
     }
 }

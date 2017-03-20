@@ -62,8 +62,8 @@ namespace IoTModbus
             head = createMBAP(tId, unit);
             pdu = ModbusPDU.CreatePDU(funcNr, startAddress, numInputs);
             adu = ModbusADU.createADU(head, pdu);
-            WriteData(adu, tId);
-            
+            Transaction t = new Transaction(tId, unit, funcNr, startAddress, numInputs);
+            WriteData(adu, t);
         }
 
         // ------------------------------------------------------------------------
@@ -82,10 +82,12 @@ namespace IoTModbus
             byte[] pdu;
             byte[] adu;
             ushort nBytes;
-            pdu = ModbusPDU.CreatePDU(funcNr, startAddress, numBytes, numBits, values, out nBytes);
+            ushort nReg;
+            pdu = ModbusPDU.CreatePDU(funcNr, startAddress, numBytes, numBits, values, out nBytes,out nReg);
             head = createMBAP(tId, unit, nBytes);
             adu = ModbusADU.createADU(head, pdu);
-            WriteData(adu, tId);
+            Transaction t = new Transaction(tId, unit,funcNr, startAddress, nReg);
+            WriteData(adu,t);
         }
 
         public void reportSlaveID(ushort tId,byte unit)
@@ -94,7 +96,7 @@ namespace IoTModbus
             byte[] pdu = new byte[1];
             pdu[0] = 17;
             byte[] adu = ModbusADU.createADU(head, pdu);
-            WriteData(adu, tId);
+            WriteData(adu, null);
         }
 
         // ------------------------------------------------------------------------
@@ -179,51 +181,37 @@ namespace IoTModbus
 
         // ------------------------------------------------------------------------
         /// <summary>Writes the adu to the Modbus Slave</summary>
-        private void WriteData(byte[] adu, ushort id,)
+        private void WriteData(byte[] adu, Transaction t)
         {
             if ((tcpClient != null) && (tcpClient.Connected))
             {
-                try
-                {
+                
                     if (netStream.CanWrite)
                     {
-                        bool notUnique = transactions.Any(p => p.tId == id);
+                        bool notUnique = transactions.Any(l => l.TId == t.TId);
                         if (notUnique) { }    //TODO: Create Error handling 
                         else
                         {
-
                             string s = ByteArrayToString(adu);
                             System.Diagnostics.Debug.WriteLine(s); //Remove when release      
-                            netStream.BeginWrite(adu, 0, adu.Length, new AsyncCallback(recieveCallBack), id);
-                            netStream.BeginRead(tcpBuffer, 0, tcpBuffer.Length, new AsyncCallback(OnReceive), id);
+                            netStream.BeginWrite(adu, 0, adu.Length, new AsyncCallback(recieveCallBack), t);
+                            netStream.BeginRead(tcpBuffer, 0, tcpBuffer.Length, new AsyncCallback(OnReceive), t);
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
+             }
+               
         }
-
-        // ------------------------------------------------------------------------
-        /// <summary>Writes the adu to the Modbus Slave</summary>
-        public static string ByteArrayToString(byte[] ba)
-        {
-            StringBuilder hex = new StringBuilder(ba.Length * 2);
-            foreach (byte b in ba)
-                hex.AppendFormat("{0:x2}", b);
-            return hex.ToString();
-        }
+        
 
         // ------------------------------------------------------------------------
         /// <summary>Writes the adu to the Modbus Slave</summary>
         private void recieveCallBack(IAsyncResult ar)
         {
             if (ar.IsCompleted == false) { } //TODO: Add Exeption
-            ushort tId = (ushort)ar.AsyncState;
+            Transaction t = (Transaction)ar.AsyncState;
             netStream.EndWrite(ar);
-            transactions.Add(new Transaction(tId));
+            _report.recordFunctionTransaction(t.FuncNr, t.Unit, t.StartAddress, t.NumReg);
+            transactions.Add(t);
         }
 
         // ------------------------------------------------------------------------
@@ -232,8 +220,8 @@ namespace IoTModbus
         {
             if (ar.IsCompleted == false) { } //TODO: Add Exeption
 
-            ushort tId = (ushort)ar.AsyncState;
-            var itemToRemove = transactions.SingleOrDefault(p => p.tId == tId);
+            Transaction t = (Transaction)ar.AsyncState;
+            var itemToRemove = transactions.SingleOrDefault(l => l.TId == t.TId);
             if (itemToRemove != null) transactions.Remove(itemToRemove);
             checkForTimeout();
            
@@ -271,13 +259,25 @@ namespace IoTModbus
 
         }
 
+        // ------------------------------------------------------------------------
+        /// <summary>Writes the adu to the Modbus Slave</summary>
         internal static UInt16 SwapUInt16(UInt16 inValue)
         {
             return (UInt16)(((inValue & 0xff00) >> 8) |
                      ((inValue & 0x00ff) << 8));
         }
 
-        
+        // ------------------------------------------------------------------------
+        /// <summary>Writes the adu to the Modbus Slave</summary>
+        public static string ByteArrayToString(byte[] ba)
+        {
+            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            foreach (byte b in ba)
+                hex.AppendFormat("{0:x2}", b);
+            return hex.ToString();
+        }
+
 
     }
     }
+

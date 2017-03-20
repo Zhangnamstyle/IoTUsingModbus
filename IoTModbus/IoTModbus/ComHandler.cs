@@ -138,7 +138,15 @@ namespace IoTModbus
         /// <param name="values"></param>
         public void send(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numBits, byte[] values)
         {
-            modbusTCP.sendTCP(funcNr, tId, unit, startAddress, numBits, values);
+            try
+            {
+                modbusTCP.sendTCP(funcNr, tId, unit, startAddress, numBits, values);
+            }
+            catch(Exception ex)
+            {
+                string e = ex.Message;
+                OnException(1, 1, 1, e);
+            }
         }
 
         // ------------------------------------------------------------------------
@@ -151,7 +159,15 @@ namespace IoTModbus
         /// <param name="values"></param>
         public void send(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numInputs)
         {
-            modbusTCP.sendTCP(funcNr, tId, unit, startAddress, numInputs);
+            try
+            {
+                modbusTCP.sendTCP(funcNr, tId, unit, startAddress, numInputs);
+            }
+            catch (Exception ex)
+            {
+                string e = ex.Message;
+                OnException(1, 1, 1, e);
+            }           
         }
 
         public void reportSlaveID(byte tId,byte unit)
