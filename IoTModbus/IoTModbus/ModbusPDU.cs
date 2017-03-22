@@ -33,7 +33,7 @@ namespace IoTModbus
         /// <param name="numBytes">Specifys number of bytes.</param>
         /// <param name="numData">Specifys number of Data.</param>
         /// <param name="values">Contains the bit information in byte format.</param>
-        public static byte[] CreatePDU(byte funcNr,ushort startAddress,ushort numBytes,ushort numData,byte[] values,out ushort _numBytes)
+        public static byte[] CreatePDU(byte funcNr, ushort startAddress, ushort numBytes, ushort numData, byte[] values, out ushort _numBytes, out ushort numRegs)
         {
             if (funcNr >= fctWriteMultipleCoils) numBytes = (byte)(numBytes + 2);
             _numBytes = numBytes;
@@ -74,7 +74,7 @@ namespace IoTModbus
                 pdu[3] = values[0];
                 pdu[4] = values[1];
             }
-
+            numRegs = numData;
             return pdu;
         }
 

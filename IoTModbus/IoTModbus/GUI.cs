@@ -15,8 +15,7 @@ namespace IoTModbus
     public partial class GUI : Form
     {
         ComHandler comHandler;
-        private string _message;
-        int cnt;
+        public int cnt;
 
         public GUI()
         {
@@ -24,10 +23,16 @@ namespace IoTModbus
             cnt = 0;
             if (comHandler == null)
             {
-                comHandler = new ComHandler();
+                comHandler = new ComHandler("Alexander", 121174);
                 comHandler.OnResponseData += new IoTModbus.ComHandler.ResponseData(comHandler_OnResponseData);
                 comHandler.OnException += new IoTModbus.ComHandler.ExceptionData(comHandler_OnException);
+                comHandler.OnError += new IoTModbus.ComHandler.ErrorData(comHandler_OnError);
             }
+        }
+
+        private void comHandler_OnError(Exception ex)
+        {
+            MessageBox.Show(ex.Message);
         }
 
         private void btnConnect_Click(object sender, EventArgs e)
@@ -76,9 +81,9 @@ namespace IoTModbus
         private void btnWriteCoils_Click(object sender, EventArgs e)
         {
             int num = 4;
-            ushort ID = 2;
+            ushort ID = 1;
             byte unit = 1;
-            ushort startAddress = 0;
+            ushort startAddress = 50;
 
             bool[] bits = new bool[num];
             bits[0] = false;
@@ -97,7 +102,7 @@ namespace IoTModbus
 
         private void btnWriteHoldings_Click(object sender, EventArgs e)
         {
-            int num = 2;
+            int num = 20;
             ushort ID = 3;
             byte unit = 1;
             ushort startAddress = 0;
@@ -121,7 +126,8 @@ namespace IoTModbus
 
         private void btnReadHoldings_Click(object sender, EventArgs e)
         {
-            comHandler.send(3, 4, 1, 0, 32);
+            comHandler.send(3, 4, 1, 0, 4);
+            cnt++;
         }
 
         private void btnReadDis_Click(object sender, EventArgs e)
@@ -146,7 +152,7 @@ namespace IoTModbus
             if (bit) data[0] = 255;
             else data[0] = 0;
 
-            comHandler.send(5, ID, unit, startAddress, 1, data);
+            comHandler.send(5, ID, unit, startAddress,(byte)num, data);
         }
 
         private void btnWriteSR_Click(object sender, EventArgs e)

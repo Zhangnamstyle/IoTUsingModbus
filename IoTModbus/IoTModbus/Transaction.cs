@@ -9,29 +9,38 @@ namespace IoTModbus
     class Transaction 
     {
         private ushort _tId;
-        private DateTime time;
+        private byte _funcNr;
+        private byte _unit;
+        private ushort _startAddress;
+        private ushort _length;
+        private DateTime _time;
 
-        public Transaction(ushort id)
+        public Transaction(ushort tId,byte funcNr,byte unit,ushort startAddress,ushort length)
         {
-            _tId = id;
-            time = DateTime.Now;
+            _tId = tId;
+            _funcNr = funcNr;
+            _unit = unit;
+            _startAddress = startAddress;
+            _length = length;
+            _time = DateTime.Now;
         }
         public double tDiff
         {
             get
             {
                 DateTime tNow = DateTime.Now;
-                double sDiff = (tNow - time).TotalSeconds;
+                double sDiff = (tNow - _time).TotalSeconds;
                 return sDiff;
             }
         }
-        
-        public ushort tId
-        {
-            get { return _tId; }
-        }
-        
+        //Public Properties
+        public ushort TId { get { return _tId; } }
+        public byte FuncNr { get { return _funcNr; } }
+        public byte Unit { get { return _unit; } }
+        public ushort StartAddress { get { return _startAddress; } }
+        public ushort Length { get { return _length; } }
 
-        
+
+
     }
 }

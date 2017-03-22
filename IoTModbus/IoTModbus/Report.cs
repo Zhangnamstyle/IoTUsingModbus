@@ -14,8 +14,13 @@ namespace IoTModbus
         // Private declarations
         DataTable functionTable;
         DataTable exceptionTable;
-        private DateTime _startTime;
-        private DateTime _stopTime;
+        private DateTime openTime;
+        private DateTime closeTime;
+        private DateTime runningTime;
+        private DateTime startTime;
+        private DateTime stopTime;
+        private DateTime connectedTime;
+        
 
         // ------------------------------------------------------------------------
         /// <summary>Constructor for Report class</summary>
@@ -50,7 +55,10 @@ namespace IoTModbus
             DataTable dt = new DataTable();
             dt.Columns.Add("Exception Code", typeof(byte));
             dt.Columns.Add("Exception Name", typeof(string));
-            dt.Columns.Add("Exceptions Occurd", typeof(int));            
+            dt.Columns.Add("Transaction Id", typeof(ushort));
+            dt.Columns.Add("Unit Id", typeof(byte));
+            dt.Columns.Add("Function Code", typeof(byte));
+            dt.Columns.Add("Timestamp", typeof(DateTime));
             return dt;
         }
 
@@ -75,40 +83,70 @@ namespace IoTModbus
             funcRow[0]["Number of Function Calls"] = tempCount + 1;
 
         }
+
+        public void recordException(ushort tId,byte funcNr,byte unit,byte exep,string excepMessage)
+        {
+            exceptionTable.Rows.Add(exep, excepMessage, tId, unit, funcNr, DateTime.Now);
+        }
+
         // ------------------------------------------------------------------------
         /// <summary>Method for getting and setting a DateTime connectionTime used for logging when the connection was started</summary>
-        public DateTime startTime
+        public DateTime StartTime
         {
             get
             {
-                return this._startTime;
+                return this.startTime;
             }
             set
             {
-                    this._startTime = value;
+                if (!ComHandler.Connected)
+                {
+                    this.startTime = value;
                     System.Diagnostics.Debug.WriteLine("Start Time: " + this.startTime.ToString());
+                }
             }
         }
 
         // ------------------------------------------------------------------------
         /// <summary>Method for getting and setting a DateTime connectionTime used for logging when the connection was started</summary>
-        public DateTime stopTime
+        public DateTime StopTime
         {
             get
             {
-                return this._stopTime;
+                return this.stopTime;
             }
             set
-            { 
-                this._stopTime = value;
-                TimeSpan duration = stopTime - startTime;
-                System.Diagnostics.Debug.WriteLine("Stop Time: " + this.stopTime.ToString());
-                System.Diagnostics.Debug.WriteLine("Duration: " + duration.ToString()); 
+            {
+                if (ComHandler.Connected)
+                {
+                    this.stopTime = value;
+                    TimeSpan duration = this.stopTime - this.startTime;
+                    this.connectedTime += duration;
+                    System.Diagnostics.Debug.WriteLine("Stop Time: " + this.stopTime.ToString());
+                    System.Diagnostics.Debug.WriteLine("Duration: " + duration.ToString());
+                }
             }
         }
+        public DateTime OpenTime
+        {
+            get{ return this.openTime ; }
+            set{ this.openTime = value; }
+        }
+        public DateTime CloseTime
+        {
+            get { return this.closeTime;  }
+            set
+            {
+                this.closeTime = value;
+                TimeSpan duration = this.closeTime - this.openTime;
+                this.runningTime += duration;
+            }
+        }
+
         public void generateReport()
         {
-            PDF.createPDF(functionTable);
+            DateTime[] times = { OpenTime, CloseTime, runningTime,connectedTime };
+            PDF.createPDF(functionTable,exceptionTable,times);
         }
 
     }
