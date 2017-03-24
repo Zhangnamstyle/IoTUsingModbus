@@ -17,6 +17,11 @@ namespace IoTModbus
         private ModbusTCP modbusTCP;
         private Report report;
 
+        private static string username;
+        private static int userId;
+
+        private static bool connected;
+
         // ------------------------------------------------------------------------
         // Supported Modbus Exeption Codes
         private const byte exIllegalFunction = 1;
@@ -39,10 +44,11 @@ namespace IoTModbus
         public delegate void ResponseData(ushort id, byte unit, byte function, byte[] data);
         /// <summary>Response data event. This event is called when new data arrives</summary>
         public event ResponseData OnResponseData;
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public delegate void ErrorData(Exception ex);
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public event ErrorData OnError;
 
-
-
-        ushort cnt = 1;
         // ------------------------------------------------------------------------
         /// <summary>Returns the exeption type </summary>
         /// <param name="FuncEx">Modbus Exeption Code.</param>
@@ -89,25 +95,36 @@ namespace IoTModbus
 
         // ------------------------------------------------------------------------
         /// <summary>Constructor for Report class</summary>
-        public ComHandler()
+        public ComHandler(string _username,int _userId)
         {
-            report = new Report();
-            
+                username = _username;
+                userId = _userId;
+                report = new Report();
+                report.OpenTime = DateTime.Now;   
         }
 
         // ------------------------------------------------------------------------
         /// <summary>Connects to the Modbus slave</summary>
         public void connect(string ip,int port)
         {
-
-            modbusTCP = new ModbusTCP("192.168.1.101", 502, report);
-            modbusTCP.OnResponseDataTCP += new ModbusTCP.ResponseDataTCP(ModbusTCP_OnResponseData);
-            modbusTCP.OnExceptionTCP += new ModbusTCP.ExceptionDataTCP(ModbusTCP_OnException); 
+            try
+            {
+                modbusTCP = new ModbusTCP("192.168.1.101", 502, report);
+                modbusTCP.OnResponseDataTCP += new ModbusTCP.ResponseDataTCP(ModbusTCP_OnResponseData);
+                modbusTCP.OnExceptionTCP += new ModbusTCP.ExceptionDataTCP(ModbusTCP_OnException);
+                connected = true;
+            }
+            catch(Exception ex)
+            {
+                connected = false;
+                OnError(ex);
+            }
         }
 
         private void ModbusTCP_OnException(ushort id, byte unit, byte function, byte exception)
         {
             string exM = exMessage(exception);
+            report.recordException(id, function, unit, exception, exM);
             disconnect();
             if (OnException != null) OnException(id, unit, function, exM);
         }
@@ -137,16 +154,15 @@ namespace IoTModbus
         /// <param name="numBits"></param>
         /// <param name="values"></param>
         public void send(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numBits, byte[] values)
-        {
-            try
+        {   try
             {
                 modbusTCP.sendTCP(funcNr, tId, unit, startAddress, numBits, values);
             }
             catch(Exception ex)
             {
-                string e = ex.Message;
-                OnException(1, 1, 1, e);
+                OnError(ex);
             }
+            
         }
 
         // ------------------------------------------------------------------------
@@ -159,15 +175,15 @@ namespace IoTModbus
         /// <param name="values"></param>
         public void send(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numInputs)
         {
+
             try
             {
                 modbusTCP.sendTCP(funcNr, tId, unit, startAddress, numInputs);
             }
             catch (Exception ex)
             {
-                string e = ex.Message;
-                OnException(1, 1, 1, e);
-            }           
+                OnError(ex);
+            }
         }
 
         public void reportSlaveID(byte tId,byte unit)
@@ -176,7 +192,21 @@ namespace IoTModbus
         }
         public void generateReport()
         {
+            report.CloseTime = DateTime.Now;
             report.generateReport();
+        }
+
+        public static string Username
+        {
+            get { return username; }
+        }
+        public static int UserId
+        {
+            get { return userId; }
+        }
+        public static bool Connected
+        {
+            get { return connected; }
         }
 
     }

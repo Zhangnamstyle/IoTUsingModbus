@@ -20,10 +20,10 @@ namespace IoTModbus
         private Report _report;
             
         private static ushort _timeout = 500;
-        private static bool _connected = false;
-        private byte[] tcpBuffer = new byte[15];
+        private byte[] tcpBuffer = new byte[200];
 
-        private ushort _id;
+        private string ip;
+        private ushort port;
 
         List<Transaction> transactions = new List<Transaction>();
 
@@ -42,10 +42,12 @@ namespace IoTModbus
         /// <param name="ip">IP adress of modbus slave.</param>
         /// <param name="port">Port number of modbus slave. Usually port 502 is used.</param>
         /// <param name="report">Object of class Report.</param>
-        public ModbusTCP(string ip, ushort port, Report rep)
+        public ModbusTCP(string _ip, ushort _port, Report rep)
         {
             _report = rep;
-            connectTCP(ip, port);
+            ip = _ip;
+            port = _port;
+            connectTCP();
         }
         // ------------------------------------------------------------------------
         /// <summary>Send modbus message for reading over TCP</summary>
@@ -62,8 +64,9 @@ namespace IoTModbus
             head = createMBAP(tId, unit);
             pdu = ModbusPDU.CreatePDU(funcNr, startAddress, numInputs);
             adu = ModbusADU.createADU(head, pdu);
-            Transaction t = new Transaction(tId, unit, funcNr, startAddress, numInputs);
-            WriteData(adu, t);
+            Transaction txn = new Transaction(tId, funcNr, unit, startAddress, numInputs);
+            WriteData(adu, txn);
+            
         }
 
         // ------------------------------------------------------------------------
@@ -77,58 +80,52 @@ namespace IoTModbus
         public void sendTCP(byte funcNr,ushort tId, byte unit, ushort startAddress,ushort numBits, byte[] values)
         {
             byte numBytes;
-            numBytes = Convert.ToByte(values.Length); //TODO: Debug and find right way to set numBytes
+            numBytes = Convert.ToByte(values.Length);
             byte[] head;
             byte[] pdu;
             byte[] adu;
             ushort nBytes;
-            ushort nReg;
-            pdu = ModbusPDU.CreatePDU(funcNr, startAddress, numBytes, numBits, values, out nBytes,out nReg);
+            ushort nRegs;
+            pdu = ModbusPDU.CreatePDU(funcNr, startAddress, numBytes, numBits, values, out nBytes,out nRegs);
             head = createMBAP(tId, unit, nBytes);
             adu = ModbusADU.createADU(head, pdu);
-            Transaction t = new Transaction(tId, unit,funcNr, startAddress, nReg);
-            WriteData(adu,t);
+            Transaction t = new Transaction(tId, funcNr, unit, startAddress, nRegs);
+            WriteData(adu, t);
         }
 
         public void reportSlaveID(ushort tId,byte unit)
         {
+            byte funcNr = 17;
             byte[] head = createMBAP(tId, unit,1);
             byte[] pdu = new byte[1];
-            pdu[0] = 17;
+            pdu[0] = funcNr;
             byte[] adu = ModbusADU.createADU(head, pdu);
-            WriteData(adu, null);
+            Transaction txn = new Transaction(tId, funcNr, unit, 0, 0);
+            WriteData(adu, txn);
         }
 
         // ------------------------------------------------------------------------
         /// <summary>Connects to the Modbus slave</summary>
         /// <param name="ip">IP adress of modbus slave.</param>
         /// <param name="port">Port number of modbus slave. Usually port 502 is used.</param>
-        private void connectTCP(string ip, ushort port)
+        private void connectTCP()
         {
-            try
-            {
-                IPAddress _ip;
-                if (IPAddress.TryParse(ip, out _ip) == false)
-                {
-                    IPHostEntry hst = Dns.GetHostEntry(ip);
-                    ip = hst.AddressList[0].ToString();
-                }
+                //TODO: CHECK IP IN GUI
+                //if (IPAddress.TryParse(ip, out _ip) == false)
+                //{
+                //    IPHostEntry hst = Dns.GetHostEntry(ip);
+                //    ip = hst.AddressList[0].ToString();
+                //}
 
                 tcpClient = new TcpClient();
                 tcpClient.Connect(IPAddress.Parse(ip), port);
                 tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendTimeout, _timeout);
                 tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, _timeout);
-                tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay,true);
-                
+                tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
+
                 netStream = tcpClient.GetStream();
-                _connected = true;
-                _report.startTime = DateTime.Now;
-            }
-            catch (Exception error)
-            {
-                _connected = false;
-                throw (error);
-            }
+
+                _report.StartTime = DateTime.Now;
         }
 
         // ------------------------------------------------------------------------
@@ -144,7 +141,7 @@ namespace IoTModbus
                 }
                 netStream = null;
                 tcpClient = null;
-                _report.stopTime = DateTime.Now;
+                _report.StopTime = DateTime.Now;
             }
         }
 
@@ -152,12 +149,12 @@ namespace IoTModbus
         /// <summary>Returns a Modbus Application Header for writing registers as a byte array</summary>
         private byte[] createMBAP(ushort id, byte unit, ushort numBytes)
         {
-            byte[] mbap = new byte[7]; //TODO: Check size of header
+            byte[] mbap = new byte[7];
 
             byte[] _id = BitConverter.GetBytes((short)id);
             mbap[0] = _id[1];           //Transaction id high byte
             mbap[1] = _id[0];           //Transaction id low byte
-            byte[] _size = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)(5 + numBytes))); //TODO: Needs to find size of numBytes
+            byte[] _size = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)(5 + numBytes)));
             mbap[4] = _size[0];			// Complete message size in bytes
             mbap[5] = _size[1];         // Complete message size in bytes
             mbap[6] = unit;             // Slave Adress
@@ -181,90 +178,26 @@ namespace IoTModbus
 
         // ------------------------------------------------------------------------
         /// <summary>Writes the adu to the Modbus Slave</summary>
-        private void WriteData(byte[] adu, Transaction t)
+        private void WriteData(byte[] adu, Transaction txn)
         {
             if ((tcpClient != null) && (tcpClient.Connected))
             {
                 
                     if (netStream.CanWrite)
                     {
-                        bool notUnique = transactions.Any(l => l.TId == t.TId);
+                        bool notUnique = transactions.Any(l => l.TId == txn.TId);
                         if (notUnique) { }    //TODO: Create Error handling 
                         else
                         {
+
                             string s = ByteArrayToString(adu);
                             System.Diagnostics.Debug.WriteLine(s); //Remove when release      
-                            netStream.BeginWrite(adu, 0, adu.Length, new AsyncCallback(recieveCallBack), t);
-                            netStream.BeginRead(tcpBuffer, 0, tcpBuffer.Length, new AsyncCallback(OnReceive), t);
+                            netStream.BeginWrite(adu, 0, adu.Length, new AsyncCallback(recieveCallBack), txn);
+                            netStream.BeginRead(tcpBuffer, 0, tcpBuffer.Length, new AsyncCallback(OnReceive), txn);
                         }
                     }
-             }
-               
-        }
-        
-
-        // ------------------------------------------------------------------------
-        /// <summary>Writes the adu to the Modbus Slave</summary>
-        private void recieveCallBack(IAsyncResult ar)
-        {
-            if (ar.IsCompleted == false) { } //TODO: Add Exeption
-            Transaction t = (Transaction)ar.AsyncState;
-            netStream.EndWrite(ar);
-            _report.recordFunctionTransaction(t.FuncNr, t.Unit, t.StartAddress, t.NumReg);
-            transactions.Add(t);
-        }
-
-        // ------------------------------------------------------------------------
-        /// <summary>Handles the response from modbus slave</summary>
-        private void OnReceive(System.IAsyncResult ar)
-        {
-            if (ar.IsCompleted == false) { } //TODO: Add Exeption
-
-            Transaction t = (Transaction)ar.AsyncState;
-            var itemToRemove = transactions.SingleOrDefault(l => l.TId == t.TId);
-            if (itemToRemove != null) transactions.Remove(itemToRemove);
-            checkForTimeout();
-           
-
-            byte[] pdu;
-            byte funcNr;
-            bool ex;
-            byte[] mbap = ModbusADU.decodeADU(tcpBuffer,out pdu);
-            byte[] data = ModbusPDU.ReadPDU(pdu,out funcNr,out ex);
-
-            ushort id = SwapUInt16(BitConverter.ToUInt16(mbap, 0));
-            byte unit = mbap[6];
-            if(!ex)
-            {
-                if (OnResponseDataTCP != null) OnResponseDataTCP(id, unit, funcNr, data);
-                System.Diagnostics.Debug.WriteLine("Response data = " + " FuncNumber = " + funcNr.ToString() + " Value " + ByteArrayToString(data));
+                
             }
-            else if(ex)
-            {
-                if (OnExceptionTCP != null) OnExceptionTCP(id, unit, funcNr,data[0]);
-                System.Diagnostics.Debug.WriteLine("ExceptionData = " + " FuncNumber = " + funcNr.ToString() + " Value " + ByteArrayToString(data));
-            }
-
-        }
-
-        private void checkForTimeout()
-        {
-
-            var itemToRemove = transactions.SingleOrDefault(p => p.tDiff >= 5);
-            if (itemToRemove != null)
-            {
-                //TODO: Report Id and timeouttime
-                transactions.Remove(itemToRemove);
-            }
-
-        }
-
-        // ------------------------------------------------------------------------
-        /// <summary>Writes the adu to the Modbus Slave</summary>
-        internal static UInt16 SwapUInt16(UInt16 inValue)
-        {
-            return (UInt16)(((inValue & 0xff00) >> 8) |
-                     ((inValue & 0x00ff) << 8));
         }
 
         // ------------------------------------------------------------------------
@@ -277,7 +210,77 @@ namespace IoTModbus
             return hex.ToString();
         }
 
+        // ------------------------------------------------------------------------
+        /// <summary>Writes the adu to the Modbus Slave</summary>
+        private void recieveCallBack(IAsyncResult ar)
+        {
+            if (ar.IsCompleted == false) { } //TODO: Add Exeption
+            Transaction t = (Transaction)ar.AsyncState;
+            transactions.Add(t);
+            _report.recordFunctionTransaction(t.FuncNr, t.Unit, t.StartAddress, t.Length);
+            netStream.EndWrite(ar);
+        }
+
+        // ------------------------------------------------------------------------
+        /// <summary>Handles the response from modbus slave</summary>
+        private void OnReceive(System.IAsyncResult ar)
+        {
+            try
+            {
+                if (ar.IsCompleted == false) { } //TODO: Add Exeption
+
+                Transaction t = (Transaction)ar.AsyncState;
+                var itemToRemove = transactions.SingleOrDefault(p => p.TId == t.TId);
+                if (itemToRemove != null) transactions.Remove(itemToRemove);
+                checkForTimeout();
+
+
+                byte[] pdu;
+                byte funcNr;
+                bool ex;
+                byte[] mbap = ModbusADU.decodeADU(tcpBuffer, out pdu);
+                byte[] data = ModbusPDU.ReadPDU(pdu, out funcNr, out ex);
+
+                ushort id = SwapUInt16(BitConverter.ToUInt16(mbap, 0));
+                byte unit = mbap[6];
+                if (!ex)
+                {
+                    if (OnResponseDataTCP != null) OnResponseDataTCP(id, unit, funcNr, data); //TODO: TRIM TCP REGISTER
+                    System.Diagnostics.Debug.WriteLine("Response data = " + " FuncNumber = " + funcNr.ToString() + " Value " + ByteArrayToString(data));
+                }
+                else if (ex)
+                {
+
+                    if (OnExceptionTCP != null) OnExceptionTCP(id, unit, funcNr, data[0]);
+                    System.Diagnostics.Debug.WriteLine("ExceptionData = " + " FuncNumber = " + funcNr.ToString() + " Value " + ByteArrayToString(data));
+                }
+            }
+            catch(Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
+        private void checkForTimeout()
+        {
+
+            var itemToRemove = transactions.SingleOrDefault(p => p.tDiff >= 5);
+            if (itemToRemove != null)
+            {
+                //TODO: Report Id and timeouttime and FIX issue
+                transactions.Remove(itemToRemove);
+            }
+
+        }
+
+        internal static UInt16 SwapUInt16(UInt16 inValue)
+        {
+            return (UInt16)(((inValue & 0xff00) >> 8) |
+                     ((inValue & 0x00ff) << 8));
+        }
+
+        
 
     }
     }
-

@@ -15,8 +15,7 @@ namespace IoTModbus
     public partial class GUI : Form
     {
         ComHandler comHandler;
-        private string _message;
-        int cnt;
+        public int cnt;
 
         public GUI()
         {
@@ -24,10 +23,16 @@ namespace IoTModbus
             cnt = 0;
             if (comHandler == null)
             {
-                comHandler = new ComHandler();
+                comHandler = new ComHandler("Alexander", 121174);
                 comHandler.OnResponseData += new IoTModbus.ComHandler.ResponseData(comHandler_OnResponseData);
                 comHandler.OnException += new IoTModbus.ComHandler.ExceptionData(comHandler_OnException);
+                comHandler.OnError += new IoTModbus.ComHandler.ErrorData(comHandler_OnError);
             }
+        }
+
+        private void comHandler_OnError(Exception ex)
+        {
+            MessageBox.Show(ex.Message);
         }
 
         private void btnConnect_Click(object sender, EventArgs e)
@@ -35,7 +40,6 @@ namespace IoTModbus
             string ip = txtIP.ToString();
             int port = Convert.ToInt16(txtPort.Text.ToString()); 
             comHandler.connect(ip,port);
-            enableWritingToHolding();
         }
 
         private void comHandler_OnResponseData(ushort id, byte unit, byte function, byte[] data)
@@ -77,26 +81,15 @@ namespace IoTModbus
         private void btnWriteCoils_Click(object sender, EventArgs e)
         {
             int num = 4;
-            ushort ID = 2;
+            ushort ID = 1;
             byte unit = 1;
-            ushort startAddress = 0;
-            bool state = false;
+            ushort startAddress = 50;
 
             bool[] bits = new bool[num];
-            if (state)
-            {
-                bits[0] = true;
-                bits[1] = true;
-                bits[2] = true;
-                bits[3] = true;
-            }
-            else
-            {
-                bits[0] = false;
-                bits[1] = false;
-                bits[2] = false;
-                bits[3] = false;
-            }
+            bits[0] = false;
+            bits[1] = false;
+            bits[2] = false;
+            bits[3] = false;
 
 
             int nBytes = (byte)(num / 8 + (num % 8 > 0 ? 1 : 0));
@@ -109,7 +102,7 @@ namespace IoTModbus
 
         private void btnWriteHoldings_Click(object sender, EventArgs e)
         {
-            int num = 2;
+            int num = 20;
             ushort ID = 3;
             byte unit = 1;
             ushort startAddress = 0;
@@ -134,6 +127,7 @@ namespace IoTModbus
         private void btnReadHoldings_Click(object sender, EventArgs e)
         {
             comHandler.send(3, 4, 1, 0, 4);
+            cnt++;
         }
 
         private void btnReadDis_Click(object sender, EventArgs e)
@@ -148,18 +142,17 @@ namespace IoTModbus
 
         private void btnWriteSCoil_Click(object sender, EventArgs e)
         {
-
             int num = 1;
             ushort ID = 7;
             byte unit = 1;
-            ushort startAddress = 0;
+            ushort startAddress = 1;
 
-            bool bit = false;
+            bool bit = true;
             byte[] data = new byte[1];
             if (bit) data[0] = 255;
             else data[0] = 0;
 
-            comHandler.send(5, ID, unit, startAddress, 1, data);
+            comHandler.send(5, ID, unit, startAddress,(byte)num, data);
         }
 
         private void btnWriteSR_Click(object sender, EventArgs e)
@@ -191,25 +184,6 @@ namespace IoTModbus
         private void btnGenerate_Click(object sender, EventArgs e)
         {
             comHandler.generateReport();
-        }
-
-        private void enableWritingToHolding()
-        {
-            int num = 2;
-            ushort ID = 2;
-            byte unit = 1;
-            ushort startAddress = 4;
-
-            bool[] bits = new bool[num];
-            bits[0] = true;
-            bits[1] = true;
-
-            int nBytes = (byte)(num / 8 + (num % 8 > 0 ? 1 : 0));
-            byte[] data = new Byte[nBytes];
-            BitArray bitArray = new BitArray(bits);
-            bitArray.CopyTo(data, 0);
-
-            comHandler.send(15, ID, unit, startAddress, (byte)num, data);
         }
     }
 }
