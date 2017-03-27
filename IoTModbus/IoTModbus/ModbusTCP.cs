@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace IoTModbus
 {
@@ -26,6 +27,7 @@ namespace IoTModbus
         private ushort port;
 
         List<Transaction> transactions = new List<Transaction>();
+        static SemaphoreSlim _sem = new SemaphoreSlim(1);
 
         // ------------------------------------------------------------------------
         /// <summary>Response data event. This event is called when new data arrives</summary>
@@ -185,7 +187,9 @@ namespace IoTModbus
                 
                     if (netStream.CanWrite)
                     {
+                    _sem.Wait();
                         bool notUnique = transactions.Any(l => l.TId == txn.TId);
+                    _sem.Release();
                         if (notUnique) { }    //TODO: Create Error handling 
                         else
                         {
@@ -216,9 +220,12 @@ namespace IoTModbus
         {
             if (ar.IsCompleted == false) { } //TODO: Add Exeption
             Transaction t = (Transaction)ar.AsyncState;
+            _sem.Wait();
             transactions.Add(t);
+            _sem.Release();
             _report.recordFunctionTransaction(t.FuncNr, t.Unit, t.StartAddress, t.Length);
             netStream.EndWrite(ar);
+            System.Diagnostics.Debug.WriteLine("out" + t.TId.ToString());
         }
 
         // ------------------------------------------------------------------------
@@ -230,9 +237,11 @@ namespace IoTModbus
                 if (ar.IsCompleted == false) { } //TODO: Add Exeption
 
                 Transaction t = (Transaction)ar.AsyncState;
+                _sem.Wait();
                 var itemToRemove = transactions.SingleOrDefault(p => p.TId == t.TId);
                 if (itemToRemove != null) transactions.Remove(itemToRemove);
                 checkForTimeout();
+                _sem.Release();
 
 
                 byte[] pdu;
@@ -246,7 +255,7 @@ namespace IoTModbus
                 if (!ex)
                 {
                     if (OnResponseDataTCP != null) OnResponseDataTCP(id, unit, funcNr, data); //TODO: TRIM TCP REGISTER
-                    System.Diagnostics.Debug.WriteLine("Response data = " + " FuncNumber = " + funcNr.ToString() + " Value " + ByteArrayToString(data));
+                    System.Diagnostics.Debug.WriteLine("in" + id.ToString());
                 }
                 else if (ex)
                 {

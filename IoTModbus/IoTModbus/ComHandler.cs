@@ -105,11 +105,11 @@ namespace IoTModbus
 
         // ------------------------------------------------------------------------
         /// <summary>Connects to the Modbus slave</summary>
-        public void connect(string ip,int port)
+        public void connect(string ip,ushort port)
         {
             try
             {
-                modbusTCP = new ModbusTCP("192.168.1.101", 502, report);
+                modbusTCP = new ModbusTCP(ip, port, report);
                 modbusTCP.OnResponseDataTCP += new ModbusTCP.ResponseDataTCP(ModbusTCP_OnResponseData);
                 modbusTCP.OnExceptionTCP += new ModbusTCP.ExceptionDataTCP(ModbusTCP_OnException);
                 connected = true;
