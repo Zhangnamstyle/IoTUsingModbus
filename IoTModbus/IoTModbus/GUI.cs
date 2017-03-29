@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -263,13 +261,13 @@ namespace IoTModbus
                 DialogResult dR = MessageBox.Show("This operation may take some time, Continue ?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (dR == DialogResult.Yes)
                 {
-                try { 
-
+                try {
+                    
                     List<string> list = new List<string>();
                     for (int i = 1; i < 255; i++)
                     {
-
-                        var hostname = "192.168.1." + i;
+                        this.Cursor = Cursors.WaitCursor;
+                        var hostname = "10.38.23." + i;
                         var port = Convert.ToInt16(txtPort.Text);
                         var timeout = TimeSpan.FromSeconds(0.05);
                         var client = new TcpClient();
@@ -284,17 +282,28 @@ namespace IoTModbus
                         }
 
                     }
+                    this.Cursor = Cursors.IBeam;
                     if (list.Count < 1)
                     {
 
+                        MessageBox.Show("No Slaves Found", "Scan Completed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         cboIP.DataSource = null;
                     }
                     else
                     {
+                        string message;
+                        if (list.Count == 1)
+                        {
+                            message = string.Format("{0} Slave found", list.Count);
+                        }
+                        else
+                        {
+                            message = string.Format("{0} Slaves found", list.Count);
+                        }
+
+                        MessageBox.Show( message,"Scan Completed", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                         cboIP.DataSource = list;
-                    }
-                    string message = "Scan Completed";
-                    MessageBox.Show(message, "No Slaves Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    } 
                 }
                 catch (SocketException ex)
                 {
