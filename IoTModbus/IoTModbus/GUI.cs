@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -15,7 +16,9 @@ namespace IoTModbus
     public partial class GUI : Form
     {
         ComHandler comHandler;
+        Timer tmr1 = new Timer();
         public int cnt;
+        private ushort id;
 
         public GUI()
         {
@@ -28,6 +31,49 @@ namespace IoTModbus
                 comHandler.OnException += new IoTModbus.ComHandler.ExceptionData(comHandler_OnException);
                 comHandler.OnError += new IoTModbus.ComHandler.ErrorData(comHandler_OnError);
             }
+
+            cnt = 0;
+            tmr1.Interval = 5;
+            tmr1.Tick += Tmr1_Tick;
+            id = 0;
+            
+        }
+
+        private void Tmr1_Tick(object sender, EventArgs e)
+        {
+            int num = 4;
+            ushort ID = getID();
+            byte unit = 1;
+            ushort startAddress = 50;
+            bool[] bits = new bool[num];
+
+            if (cnt == 0)
+            {
+                bits[0] = true;
+                bits[1] = true;
+                bits[2] = true;
+                bits[3] = true;
+
+                cnt = 1;
+            }
+            else if(cnt == 1)
+            {
+                bits[0] = false;
+                bits[1] = false;
+                bits[2] = false;
+                bits[3] = false;
+
+                cnt = 0;
+            }
+
+            int nBytes = (byte)(num / 8 + (num % 8 > 0 ? 1 : 0));
+            byte[] data = new Byte[nBytes];
+            BitArray bitArray = new BitArray(bits);
+            bitArray.CopyTo(data, 0);
+
+            comHandler.send(15, ID, unit, startAddress, (byte)num, data);
+            ID = getID();
+            comHandler.send(1, ID, 1, 0, 4);
         }
 
         private void comHandler_OnError(Exception ex)
@@ -37,9 +83,15 @@ namespace IoTModbus
 
         private void btnConnect_Click(object sender, EventArgs e)
         {
-            string ip = txtIP.ToString();
-            int port = Convert.ToInt16(txtPort.Text.ToString()); 
-            comHandler.connect(ip,port);
+            IPAddress ip;
+            ushort port;
+            bool res1 = IPAddress.TryParse(txtIP.Text, out ip);
+            bool res2 = ushort.TryParse(txtPort.Text, out port);
+            if (!res1) MessageBox.Show("Error");
+            if (!res1) MessageBox.Show("Error");
+            else comHandler.connect(ip.ToString(), port);
+
+
         }
 
         private void comHandler_OnResponseData(ushort id, byte unit, byte function, byte[] data)
@@ -75,13 +127,14 @@ namespace IoTModbus
 
         private void btnRead_Click(object sender, EventArgs e)
         {
-            comHandler.send(1, 1, 1, 0, 4);
+            ushort ID = getID();
+            comHandler.send(1, ID, 1, 0, 4);
         }
 
         private void btnWriteCoils_Click(object sender, EventArgs e)
         {
             int num = 4;
-            ushort ID = 1;
+            ushort ID = getID();
             byte unit = 1;
             ushort startAddress = 50;
 
@@ -102,8 +155,8 @@ namespace IoTModbus
 
         private void btnWriteHoldings_Click(object sender, EventArgs e)
         {
-            int num = 20;
-            ushort ID = 3;
+            int num = 4;
+            ushort ID = getID();
             byte unit = 1;
             ushort startAddress = 0;
 
@@ -126,24 +179,27 @@ namespace IoTModbus
 
         private void btnReadHoldings_Click(object sender, EventArgs e)
         {
-            comHandler.send(3, 4, 1, 0, 4);
+            ushort ID = getID();
+            comHandler.send(3, ID, 1, 0, 4);
             cnt++;
         }
 
         private void btnReadDis_Click(object sender, EventArgs e)
         {
-            comHandler.send(2, 5, 1, 0, 4);
+            ushort ID = getID();
+            comHandler.send(2, ID, 1, 0, 4);
         }
 
         private void btnReadInputReg_Click(object sender, EventArgs e)
         {
-            comHandler.send(4, 6, 1, 0, 2);
+            ushort ID = getID();
+            comHandler.send(4, ID, 1, 0, 2);
         }
 
         private void btnWriteSCoil_Click(object sender, EventArgs e)
         {
             int num = 1;
-            ushort ID = 7;
+            ushort ID = getID();
             byte unit = 1;
             ushort startAddress = 1;
 
@@ -158,7 +214,7 @@ namespace IoTModbus
         private void btnWriteSR_Click(object sender, EventArgs e)
         {
             int num = 1;
-            ushort ID = 8;
+            ushort ID = getID();
             byte unit = 1;
             ushort startAddress = 1;
 
@@ -178,12 +234,78 @@ namespace IoTModbus
 
         private void btnReportSlaveID_Click(object sender, EventArgs e)
         {
-            comHandler.reportSlaveID(9, 1);
+            //comHandler.reportSlaveID(9, 1);
+            tmr1.Start();
+
         }
 
         private void btnGenerate_Click(object sender, EventArgs e)
         {
+            tmr1.Stop();
             comHandler.generateReport();
         }
+
+        private void txtIP_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+        private ushort getID()
+        {
+            ushort ID = id;
+            id++;
+            return ID;
+            
+        }
+
+        private void btnScan_Click(object sender, EventArgs e)
+        {
+
+                DialogResult dR = MessageBox.Show("This operation may take some time, Continue ?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dR == DialogResult.Yes)
+                {
+                try { 
+
+                    List<string> list = new List<string>();
+                    for (int i = 1; i < 255; i++)
+                    {
+
+                        var hostname = "192.168.1." + i;
+                        var port = Convert.ToInt16(txtPort.Text);
+                        var timeout = TimeSpan.FromSeconds(0.05);
+                        var client = new TcpClient();
+                        if (!client.ConnectAsync(hostname, port).Wait(timeout))
+                        {
+                            System.Diagnostics.Debug.Write(hostname + " is not open \r\n");
+                        }
+                        else
+                        {
+                            list.Add(hostname);
+                            client.Close();
+                        }
+
+                    }
+                    if (list.Count < 1)
+                    {
+
+                        cboIP.DataSource = null;
+                    }
+                    else
+                    {
+                        cboIP.DataSource = list;
+                    }
+                    string message = "Scan Completed";
+                    MessageBox.Show(message, "No Slaves Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                catch (SocketException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+
+            }
+
+            
+        }
+
+        
     }
 }
