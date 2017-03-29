@@ -95,6 +95,7 @@ namespace IoTModbus
 
         // ------------------------------------------------------------------------
         /// <summary>Constructor for Report class</summary>
+        /// <param name="_username
         public ComHandler(string _username,int _userId)
         {
                 username = _username;
@@ -124,7 +125,7 @@ namespace IoTModbus
         private void ModbusTCP_OnException(ushort id, byte unit, byte function, byte exception)
         {
             string exM = exMessage(exception);
-            report.recordException(id, function, unit, exception, exM);
+            report.recordException(id, function, exception, exM);
             disconnect();
             if (OnException != null) OnException(id, unit, function, exM);
         }
@@ -175,7 +176,6 @@ namespace IoTModbus
         /// <param name="values"></param>
         public void send(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numInputs)
         {
-
             try
             {
                 modbusTCP.sendTCP(funcNr, tId, unit, startAddress, numInputs);
@@ -188,14 +188,27 @@ namespace IoTModbus
 
         public void reportSlaveID(byte tId,byte unit)
         {
-            modbusTCP.reportSlaveID(tId, unit);
+            try
+            {
+                modbusTCP.reportSlaveID(tId, unit);
+            }
+            catch(Exception ex)
+            {
+                OnError(ex);
+            }
         }
         public void generateReport()
         {
-            report.CloseTime = DateTime.Now;
-            report.generateReport();
+            try
+            {
+                report.CloseTime = DateTime.Now;
+                report.generateReport();
+            }
+            catch (Exception ex)
+            {
+                OnError(ex);
+            }
         }
-
         public static string Username
         {
             get { return username; }

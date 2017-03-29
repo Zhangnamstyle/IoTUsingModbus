@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -43,7 +44,7 @@ namespace IoTModbus
             int num = 4;
             ushort ID = getID();
             byte unit = 1;
-            ushort startAddress = 0;
+            ushort startAddress = 50;
             bool[] bits = new bool[num];
 
             if (cnt == 0)
@@ -135,7 +136,7 @@ namespace IoTModbus
             int num = 4;
             ushort ID = getID();
             byte unit = 1;
-            ushort startAddress = 0;
+            ushort startAddress = 50;
 
             bool[] bits = new bool[num];
             bits[0] = false;
@@ -258,13 +259,53 @@ namespace IoTModbus
 
         private void btnScan_Click(object sender, EventArgs e)
         {
-            DialogResult dR = MessageBox.Show("This operation may take some time, Continue ?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if(DialogResult == DialogResult.Yes)
-            {
 
+                DialogResult dR = MessageBox.Show("This operation may take some time, Continue ?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dR == DialogResult.Yes)
+                {
+                try { 
+
+                    List<string> list = new List<string>();
+                    for (int i = 1; i < 255; i++)
+                    {
+
+                        var hostname = "192.168.1." + i;
+                        var port = Convert.ToInt16(txtPort.Text);
+                        var timeout = TimeSpan.FromSeconds(0.05);
+                        var client = new TcpClient();
+                        if (!client.ConnectAsync(hostname, port).Wait(timeout))
+                        {
+                            System.Diagnostics.Debug.Write(hostname + " is not open \r\n");
+                        }
+                        else
+                        {
+                            list.Add(hostname);
+                            client.Close();
+                        }
+
+                    }
+                    if (list.Count < 1)
+                    {
+
+                        cboIP.DataSource = null;
+                    }
+                    else
+                    {
+                        cboIP.DataSource = list;
+                    }
+                    string message = "Scan Completed";
+                    MessageBox.Show(message, "No Slaves Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                catch (SocketException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
 
             }
+
             
         }
+
+        
     }
 }

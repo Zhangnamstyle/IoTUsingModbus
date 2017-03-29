@@ -223,7 +223,7 @@ namespace IoTModbus
             _sem.Wait();
             transactions.Add(t);
             _sem.Release();
-            _report.recordFunctionTransaction(t.FuncNr, t.Unit, t.StartAddress, t.Length);
+            _report.recordFunctionTransaction(t.FuncNr, t.StartAddress, t.Length);
             netStream.EndWrite(ar);
             System.Diagnostics.Debug.WriteLine("out" + t.TId.ToString());
         }

@@ -130,6 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="lib\itextsharp.dll" />
+    <None Include="Resources\Modbus IoT.jpg" />
     <None Include="Resources\Modbus IoT.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

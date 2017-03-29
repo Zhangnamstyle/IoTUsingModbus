@@ -23,60 +23,67 @@ namespace IoTModbus
         
 
         // ------------------------------------------------------------------------
-        /// <summary>Constructor for Report class</summary>
+        /// <summary>Constructor for Report class.</summary>
         public Report()
         {
             functionTable = getFunctionTable();
             exceptionTable = getExceptionTable();
 
         }
+
+        // ------------------------------------------------------------------------
+        /// <summary>Returns a DataTable filled with the supported Modbus Function Codes.</summary>
         static DataTable getFunctionTable()
         {
             DataTable dt = new DataTable();
             dt.Columns.Add("Function Code", typeof(byte));
             dt.Columns.Add("Function Name", typeof(string));
-            dt.Columns.Add("Unit Id", typeof(byte));
-            dt.Columns.Add("StartAddress", typeof(ushort));
-            dt.Columns.Add("EndAddress",typeof(ushort));
+            dt.Columns.Add("Start Address", typeof(ushort));
+            dt.Columns.Add("End Address",typeof(ushort));
             dt.Columns.Add("Number of Function Calls", typeof(int));
 
-            dt.Rows.Add(1, "Read Coil", 1, null, null, 0);
-            dt.Rows.Add(2, "Read Discrete Input", 1, null, null, 0);
-            dt.Rows.Add(3, "Read Holding Register", 1, null, null, 0);
-            dt.Rows.Add(4, "Read Input Register", 1, null, null, 0);
-            dt.Rows.Add(5, "Write Singel Coil", 1, null, null, 0);
-            dt.Rows.Add(6, "Write Singel Register", 1, null, null, 0);
-            dt.Rows.Add(15, "Write Multiple Coils", 1, null, null, 0);
-            dt.Rows.Add(16, "Write Multiple Registers", 1, null, null, 0);
+            dt.Rows.Add(1, "Read Coil", null, null, 0);
+            dt.Rows.Add(2, "Read Discrete Input", null, null, 0);
+            dt.Rows.Add(3, "Read Holding Register", null, null, 0);
+            dt.Rows.Add(4, "Read Input Register", null, null, 0);
+            dt.Rows.Add(5, "Write Singel Coil", null, null, 0);
+            dt.Rows.Add(6, "Write Singel Register", null, null, 0);
+            dt.Rows.Add(15, "Write Multiple Coils", null, null, 0);
+            dt.Rows.Add(16, "Write Multiple Registers", null, null, 0);
             return dt;
         }
+
+        // ------------------------------------------------------------------------
+        /// <summary>Returns a DataTable filled with the supported Modbus Exception Codes.</summary>
         static DataTable getExceptionTable()
         {
             DataTable dt = new DataTable();
             dt.Columns.Add("Exception Code", typeof(byte));
             dt.Columns.Add("Exception Name", typeof(string));
             dt.Columns.Add("Transaction Id", typeof(ushort));
-            dt.Columns.Add("Unit Id", typeof(byte));
             dt.Columns.Add("Function Code", typeof(byte));
             dt.Columns.Add("Timestamp", typeof(DateTime));
             return dt;
         }
 
-        public void recordFunctionTransaction(byte funcNr, byte unit, ushort startAddress, ushort length)
+        // ------------------------------------------------------------------------
+        /// <summary>Records the function transaction in the report.</summary>
+        /// <param name="funcNr">Function Code</param>
+        public void recordFunctionTransaction(byte funcNr, ushort startAddress, ushort length)
         {
             DataRow[] funcRow = functionTable.Select("[Function Code] =" + funcNr);
 
-            if (funcRow[0]["StartAddress"].ToString().Length == 0)
+            if (funcRow[0]["Start Address"].ToString().Length == 0 || funcRow[0]["Start Address"] == null)
             {
-                funcRow[0]["StartAddress"] = startAddress;
+                funcRow[0]["Start Address"] = startAddress;
             }
-            else if ((ushort)funcRow[0]["StartAddress"] > startAddress) funcRow[0]["StartAddress"] = startAddress;
+            else if ((ushort)funcRow[0]["Start Address"] > startAddress) funcRow[0]["Start Address"] = startAddress;
             
-            if (funcRow[0]["EndAddress"].ToString().Length == 0)
+            if (funcRow[0]["End Address"].ToString().Length == 0 || funcRow[0]["End Address"] == null)
             {
-                funcRow[0]["EndAddress"] = startAddress + length;
+                funcRow[0]["End Address"] = startAddress + length;
             }
-            else if ((ushort)funcRow[0]["EndAddress"] < startAddress + length ) funcRow[0]["StartAddress"] = startAddress + length ;
+            else if ((ushort)funcRow[0]["End Address"] < startAddress + length ) funcRow[0]["Start Address"] = startAddress + length ;
 
             int tempCount = (int)funcRow[0]["Number of Function Calls"];
 
@@ -84,9 +91,9 @@ namespace IoTModbus
 
         }
 
-        public void recordException(ushort tId,byte funcNr,byte unit,byte exep,string excepMessage)
+        public void recordException(ushort tId,byte funcNr,byte exep,string excepMessage)
         {
-            exceptionTable.Rows.Add(exep, excepMessage, tId, unit, funcNr, DateTime.Now);
+            exceptionTable.Rows.Add(exep, excepMessage, tId, funcNr, DateTime.Now);
         }
 
         // ------------------------------------------------------------------------
