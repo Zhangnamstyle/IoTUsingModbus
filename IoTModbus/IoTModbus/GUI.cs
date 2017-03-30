@@ -18,6 +18,11 @@ namespace IoTModbus
         public int cnt;
         private ushort id;
 
+        public delegate void EventType();
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public event EventType EventA;
+        
+
         public GUI()
         {
             InitializeComponent();
@@ -34,6 +39,7 @@ namespace IoTModbus
             tmr1.Interval = 5;
             tmr1.Tick += Tmr1_Tick;
             id = 0;
+            
             
         }
 
@@ -239,6 +245,7 @@ namespace IoTModbus
 
         private void btnGenerate_Click(object sender, EventArgs e)
         {
+            EventA();
             tmr1.Stop();
             comHandler.generateReport();
         }

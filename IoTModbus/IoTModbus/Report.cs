@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
+using System.Threading;
 
 namespace IoTModbus
 {
@@ -20,6 +21,7 @@ namespace IoTModbus
         private DateTime startTime;
         private DateTime stopTime;
         private DateTime connectedTime;
+        private SemaphoreSlim _sem; //TODO: Test out Sempahore
         
 
         // ------------------------------------------------------------------------
@@ -28,6 +30,7 @@ namespace IoTModbus
         {
             functionTable = getFunctionTable();
             exceptionTable = getExceptionTable();
+            _sem = new SemaphoreSlim(1);
 
         }
 
@@ -71,6 +74,8 @@ namespace IoTModbus
         /// <param name="funcNr">Function Code</param>
         public void recordFunctionTransaction(byte funcNr, ushort startAddress, ushort length)
         {
+            _sem.Wait(); //SEMPAHORE
+
             DataRow[] funcRow = functionTable.Select("[Function Code] =" + funcNr);
 
             if (funcRow[0]["Start Address"].ToString().Length == 0 || funcRow[0]["Start Address"] == null)
@@ -88,6 +93,8 @@ namespace IoTModbus
             int tempCount = (int)funcRow[0]["Number of Function Calls"];
 
             funcRow[0]["Number of Function Calls"] = tempCount + 1;
+
+            _sem.Release(); //SEMPAHORE
 
         }
 

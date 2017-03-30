@@ -19,3 +19,4 @@ C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\obj\
 C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\bin\Debug\itextsharp.dll
 C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus\bin\Debug\itextsharp.dll
 C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus\obj\Debug\IoTModbus.welcomeForm.resources
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\obj\Debug\IoTModbus.welcomeForm.resources

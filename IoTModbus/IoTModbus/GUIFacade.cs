@@ -22,14 +22,22 @@ namespace IoTModbus
             tmr.Tick += Tmr_Tick;
             tmr.Start();
 
+            gui.EventA += OnEventB;
+
             Application.Run(gui);
         }
 
+        private void OnEventB()
+        {
+            MessageBox.Show("This event thing worked");
+        }
 
         private void Tmr_Tick(object sender, EventArgs e)
         {
+            
             System.Diagnostics.Debug.WriteLine(cnt.ToString());
             cnt++;  
         }
+        
     }
 }
