@@ -16,10 +16,10 @@ namespace IoTModbus
         protected int inputVal { get; set; }
         protected int outputVal { get; set; }
 
-        protected short inputReg;
-        protected short outputReg;
+        protected ushort inputReg;
+        protected ushort outputReg;
 
-        public IO(short _inputReg,short _outputReg)
+        public IO(ushort _inputReg,ushort _outputReg)
         {
             IOId = 0;
             IOType = "Unspecified";
@@ -39,15 +39,20 @@ namespace IoTModbus
         {
             return outputVal;
         }
-        public short InputRegister
+        public ushort InputRegister
         {
             get { return inputReg; }
             set { inputReg = value; }
         }
-        public short OutputRegister
+        public ushort OutputRegister
         {
             get { return outputReg; }
             set { outputReg = value; }
+        }
+        public int InputValue
+        {
+            get { return inputVal; }
+            set { inputVal = value; }
         }
     }
 
@@ -56,7 +61,7 @@ namespace IoTModbus
         private double maxV = 10;
         private double minV = -10;
 
-        public analogIO(short _inputReg, short _outputReg) :base(_inputReg,_outputReg)
+        public analogIO(ushort _inputReg, ushort _outputReg) :base(_inputReg,_outputReg)
         {
             IOId = getNextId();
             IOType = "Analog";
@@ -74,7 +79,7 @@ namespace IoTModbus
         private int high = 255;
         private int low = 0;
 
-        public digitalIO(short _inputReg,short _outputReg) :base(_inputReg,_outputReg)
+        public digitalIO(ushort _inputReg,ushort _outputReg) :base(_inputReg,_outputReg)
         {
             IOId = getNextId();
             IOType = "Digital";
@@ -83,8 +88,8 @@ namespace IoTModbus
         }
         public override int GetOutputValue()
         {
-            if (inputVal >= 1) return high;
-            else return low;
+            if (inputVal >= 1) return low;
+            else return high;
         }
     }
 }

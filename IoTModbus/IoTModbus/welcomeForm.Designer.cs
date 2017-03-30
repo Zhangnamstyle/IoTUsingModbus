@@ -54,6 +54,7 @@
             this.txtSNumber.Name = "txtSNumber";
             this.txtSNumber.Size = new System.Drawing.Size(165, 36);
             this.txtSNumber.TabIndex = 2;
+            this.txtSNumber.Text = "1";
             // 
             // txtName
             // 
@@ -62,6 +63,7 @@
             this.txtName.Name = "txtName";
             this.txtName.Size = new System.Drawing.Size(328, 36);
             this.txtName.TabIndex = 1;
+            this.txtName.Text = "A";
             // 
             // picLogo
             // 

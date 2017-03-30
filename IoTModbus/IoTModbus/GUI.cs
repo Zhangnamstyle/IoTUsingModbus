@@ -13,34 +13,39 @@ namespace IoTModbus
 {
     public partial class GUI : Form
     {
-        ComHandler comHandler;
         Timer tmr1 = new Timer();
-        public int cnt;
-        private ushort id;
 
-        public delegate void EventType();
+        public delegate void ConnectData(string ip,string port);
         /// <summary>Response data event. This event is called when new data arrives</summary>
-        public event EventType EventA;
-        
+        public event ConnectData onConnectClick;
+        public delegate void ReportData();
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public event ReportData onReportClick;
 
-        public GUI()
+
+        int cnt = 0;
+
+
+        public GUI(GUIFacade guiFacade)
         {
             InitializeComponent();
-            cnt = 0;
-            if (comHandler == null)
-            {
-                comHandler = new ComHandler("Alexander", 121174);
-                comHandler.OnResponseData += new IoTModbus.ComHandler.ResponseData(comHandler_OnResponseData);
-                comHandler.OnException += new IoTModbus.ComHandler.ExceptionData(comHandler_OnException);
-                comHandler.OnError += new IoTModbus.ComHandler.ErrorData(comHandler_OnError);
-            }
 
-            cnt = 0;
-            tmr1.Interval = 5;
-            tmr1.Tick += Tmr1_Tick;
-            id = 0;
+            guiFacade.OnMessage += new GUIFacade.MessageData(guiFacade_OnMessage);
             
-            
+            //cnt = 0;
+            //tmr1.Interval = 5;
+            //tmr1.Tick += Tmr1_Tick;
+            //id = 0;
+        }
+
+        private void guiFacade_OnMessage(string message)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new GUIFacade.MessageData(guiFacade_OnMessage), new object[] { message });
+                return;
+            }
+            txtMessages.AppendText(message + "\n");
         }
 
         private void Tmr1_Tick(object sender, EventArgs e)
@@ -75,38 +80,29 @@ namespace IoTModbus
             BitArray bitArray = new BitArray(bits);
             bitArray.CopyTo(data, 0);
 
-            comHandler.send(15, ID, unit, startAddress, (byte)num, data);
+            //comHandler.send(15, ID, unit, startAddress, (byte)num, data);
             ID = getID();
-            comHandler.send(1, ID, 1, 0, 4);
+            //comHandler.send(1, ID, 1, 0, 4);
         }
 
-        private void comHandler_OnError(Exception ex)
-        {
-            MessageBox.Show(ex.Message);
-        }
+
 
         private void btnConnect_Click(object sender, EventArgs e)
         {
-            IPAddress ip;
-            ushort port;
-            bool res1 = IPAddress.TryParse(txtIP.Text, out ip);
-            bool res2 = ushort.TryParse(txtPort.Text, out port);
-            if (!res1) MessageBox.Show("Error");
-            if (!res1) MessageBox.Show("Error");
-            else comHandler.connect(ip.ToString(), port);
-
-
-        }
-
-        private void comHandler_OnResponseData(ushort id, byte unit, byte function, byte[] data)
-        {
-            if (this.InvokeRequired)
+           string ip = "000.000.0.0";
+            string port = txtPort.Text.ToString();
+           if(rdoAuto.Checked)
             {
-                this.BeginInvoke(new ComHandler.ResponseData(comHandler_OnResponseData), new object[] { id, unit, function, data });
-                return;
+                ip = cboIP.SelectedItem.ToString();
             }
-            this.txtMessages.AppendText("ID: " + id.ToString() + " Unit: " + unit.ToString() + " Function: " + function.ToString() +" Values: " +ByteArrayToString(data) + "\r\n");
+           else if(rdoManual.Checked)
+            {
+                ip = txtIP.Text.ToString();
+            }
+            onConnectClick(ip, port);
         }
+
+        
 
 
         // ------------------------------------------------------------------------
@@ -119,20 +115,16 @@ namespace IoTModbus
             return hex.ToString();
         }
 
-        private void comHandler_OnException(ushort id, byte unit, byte function, string exMessage)
-        {
-            MessageBox.Show(exMessage, "Modbus Exception");
-        }
 
         private void btnDisconnect_Click(object sender, EventArgs e)
         {
-            comHandler.disconnect();        
+            
         }
 
         private void btnRead_Click(object sender, EventArgs e)
         {
             ushort ID = getID();
-            comHandler.send(1, ID, 1, 0, 4);
+            //comHandler.send(1, ID, 1, 0, 4);
         }
 
         private void btnWriteCoils_Click(object sender, EventArgs e)
@@ -154,7 +146,7 @@ namespace IoTModbus
             BitArray bitArray = new BitArray(bits);
             bitArray.CopyTo(data, 0);
 
-            comHandler.send(15, ID, unit, startAddress, (byte)num, data);
+            //comHandler.send(15, ID, unit, startAddress, (byte)num, data);
         }
 
         private void btnWriteHoldings_Click(object sender, EventArgs e)
@@ -178,26 +170,26 @@ namespace IoTModbus
                 data[x * 2 + 1] = tempData[1];
             }
 
-            comHandler.send(16, ID, unit, startAddress, (byte)num, data);
+            //comHandler.send(16, ID, unit, startAddress, (byte)num, data);
         }
 
         private void btnReadHoldings_Click(object sender, EventArgs e)
         {
             ushort ID = getID();
-            comHandler.send(3, ID, 1, 0, 4);
+            //comHandler.send(3, ID, 1, 0, 4);
             cnt++;
         }
 
         private void btnReadDis_Click(object sender, EventArgs e)
         {
             ushort ID = getID();
-            comHandler.send(2, ID, 1, 0, 4);
+            //comHandler.send(2, ID, 1, 0, 4);
         }
 
         private void btnReadInputReg_Click(object sender, EventArgs e)
         {
             ushort ID = getID();
-            comHandler.send(4, ID, 1, 0, 2);
+            //comHandler.send(4, ID, 1, 0, 2);
         }
 
         private void btnWriteSCoil_Click(object sender, EventArgs e)
@@ -212,7 +204,7 @@ namespace IoTModbus
             if (bit) data[0] = 255;
             else data[0] = 0;
 
-            comHandler.send(5, ID, unit, startAddress,(byte)num, data);
+            //comHandler.send(5, ID, unit, startAddress,(byte)num, data);
         }
 
         private void btnWriteSR_Click(object sender, EventArgs e)
@@ -233,7 +225,7 @@ namespace IoTModbus
                 data[x * 2 + 1] = tempData[1];
             }
 
-            comHandler.send(6, ID, unit, startAddress, (byte)num, data);
+            //comHandler.send(6, ID, unit, startAddress, (byte)num, data);
         }
 
         private void btnReportSlaveID_Click(object sender, EventArgs e)
@@ -245,19 +237,16 @@ namespace IoTModbus
 
         private void btnGenerate_Click(object sender, EventArgs e)
         {
-            EventA();
-            tmr1.Stop();
-            comHandler.generateReport();
+            onReportClick();
+            //comHandler.generateReport();
         }
 
-        private void txtIP_TextChanged(object sender, EventArgs e)
-        {
 
-        }
         private ushort getID()
         {
-            ushort ID = id;
-            id++;
+            ushort ID = 2;
+            //ushort ID = id;
+            //id++;
             return ID;
             
         }
@@ -274,9 +263,9 @@ namespace IoTModbus
                     for (int i = 1; i < 255; i++)
                     {
                         this.Cursor = Cursors.WaitCursor;
-                        var hostname = "10.38.23." + i;
+                        var hostname = "192.168.1." + i;
                         var port = Convert.ToInt16(txtPort.Text);
-                        var timeout = TimeSpan.FromSeconds(0.05);
+                        var timeout = TimeSpan.FromSeconds(0.01);
                         var client = new TcpClient();
                         if (!client.ConnectAsync(hostname, port).Wait(timeout))
                         {

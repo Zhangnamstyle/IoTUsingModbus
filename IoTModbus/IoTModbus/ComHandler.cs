@@ -41,7 +41,7 @@ namespace IoTModbus
         /// <summary>Exception data event. This event is called when the data is incorrect</summary>
         public event ExceptionData OnException;
         /// <summary>Response data event. This event is called when new data arrives</summary>
-        public delegate void ResponseData(ushort id, byte unit, byte function, byte[] data);
+        public delegate void ResponseData(ushort id, byte unit, byte function, byte[] data,string rawData,ushort startAddress);
         /// <summary>Response data event. This event is called when new data arrives</summary>
         public event ResponseData OnResponseData;
         /// <summary>Response data event. This event is called when new data arrives</summary>
@@ -130,9 +130,9 @@ namespace IoTModbus
             if (OnException != null) OnException(id, unit, function, exM);
         }
 
-        private void ModbusTCP_OnResponseData(ushort id, byte unit, byte function, byte[] data)
+        private void ModbusTCP_OnResponseData(ushort id, byte unit, byte function, byte[] data,string rawData,ushort startAddress)
         {
-            if (OnResponseData != null) OnResponseData(id, unit, function, data);
+            if (OnResponseData != null) OnResponseData(id, unit, function, data,rawData,startAddress);
         }
 
         // ------------------------------------------------------------------------

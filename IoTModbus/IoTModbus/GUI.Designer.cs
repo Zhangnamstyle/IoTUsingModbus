@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GUI));
             this.btnConnect = new System.Windows.Forms.Button();
             this.btnDisconnect = new System.Windows.Forms.Button();
             this.btnRead = new System.Windows.Forms.Button();
@@ -99,16 +100,16 @@
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.grpSettings = new System.Windows.Forms.GroupBox();
-            this.btnScan = new System.Windows.Forms.Button();
-            this.cboIP = new System.Windows.Forms.ComboBox();
-            this.rdoAuto = new System.Windows.Forms.RadioButton();
-            this.rdoManual = new System.Windows.Forms.RadioButton();
-            this.lblPort = new System.Windows.Forms.Label();
-            this.lblIP = new System.Windows.Forms.Label();
-            this.txtPort = new System.Windows.Forms.TextBox();
-            this.txtIP = new System.Windows.Forms.TextBox();
-            this.btnGenerate = new System.Windows.Forms.Button();
             this.grpIP = new System.Windows.Forms.GroupBox();
+            this.rdoManual = new System.Windows.Forms.RadioButton();
+            this.rdoAuto = new System.Windows.Forms.RadioButton();
+            this.btnScan = new System.Windows.Forms.Button();
+            this.lblIP = new System.Windows.Forms.Label();
+            this.cboIP = new System.Windows.Forms.ComboBox();
+            this.txtIP = new System.Windows.Forms.TextBox();
+            this.lblPort = new System.Windows.Forms.Label();
+            this.txtPort = new System.Windows.Forms.TextBox();
+            this.btnGenerate = new System.Windows.Forms.Button();
             this.tbcMain.SuspendLayout();
             this.tpgValues.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -625,7 +626,7 @@
             // 
             // pictureBox3
             // 
-            this.pictureBox3.Image = global::IoTModbus.Properties.Resources.aOutR;
+            this.pictureBox3.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox3.Image")));
             this.pictureBox3.Location = new System.Drawing.Point(410, 37);
             this.pictureBox3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pictureBox3.Name = "pictureBox3";
@@ -635,7 +636,7 @@
             // 
             // pictureBox4
             // 
-            this.pictureBox4.Image = global::IoTModbus.Properties.Resources.aOutB;
+            this.pictureBox4.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox4.Image")));
             this.pictureBox4.Location = new System.Drawing.Point(410, 125);
             this.pictureBox4.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pictureBox4.Name = "pictureBox4";
@@ -645,7 +646,7 @@
             // 
             // pictureBox2
             // 
-            this.pictureBox2.Image = global::IoTModbus.Properties.Resources.aOutR;
+            this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
             this.pictureBox2.Location = new System.Drawing.Point(410, 217);
             this.pictureBox2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pictureBox2.Name = "pictureBox2";
@@ -655,7 +656,7 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = global::IoTModbus.Properties.Resources.aOutB;
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
             this.pictureBox1.Location = new System.Drawing.Point(410, 300);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pictureBox1.Name = "pictureBox1";
@@ -665,7 +666,7 @@
             // 
             // ledAO2
             // 
-            this.ledAO2.Image = global::IoTModbus.Properties.Resources.greyOff;
+            this.ledAO2.Image = ((System.Drawing.Image)(resources.GetObject("ledAO2.Image")));
             this.ledAO2.InitialImage = null;
             this.ledAO2.Location = new System.Drawing.Point(244, 260);
             this.ledAO2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -676,7 +677,7 @@
             // 
             // ledAO1
             // 
-            this.ledAO1.Image = global::IoTModbus.Properties.Resources.greyOff;
+            this.ledAO1.Image = ((System.Drawing.Image)(resources.GetObject("ledAO1.Image")));
             this.ledAO1.InitialImage = null;
             this.ledAO1.Location = new System.Drawing.Point(244, 83);
             this.ledAO1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -687,7 +688,7 @@
             // 
             // knoAI2
             // 
-            this.knoAI2.Image = global::IoTModbus.Properties.Resources.KnobM;
+            this.knoAI2.Image = ((System.Drawing.Image)(resources.GetObject("knoAI2.Image")));
             this.knoAI2.InitialImage = null;
             this.knoAI2.Location = new System.Drawing.Point(76, 218);
             this.knoAI2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -698,7 +699,7 @@
             // 
             // knoAI1
             // 
-            this.knoAI1.Image = global::IoTModbus.Properties.Resources.KnobM;
+            this.knoAI1.Image = ((System.Drawing.Image)(resources.GetObject("knoAI1.Image")));
             this.knoAI1.InitialImage = null;
             this.knoAI1.Location = new System.Drawing.Point(76, 38);
             this.knoAI1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -724,7 +725,7 @@
             // 
             // swiDI2
             // 
-            this.swiDI2.Image = global::IoTModbus.Properties.Resources.switchM;
+            this.swiDI2.Image = ((System.Drawing.Image)(resources.GetObject("swiDI2.Image")));
             this.swiDI2.InitialImage = null;
             this.swiDI2.Location = new System.Drawing.Point(130, 260);
             this.swiDI2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -735,7 +736,7 @@
             // 
             // swiDI1
             // 
-            this.swiDI1.Image = global::IoTModbus.Properties.Resources.switchM;
+            this.swiDI1.Image = ((System.Drawing.Image)(resources.GetObject("swiDI1.Image")));
             this.swiDI1.InitialImage = null;
             this.swiDI1.Location = new System.Drawing.Point(130, 78);
             this.swiDI1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -746,7 +747,7 @@
             // 
             // ledDO2
             // 
-            this.ledDO2.Image = global::IoTModbus.Properties.Resources.greenOff;
+            this.ledDO2.Image = ((System.Drawing.Image)(resources.GetObject("ledDO2.Image")));
             this.ledDO2.InitialImage = null;
             this.ledDO2.Location = new System.Drawing.Point(250, 83);
             this.ledDO2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -757,7 +758,7 @@
             // 
             // ledDO4
             // 
-            this.ledDO4.Image = global::IoTModbus.Properties.Resources.greenOff;
+            this.ledDO4.Image = ((System.Drawing.Image)(resources.GetObject("ledDO4.Image")));
             this.ledDO4.InitialImage = null;
             this.ledDO4.Location = new System.Drawing.Point(250, 260);
             this.ledDO4.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -768,7 +769,7 @@
             // 
             // ledDO3
             // 
-            this.ledDO3.Image = global::IoTModbus.Properties.Resources.greenOff;
+            this.ledDO3.Image = ((System.Drawing.Image)(resources.GetObject("ledDO3.Image")));
             this.ledDO3.InitialImage = null;
             this.ledDO3.Location = new System.Drawing.Point(21, 260);
             this.ledDO3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -779,7 +780,7 @@
             // 
             // ledDO1
             // 
-            this.ledDO1.Image = global::IoTModbus.Properties.Resources.greenOff;
+            this.ledDO1.Image = ((System.Drawing.Image)(resources.GetObject("ledDO1.Image")));
             this.ledDO1.InitialImage = null;
             this.ledDO1.Location = new System.Drawing.Point(21, 83);
             this.ledDO1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -928,99 +929,6 @@
             this.grpSettings.TabStop = false;
             this.grpSettings.Text = "Settings";
             // 
-            // btnScan
-            // 
-            this.btnScan.Location = new System.Drawing.Point(310, 97);
-            this.btnScan.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.btnScan.Name = "btnScan";
-            this.btnScan.Size = new System.Drawing.Size(148, 35);
-            this.btnScan.TabIndex = 9;
-            this.btnScan.Text = "Scan";
-            this.btnScan.UseVisualStyleBackColor = true;
-            this.btnScan.Click += new System.EventHandler(this.btnScan_Click);
-            // 
-            // cboIP
-            // 
-            this.cboIP.FormattingEnabled = true;
-            this.cboIP.Location = new System.Drawing.Point(310, 59);
-            this.cboIP.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.cboIP.Name = "cboIP";
-            this.cboIP.Size = new System.Drawing.Size(148, 28);
-            this.cboIP.TabIndex = 8;
-            // 
-            // rdoAuto
-            // 
-            this.rdoAuto.AutoSize = true;
-            this.rdoAuto.Location = new System.Drawing.Point(307, 26);
-            this.rdoAuto.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.rdoAuto.Name = "rdoAuto";
-            this.rdoAuto.Size = new System.Drawing.Size(151, 24);
-            this.rdoAuto.TabIndex = 7;
-            this.rdoAuto.TabStop = true;
-            this.rdoAuto.Text = "Scan For Device";
-            this.rdoAuto.UseVisualStyleBackColor = true;
-            // 
-            // rdoManual
-            // 
-            this.rdoManual.AutoSize = true;
-            this.rdoManual.Location = new System.Drawing.Point(11, 30);
-            this.rdoManual.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.rdoManual.Name = "rdoManual";
-            this.rdoManual.Size = new System.Drawing.Size(153, 24);
-            this.rdoManual.TabIndex = 6;
-            this.rdoManual.TabStop = true;
-            this.rdoManual.Text = "Known Device IP";
-            this.rdoManual.UseVisualStyleBackColor = true;
-            // 
-            // lblPort
-            // 
-            this.lblPort.AutoSize = true;
-            this.lblPort.Location = new System.Drawing.Point(20, 25);
-            this.lblPort.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblPort.Name = "lblPort";
-            this.lblPort.Size = new System.Drawing.Size(38, 20);
-            this.lblPort.TabIndex = 5;
-            this.lblPort.Text = "Port";
-            // 
-            // lblIP
-            // 
-            this.lblIP.AutoSize = true;
-            this.lblIP.Location = new System.Drawing.Point(7, 67);
-            this.lblIP.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblIP.Name = "lblIP";
-            this.lblIP.Size = new System.Drawing.Size(24, 20);
-            this.lblIP.TabIndex = 4;
-            this.lblIP.Text = "IP";
-            // 
-            // txtPort
-            // 
-            this.txtPort.Location = new System.Drawing.Point(19, 50);
-            this.txtPort.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.txtPort.Name = "txtPort";
-            this.txtPort.Size = new System.Drawing.Size(94, 26);
-            this.txtPort.TabIndex = 3;
-            this.txtPort.Text = "502";
-            // 
-            // txtIP
-            // 
-            this.txtIP.Location = new System.Drawing.Point(39, 64);
-            this.txtIP.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.txtIP.Name = "txtIP";
-            this.txtIP.Size = new System.Drawing.Size(148, 26);
-            this.txtIP.TabIndex = 2;
-            this.txtIP.Text = "192.168.1.126";
-            this.txtIP.TextChanged += new System.EventHandler(this.txtIP_TextChanged);
-            // 
-            // btnGenerate
-            // 
-            this.btnGenerate.Location = new System.Drawing.Point(712, 116);
-            this.btnGenerate.Name = "btnGenerate";
-            this.btnGenerate.Size = new System.Drawing.Size(147, 35);
-            this.btnGenerate.TabIndex = 8;
-            this.btnGenerate.Text = "Generate PDF";
-            this.btnGenerate.UseVisualStyleBackColor = true;
-            this.btnGenerate.Click += new System.EventHandler(this.btnGenerate_Click);
-            // 
             // grpIP
             // 
             this.grpIP.Controls.Add(this.rdoManual);
@@ -1035,6 +943,98 @@
             this.grpIP.TabIndex = 10;
             this.grpIP.TabStop = false;
             this.grpIP.Text = "IP";
+            // 
+            // rdoManual
+            // 
+            this.rdoManual.AutoSize = true;
+            this.rdoManual.Checked = true;
+            this.rdoManual.Location = new System.Drawing.Point(11, 30);
+            this.rdoManual.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.rdoManual.Name = "rdoManual";
+            this.rdoManual.Size = new System.Drawing.Size(153, 24);
+            this.rdoManual.TabIndex = 6;
+            this.rdoManual.TabStop = true;
+            this.rdoManual.Text = "Known Device IP";
+            this.rdoManual.UseVisualStyleBackColor = true;
+            // 
+            // rdoAuto
+            // 
+            this.rdoAuto.AutoSize = true;
+            this.rdoAuto.Location = new System.Drawing.Point(307, 26);
+            this.rdoAuto.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.rdoAuto.Name = "rdoAuto";
+            this.rdoAuto.Size = new System.Drawing.Size(151, 24);
+            this.rdoAuto.TabIndex = 7;
+            this.rdoAuto.Text = "Scan For Device";
+            this.rdoAuto.UseVisualStyleBackColor = true;
+            // 
+            // btnScan
+            // 
+            this.btnScan.Location = new System.Drawing.Point(310, 97);
+            this.btnScan.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.btnScan.Name = "btnScan";
+            this.btnScan.Size = new System.Drawing.Size(148, 35);
+            this.btnScan.TabIndex = 9;
+            this.btnScan.Text = "Scan";
+            this.btnScan.UseVisualStyleBackColor = true;
+            this.btnScan.Click += new System.EventHandler(this.btnScan_Click);
+            // 
+            // lblIP
+            // 
+            this.lblIP.AutoSize = true;
+            this.lblIP.Location = new System.Drawing.Point(7, 67);
+            this.lblIP.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblIP.Name = "lblIP";
+            this.lblIP.Size = new System.Drawing.Size(24, 20);
+            this.lblIP.TabIndex = 4;
+            this.lblIP.Text = "IP";
+            // 
+            // cboIP
+            // 
+            this.cboIP.FormattingEnabled = true;
+            this.cboIP.Location = new System.Drawing.Point(310, 59);
+            this.cboIP.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.cboIP.Name = "cboIP";
+            this.cboIP.Size = new System.Drawing.Size(148, 28);
+            this.cboIP.TabIndex = 8;
+            // 
+            // txtIP
+            // 
+            this.txtIP.Location = new System.Drawing.Point(39, 64);
+            this.txtIP.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtIP.Name = "txtIP";
+            this.txtIP.Size = new System.Drawing.Size(148, 26);
+            this.txtIP.TabIndex = 2;
+            this.txtIP.Text = "192.168.1.100";
+            // 
+            // lblPort
+            // 
+            this.lblPort.AutoSize = true;
+            this.lblPort.Location = new System.Drawing.Point(20, 25);
+            this.lblPort.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblPort.Name = "lblPort";
+            this.lblPort.Size = new System.Drawing.Size(38, 20);
+            this.lblPort.TabIndex = 5;
+            this.lblPort.Text = "Port";
+            // 
+            // txtPort
+            // 
+            this.txtPort.Location = new System.Drawing.Point(19, 50);
+            this.txtPort.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtPort.Name = "txtPort";
+            this.txtPort.Size = new System.Drawing.Size(94, 26);
+            this.txtPort.TabIndex = 3;
+            this.txtPort.Text = "502";
+            // 
+            // btnGenerate
+            // 
+            this.btnGenerate.Location = new System.Drawing.Point(712, 116);
+            this.btnGenerate.Name = "btnGenerate";
+            this.btnGenerate.Size = new System.Drawing.Size(147, 35);
+            this.btnGenerate.TabIndex = 8;
+            this.btnGenerate.Text = "Generate PDF";
+            this.btnGenerate.UseVisualStyleBackColor = true;
+            this.btnGenerate.Click += new System.EventHandler(this.btnGenerate_Click);
             // 
             // GUI
             // 

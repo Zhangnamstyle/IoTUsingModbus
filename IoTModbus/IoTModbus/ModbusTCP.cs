@@ -31,7 +31,7 @@ namespace IoTModbus
 
         // ------------------------------------------------------------------------
         /// <summary>Response data event. This event is called when new data arrives</summary>
-        public delegate void ResponseDataTCP(ushort id, byte unit, byte function, byte[] data);
+        public delegate void ResponseDataTCP(ushort id, byte unit, byte function, byte[] data,string rawData,ushort startAddress);
         /// <summary>Response data event. This event is called when new data arrives</summary>
         public event ResponseDataTCP OnResponseDataTCP;
         /// <summary>Exception data event. This event is called when the data is incorrect</summary>
@@ -194,8 +194,8 @@ namespace IoTModbus
                         else
                         {
 
-                            string s = ByteArrayToString(adu);
-                            System.Diagnostics.Debug.WriteLine(s); //Remove when release      
+                            //string s = ByteArrayToString(adu);
+                            //System.Diagnostics.Debug.WriteLine(s); //Remove when release      
                             netStream.BeginWrite(adu, 0, adu.Length, new AsyncCallback(recieveCallBack), txn);
                             netStream.BeginRead(tcpBuffer, 0, tcpBuffer.Length, new AsyncCallback(OnReceive), txn);
                         }
@@ -238,7 +238,7 @@ namespace IoTModbus
 
                 Transaction t = (Transaction)ar.AsyncState;
                 _sem.Wait();
-                var itemToRemove = transactions.SingleOrDefault(p => p.TId == t.TId);
+                var itemToRemove = transactions.FirstOrDefault(p => p.TId == t.TId);
                 if (itemToRemove != null) transactions.Remove(itemToRemove);
                 checkForTimeout();
                 _sem.Release();
@@ -247,6 +247,7 @@ namespace IoTModbus
                 byte[] pdu;
                 byte funcNr;
                 bool ex;
+                string rawData = ByteArrayToString(tcpBuffer);
                 byte[] mbap = ModbusADU.decodeADU(tcpBuffer, out pdu);
                 byte[] data = ModbusPDU.ReadPDU(pdu, out funcNr, out ex);
 
@@ -254,7 +255,7 @@ namespace IoTModbus
                 byte unit = mbap[6];
                 if (!ex)
                 {
-                    if (OnResponseDataTCP != null) OnResponseDataTCP(id, unit, funcNr, data); //TODO: TRIM TCP REGISTER
+                    if (OnResponseDataTCP != null) OnResponseDataTCP(id, unit, funcNr, data,rawData,t.StartAddress); //TODO: TRIM TCP REGISTER
                     System.Diagnostics.Debug.WriteLine("in" + id.ToString());
                 }
                 else if (ex)
@@ -274,10 +275,11 @@ namespace IoTModbus
         private void checkForTimeout()
         {
 
-            var itemToRemove = transactions.SingleOrDefault(p => p.tDiff >= 5);
+            var itemToRemove = transactions.FirstOrDefault(p => p.tDiff >= 5);
             if (itemToRemove != null)
             {
                 //TODO: Report Id and timeouttime and FIX issue
+                System.Diagnostics.Debug.WriteLine("Timeout");
                 transactions.Remove(itemToRemove);
             }
 
