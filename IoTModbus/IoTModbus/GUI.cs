@@ -24,7 +24,7 @@ namespace IoTModbus
 
 
         int cnt = 0;
-
+        
 
         public GUI(GUIFacade guiFacade)
         {
@@ -36,16 +36,51 @@ namespace IoTModbus
             //tmr1.Interval = 5;
             //tmr1.Tick += Tmr1_Tick;
             //id = 0;
+            
         }
 
         private void guiFacade_OnMessage(string message)
         {
+            string stringOut =  "";
             if (this.InvokeRequired)
             {
                 this.BeginInvoke(new GUIFacade.MessageData(guiFacade_OnMessage), new object[] { message });
                 return;
             }
-            txtMessages.AppendText(message + "\n");
+            if (rdoHex.Checked)
+            {
+                stringOut = message;
+            }
+            else if (rdoBinary.Checked)
+            {
+                //BitArray bitArray = new BitArray(message);
+                //bits = new bool[bitArray.Count];
+                //bitArray.CopyTo(bits, 0);
+            }
+            else if(rdoASCII.Checked)
+            {
+                try
+                {
+                    string ascii = string.Empty;
+
+                    for (int i = 0; i < message.Length; i += 2)
+                    {
+                        String hs = string.Empty;
+
+                        hs = message.Substring(i, 2);
+                        uint decval = System.Convert.ToUInt32(hs, 16);
+                        char character = System.Convert.ToChar(decval);
+                        ascii += character;
+
+                    }
+
+                    stringOut = ascii;
+                }
+                catch (Exception ex) { MessageBox.Show(ex.Message); }
+
+            }
+        
+            txtMessages.AppendText(stringOut + "\n");
         }
 
         private void Tmr1_Tick(object sender, EventArgs e)
@@ -135,12 +170,12 @@ namespace IoTModbus
             ushort startAddress = 50;
 
             bool[] bits = new bool[num];
-            bits[0] = false;
+            bits[0] = true;
             bits[1] = false;
             bits[2] = false;
             bits[3] = false;
 
-
+            
             int nBytes = (byte)(num / 8 + (num % 8 > 0 ? 1 : 0));
             byte[] data = new Byte[nBytes];
             BitArray bitArray = new BitArray(bits);

@@ -75,51 +75,76 @@ namespace IoTModbus
             if (!res2) MessageBox.Show("Error");
             comHandler.connect(ip.ToString(),port); //Fix toString
 
-            activateAnalogOut();
+            if (ComHandler.Connected)
+            {
+                activateAnalogOut();
 
-            d1 = new digitalIO(0, 0);
-            d2 = new digitalIO(1, 1);
-            d3 = new digitalIO(2, 2);
-            d4 = new digitalIO(3, 3);
+                d1 = new digitalIO(0, 0);
+                d2 = new digitalIO(1, 1);
+                d3 = new digitalIO(2, 2);
+                d4 = new digitalIO(3, 3);
 
-            a1 = new analogIO(0, 0);
-            a2 = new analogIO(1, 1);
+                a1 = new analogIO(0, 0);
+                a2 = new analogIO(1, 1);
 
 
 
-            tmr.Start();
+                tmr.Start();
+            }
         }
 
    
 
         private void MainLoop()
         {
-            checkDI(d1);
-            Thread.Sleep(80);
-            checkDI(d2);
-            Thread.Sleep(80);
-            checkDI(d3);
-            Thread.Sleep(80);
-            checkDI(d4);
-            Thread.Sleep(80);
-            checkAI(a1);
-            Thread.Sleep(80);
-            checkAI(a2);
-            Thread.Sleep(80);
+            //checkSingleDI(d1);
+            //Thread.Sleep(100);
+            //checkSingleDI(d2);
+            //Thread.Sleep(100);
+            //checkSingleDI(d3);
+            //Thread.Sleep(100);
+            //checkSingleDI(d4);
+            //Thread.Sleep(100);
+            //checkSingleAI(a1);
+            //Thread.Sleep(100);
+            //checkSingleAI(a2);
+            //Thread.Sleep(100);
+
+            checkMultipleDI(d1, d4);
+            Thread.Sleep(100);
+            checkMultipleAI(a1, a2);
+            Thread.Sleep(100);
+
+
+
         }
-        private void checkDI(digitalIO dIO)
+
+        private void checkMultipleAI(analogIO aStart, analogIO aEnd)
+        {
+            int num = 2;
+            byte unit = 1;
+            ushort startAddress = aStart.InputRegister;
+            comHandler.send(4, getID(), unit, startAddress, (byte)num);
+        }
+
+        private void checkMultipleDI(digitalIO dStart, digitalIO dEnd)
+        {
+            int num = 4;
+            byte unit = 1;
+            ushort startAddress = dStart.InputRegister;
+            comHandler.send(2, getID(), unit, startAddress, (byte)num);
+        }
+
+        private void checkSingleDI(digitalIO dIO)
         {
             int num = 1;
             byte unit = 1;
             ushort startAddress = dIO.InputRegister;
             comHandler.send(2, getID(), unit, startAddress, (byte)num);
         }
-        private void checkAI(analogIO aIO)
+        private void checkSingleAI(analogIO aIO)
         {
-            int num = 1;
-            byte unit = 1;
-            ushort startAddress = aIO.InputRegister;
-            comHandler.send(4, getID(), unit, startAddress, (byte)num);
+            
         }
 
         private void Tmr_Tick(object sender, EventArgs e)
@@ -147,90 +172,161 @@ namespace IoTModbus
             return _ioObj;
         }
 
-        private void comHandler_OnResponseData(ushort id, byte unit, byte function, byte[] data,string rawData,ushort startAddress)
+        private void comHandler_OnResponseData(ushort id, byte unit, byte function, byte[] data,string rawData,ushort startAddress,ushort lenght)
         {
             int outVal = 0;
+
             ushort outReg = 0;
             switch (function)
             {
-                
+
                 case 1:
-                    
-                    if (startAddress == d1.InputRegister)
+                    if (lenght <= 1)
                     {
-                        d1.InputValue = data[1];
-                        outVal = d1.GetOutputValue();
+                        if (startAddress == d1.InputRegister)
+                        {
+                            d1.InputValue = data[1];
+                            outVal = d1.GetOutputValue();
+                        }
+                        else if (startAddress == d2.InputRegister)
+                        {
+                            d2.InputValue = data[1];
+                            outVal = d2.GetOutputValue();
+                        }
                     }
-                    else if (startAddress == d2.InputRegister)
+                    else
                     {
-                        d2.InputValue = data[1];
-                        outVal = d2.GetOutputValue();
+
                     }
+                    OnMessage(rawData);
                     break;
                 case 2:
-                    
-                    if (startAddress == d1.InputRegister)
+                    if (lenght <= 1)
                     {
-                        d1.InputValue = data[1];
-                        outVal = d1.GetOutputValue();
-                        outReg = d1.OutputRegister;
+                        if (startAddress == d1.InputRegister)
+                        {
+                            d1.InputValue = data[1];
+                            outVal = d1.GetOutputValue();
+                            outReg = d1.OutputRegister;
+                        }
+                        else if (startAddress == d2.InputRegister)
+                        {
+                            d2.InputValue = data[1];
+                            outVal = d2.GetOutputValue();
+                            outReg = d2.OutputRegister;
+                        }
+                        else if (startAddress == d3.InputRegister)
+                        {
+                            d3.InputValue = data[1];
+                            outVal = d3.GetOutputValue();
+                            outReg = d3.OutputRegister;
+                        }
+                        else if (startAddress == d4.InputRegister)
+                        {
+                            d4.InputValue = data[1];
+                            outVal = d4.GetOutputValue();
+                            outReg = d4.OutputRegister;
+                        }
+                        byte[] outData = new byte[1];
+                        outData[0] = (byte)outVal;
+                        comHandler.send(5, getID(), unit, outReg, 1, outData);
                     }
-                    else if (startAddress == d2.InputRegister)
+                    else
                     {
-                        d2.InputValue = data[1];
-                        outVal = d2.GetOutputValue();
-                        outReg = d2.OutputRegister;
+                        bool[] bits = new bool[1];
+                        byte[] tempData = new byte[1];
+                        Buffer.BlockCopy(data, 1, tempData, 0, 1);
+                        BitArray bitArray = new BitArray(tempData);
+                        bits = new bool[bitArray.Count];
+                        bitArray.CopyTo(bits, 0);
+
+                        d1.InputValue = bits[0] ? 1 : 0;
+                        d2.InputValue = bits[1] ? 1 : 0;
+                        d3.InputValue = bits[2] ? 1 : 0;
+                        d4.InputValue = bits[3] ? 1 : 0;
+
+                        bool[] outDataBool = new bool[4];
+                        outDataBool[0] = Convert.ToBoolean(d1.GetOutputValue());
+                        outDataBool[1] = Convert.ToBoolean(d2.GetOutputValue());
+                        outDataBool[2] = Convert.ToBoolean(d3.GetOutputValue());
+                        outDataBool[3] = Convert.ToBoolean(d4.GetOutputValue());
+
+                        int nBytes = (byte)(4 / 8 + (4 % 8 > 0 ? 1 : 0));
+                        byte[] outData = new Byte[nBytes];
+                        BitArray bitA = new BitArray(outDataBool);
+                        bitA.CopyTo(outData, 0);
+
+                        comHandler.send(15, getID(), unit, startAddress, 4, outData);
                     }
-                    else if (startAddress == d3.InputRegister)
-                    {
-                        d3.InputValue = data[1];
-                        outVal = d3.GetOutputValue();
-                        outReg = d3.OutputRegister;
-                    }
-                    else if (startAddress == d4.InputRegister)
-                    {
-                        d4.InputValue = data[1];
-                        outVal = d4.GetOutputValue();
-                        outReg = d4.OutputRegister;
-                    }
-                    byte[] outData = new byte[1];
-                    outData[0] = (byte)outVal;
-                    comHandler.send(5, getID(), unit, outReg, 1, outData);
+                    OnMessage(rawData);
                     break;
 
                 case 4:
-
-                    byte[] tempValue = new byte[2];
-                    Buffer.BlockCopy(data, 1, tempValue, 0, 2);
-                    Array.Reverse(tempValue);
-                    int inVal = BitConverter.ToInt16(tempValue, 0);
-
-                    if (startAddress == a1.InputRegister)
+                    if (lenght <= 1)
                     {
-                        a1.InputValue = inVal;
-                        outVal = a1.GetOutputValue();
-                        outReg = a1.OutputRegister;
+                        byte[] tempValue = new byte[2];
+                        Buffer.BlockCopy(data, 1, tempValue, 0, 2);
+                        Array.Reverse(tempValue);
+                        int inVal = BitConverter.ToInt16(tempValue, 0);
+
+                        if (startAddress == a1.InputRegister)
+                        {
+                            a1.InputValue = inVal;
+                            outVal = a1.GetOutputValue();
+                            outReg = a1.OutputRegister;
+                        }
+                        else if (startAddress == a2.InputRegister)
+                        {
+                            a2.InputValue = inVal;
+                            outVal = a2.GetOutputValue();
+                            outReg = a2.OutputRegister;
+                        }
+
+                        int num = 1;
+
+                        int[] temp = new int[num];
+                        temp[0] = outVal;
+
+                        byte[] outAData = new Byte[num * 2];
+                        for (int x = 0; x < num; x++)
+                        {
+                            byte[] tempData = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)temp[x]));
+                            outAData[x * 2] = tempData[0];
+                            outAData[x * 2 + 1] = tempData[1];
+                        }
+                        comHandler.send(6, getID(), unit, outReg, 1, outAData);
                     }
-                    else if (startAddress == a2.InputRegister)
+                    else
                     {
-                        a2.InputValue = inVal;
-                        outVal = a2.GetOutputValue();
-                        outReg = a2.OutputRegister;
+                        byte[] tempValue1 = new byte[2];
+                        byte[] tempValue2 = new byte[2];
+                        Buffer.BlockCopy(data, 1, tempValue1, 0, 2);
+                        Buffer.BlockCopy(data, 3, tempValue2, 0, 2);
+                        Array.Reverse(tempValue1);
+                        Array.Reverse(tempValue2);
+                        int inVal1 = BitConverter.ToInt16(tempValue1, 0);
+                        int inVal2 = BitConverter.ToInt16(tempValue2, 0);
+
+                        a1.InputValue = inVal1;
+                        a2.InputValue = inVal2;
+
+                        
+
+                        int[] temp = new int[2];
+                        temp[0] = a1.GetOutputValue();
+                        temp[1] = a2.GetOutputValue();
+
+                        byte[] holdingData = new Byte[2 * 2];
+                        for (int x = 0; x < 2; x++)
+                        {
+                            byte[] tempData = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)temp[x]));
+                            holdingData[x * 2] = tempData[0];
+                            holdingData[x * 2 + 1] = tempData[1];
+                        }
+                        comHandler.send(16, getID(), unit, a1.OutputRegister,2, holdingData);
+
                     }
-
-                    int num = 1;
-
-                    int[] temp = new int[num];
-                    temp[0] = outVal;
-
-                    byte[] outAData = new Byte[num * 2];
-                    for (int x = 0; x < num; x++)
-                    {
-                        byte[] tempData = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)temp[x]));
-                        outAData[x * 2] = tempData[0];
-                        outAData[x * 2 + 1] = tempData[1];
-                    }
-                    comHandler.send(6, getID(), unit, outReg, 1, outAData);
+                    OnMessage(rawData);
                     break;
             }
 
@@ -239,7 +335,7 @@ namespace IoTModbus
 
 
 
-            OnMessage(rawData);
+            
         }
 
         private void comHandler_OnException(ushort id, byte unit, byte function, string exMessage)

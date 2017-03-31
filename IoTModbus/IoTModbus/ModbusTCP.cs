@@ -31,7 +31,7 @@ namespace IoTModbus
 
         // ------------------------------------------------------------------------
         /// <summary>Response data event. This event is called when new data arrives</summary>
-        public delegate void ResponseDataTCP(ushort id, byte unit, byte function, byte[] data,string rawData,ushort startAddress);
+        public delegate void ResponseDataTCP(ushort id, byte unit, byte function, byte[] data,string rawData,ushort startAddress,ushort lenght);
         /// <summary>Response data event. This event is called when new data arrives</summary>
         public event ResponseDataTCP OnResponseDataTCP;
         /// <summary>Exception data event. This event is called when the data is incorrect</summary>
@@ -243,19 +243,20 @@ namespace IoTModbus
                 checkForTimeout();
                 _sem.Release();
 
-
+                byte[] trimedBuffer = new byte[7 +  tcpBuffer[5]];
                 byte[] pdu;
                 byte funcNr;
                 bool ex;
-                string rawData = ByteArrayToString(tcpBuffer);
-                byte[] mbap = ModbusADU.decodeADU(tcpBuffer, out pdu);
+                Buffer.BlockCopy(tcpBuffer, 0, trimedBuffer, 0, trimedBuffer.Length);
+                string rawData = ByteArrayToString(trimedBuffer);
+                byte[] mbap = ModbusADU.decodeADU(trimedBuffer, out pdu);
                 byte[] data = ModbusPDU.ReadPDU(pdu, out funcNr, out ex);
 
                 ushort id = SwapUInt16(BitConverter.ToUInt16(mbap, 0));
                 byte unit = mbap[6];
                 if (!ex)
                 {
-                    if (OnResponseDataTCP != null) OnResponseDataTCP(id, unit, funcNr, data,rawData,t.StartAddress); //TODO: TRIM TCP REGISTER
+                    if (OnResponseDataTCP != null) OnResponseDataTCP(id, unit, funcNr, data,rawData,t.StartAddress,t.Length); //TODO: TRIM TCP REGISTER
                     System.Diagnostics.Debug.WriteLine("in" + id.ToString());
                 }
                 else if (ex)
@@ -279,7 +280,7 @@ namespace IoTModbus
             if (itemToRemove != null)
             {
                 //TODO: Report Id and timeouttime and FIX issue
-                System.Diagnostics.Debug.WriteLine("Timeout");
+                System.Diagnostics.Debug.WriteLine("Timeout: " + itemToRemove.TId);
                 transactions.Remove(itemToRemove);
             }
 

@@ -88,17 +88,14 @@
             this.ledDO4 = new System.Windows.Forms.PictureBox();
             this.ledDO3 = new System.Windows.Forms.PictureBox();
             this.ledDO1 = new System.Windows.Forms.PictureBox();
-            this.Messages = new System.Windows.Forms.TabPage();
             this.txtMessages = new System.Windows.Forms.TextBox();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnClear = new System.Windows.Forms.Button();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.btnResume = new System.Windows.Forms.Button();
             this.btnPause = new System.Windows.Forms.Button();
-            this.radioButton3 = new System.Windows.Forms.RadioButton();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.rdoASCII = new System.Windows.Forms.RadioButton();
+            this.rdoBinary = new System.Windows.Forms.RadioButton();
+            this.rdoHex = new System.Windows.Forms.RadioButton();
             this.grpSettings = new System.Windows.Forms.GroupBox();
             this.grpIP = new System.Windows.Forms.GroupBox();
             this.rdoManual = new System.Windows.Forms.RadioButton();
@@ -133,7 +130,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.ledDO4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ledDO3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ledDO1)).BeginInit();
-            this.Messages.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.grpSettings.SuspendLayout();
             this.grpIP.SuspendLayout();
@@ -141,7 +137,7 @@
             // 
             // btnConnect
             // 
-            this.btnConnect.Location = new System.Drawing.Point(712, 28);
+            this.btnConnect.Location = new System.Drawing.Point(872, 263);
             this.btnConnect.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnConnect.Name = "btnConnect";
             this.btnConnect.Size = new System.Drawing.Size(147, 35);
@@ -152,7 +148,7 @@
             // 
             // btnDisconnect
             // 
-            this.btnDisconnect.Location = new System.Drawing.Point(712, 73);
+            this.btnDisconnect.Location = new System.Drawing.Point(872, 308);
             this.btnDisconnect.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnDisconnect.Name = "btnDisconnect";
             this.btnDisconnect.Size = new System.Drawing.Size(147, 35);
@@ -182,9 +178,8 @@
             // 
             // tbcMain
             // 
-            this.tbcMain.Controls.Add(this.tpgValues);
             this.tbcMain.Controls.Add(this.tbpSimulator);
-            this.tbcMain.Controls.Add(this.Messages);
+            this.tbcMain.Controls.Add(this.tpgValues);
             this.tbcMain.Location = new System.Drawing.Point(16, 234);
             this.tbcMain.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tbcMain.Name = "tbcMain";
@@ -789,79 +784,42 @@
             this.ledDO1.TabIndex = 0;
             this.ledDO1.TabStop = false;
             // 
-            // Messages
-            // 
-            this.Messages.Controls.Add(this.txtMessages);
-            this.Messages.Controls.Add(this.button3);
-            this.Messages.Controls.Add(this.button2);
-            this.Messages.Controls.Add(this.button1);
-            this.Messages.Controls.Add(this.groupBox5);
-            this.Messages.Location = new System.Drawing.Point(4, 29);
-            this.Messages.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.Messages.Name = "Messages";
-            this.Messages.Size = new System.Drawing.Size(840, 621);
-            this.Messages.TabIndex = 2;
-            this.Messages.Text = "Messages";
-            this.Messages.UseVisualStyleBackColor = true;
-            // 
             // txtMessages
             // 
-            this.txtMessages.Location = new System.Drawing.Point(6, 6);
+            this.txtMessages.Location = new System.Drawing.Point(22, 894);
             this.txtMessages.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtMessages.Multiline = true;
             this.txtMessages.Name = "txtMessages";
-            this.txtMessages.Size = new System.Drawing.Size(823, 535);
+            this.txtMessages.Size = new System.Drawing.Size(1023, 182);
             this.txtMessages.TabIndex = 5;
             // 
-            // button3
+            // btnClear
             // 
-            this.button3.Location = new System.Drawing.Point(252, 614);
-            this.button3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(112, 35);
-            this.button3.TabIndex = 4;
-            this.button3.Text = "Clear";
-            this.button3.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(130, 614);
-            this.button2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(112, 35);
-            this.button2.TabIndex = 3;
-            this.button2.Text = "Stop";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(9, 614);
-            this.button1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(112, 35);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "Start";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnClear.Location = new System.Drawing.Point(429, 1097);
+            this.btnClear.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Size = new System.Drawing.Size(112, 35);
+            this.btnClear.TabIndex = 4;
+            this.btnClear.Text = "Clear";
+            this.btnClear.UseVisualStyleBackColor = true;
             // 
             // groupBox5
             // 
-            this.groupBox5.Controls.Add(this.btnResume);
-            this.groupBox5.Controls.Add(this.btnPause);
-            this.groupBox5.Controls.Add(this.radioButton3);
-            this.groupBox5.Controls.Add(this.radioButton2);
-            this.groupBox5.Controls.Add(this.radioButton1);
-            this.groupBox5.Location = new System.Drawing.Point(9, 552);
+            this.groupBox5.Controls.Add(this.rdoASCII);
+            this.groupBox5.Controls.Add(this.rdoBinary);
+            this.groupBox5.Controls.Add(this.rdoHex);
+            this.groupBox5.Location = new System.Drawing.Point(569, 1086);
             this.groupBox5.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBox5.Size = new System.Drawing.Size(806, 55);
+            this.groupBox5.Size = new System.Drawing.Size(476, 55);
             this.groupBox5.TabIndex = 1;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Representation";
             // 
             // btnResume
             // 
-            this.btnResume.Location = new System.Drawing.Point(471, 17);
+            this.btnResume.Location = new System.Drawing.Point(236, 1097);
             this.btnResume.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnResume.Name = "btnResume";
             this.btnResume.Size = new System.Drawing.Size(112, 35);
@@ -871,7 +829,7 @@
             // 
             // btnPause
             // 
-            this.btnPause.Location = new System.Drawing.Point(350, 17);
+            this.btnPause.Location = new System.Drawing.Point(23, 1097);
             this.btnPause.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnPause.Name = "btnPause";
             this.btnPause.Size = new System.Drawing.Size(112, 35);
@@ -879,41 +837,40 @@
             this.btnPause.Text = "Pause";
             this.btnPause.UseVisualStyleBackColor = true;
             // 
-            // radioButton3
+            // rdoASCII
             // 
-            this.radioButton3.AutoSize = true;
-            this.radioButton3.Location = new System.Drawing.Point(188, 22);
-            this.radioButton3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.radioButton3.Name = "radioButton3";
-            this.radioButton3.Size = new System.Drawing.Size(77, 24);
-            this.radioButton3.TabIndex = 2;
-            this.radioButton3.TabStop = true;
-            this.radioButton3.Text = "ASCII";
-            this.radioButton3.UseVisualStyleBackColor = true;
+            this.rdoASCII.AutoSize = true;
+            this.rdoASCII.Location = new System.Drawing.Point(188, 22);
+            this.rdoASCII.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.rdoASCII.Name = "rdoASCII";
+            this.rdoASCII.Size = new System.Drawing.Size(77, 24);
+            this.rdoASCII.TabIndex = 2;
+            this.rdoASCII.Text = "ASCII";
+            this.rdoASCII.UseVisualStyleBackColor = true;
             // 
-            // radioButton2
+            // rdoBinary
             // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Location = new System.Drawing.Point(98, 22);
-            this.radioButton2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(78, 24);
-            this.radioButton2.TabIndex = 1;
-            this.radioButton2.TabStop = true;
-            this.radioButton2.Text = "Binary";
-            this.radioButton2.UseVisualStyleBackColor = true;
+            this.rdoBinary.AutoSize = true;
+            this.rdoBinary.Location = new System.Drawing.Point(98, 22);
+            this.rdoBinary.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.rdoBinary.Name = "rdoBinary";
+            this.rdoBinary.Size = new System.Drawing.Size(78, 24);
+            this.rdoBinary.TabIndex = 1;
+            this.rdoBinary.Text = "Binary";
+            this.rdoBinary.UseVisualStyleBackColor = true;
             // 
-            // radioButton1
+            // rdoHex
             // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point(10, 22);
-            this.radioButton1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(62, 24);
-            this.radioButton1.TabIndex = 0;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "Hex";
-            this.radioButton1.UseVisualStyleBackColor = true;
+            this.rdoHex.AutoSize = true;
+            this.rdoHex.Checked = true;
+            this.rdoHex.Location = new System.Drawing.Point(10, 22);
+            this.rdoHex.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.rdoHex.Name = "rdoHex";
+            this.rdoHex.Size = new System.Drawing.Size(62, 24);
+            this.rdoHex.TabIndex = 0;
+            this.rdoHex.TabStop = true;
+            this.rdoHex.Text = "Hex";
+            this.rdoHex.UseVisualStyleBackColor = true;
             // 
             // grpSettings
             // 
@@ -924,7 +881,7 @@
             this.grpSettings.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.grpSettings.Name = "grpSettings";
             this.grpSettings.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.grpSettings.Size = new System.Drawing.Size(682, 205);
+            this.grpSettings.Size = new System.Drawing.Size(997, 205);
             this.grpSettings.TabIndex = 7;
             this.grpSettings.TabStop = false;
             this.grpSettings.Text = "Settings";
@@ -937,9 +894,9 @@
             this.grpIP.Controls.Add(this.lblIP);
             this.grpIP.Controls.Add(this.cboIP);
             this.grpIP.Controls.Add(this.txtIP);
-            this.grpIP.Location = new System.Drawing.Point(153, 25);
+            this.grpIP.Location = new System.Drawing.Point(481, 25);
             this.grpIP.Name = "grpIP";
-            this.grpIP.Size = new System.Drawing.Size(509, 147);
+            this.grpIP.Size = new System.Drawing.Size(509, 172);
             this.grpIP.TabIndex = 10;
             this.grpIP.TabStop = false;
             this.grpIP.Text = "IP";
@@ -1028,7 +985,7 @@
             // 
             // btnGenerate
             // 
-            this.btnGenerate.Location = new System.Drawing.Point(712, 116);
+            this.btnGenerate.Location = new System.Drawing.Point(872, 351);
             this.btnGenerate.Name = "btnGenerate";
             this.btnGenerate.Size = new System.Drawing.Size(147, 35);
             this.btnGenerate.TabIndex = 8;
@@ -1040,9 +997,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(872, 908);
+            this.ClientSize = new System.Drawing.Size(1056, 1151);
+            this.Controls.Add(this.btnClear);
+            this.Controls.Add(this.txtMessages);
+            this.Controls.Add(this.btnPause);
+            this.Controls.Add(this.btnResume);
             this.Controls.Add(this.btnGenerate);
             this.Controls.Add(this.grpSettings);
+            this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.tbcMain);
             this.Controls.Add(this.btnConnect);
             this.Controls.Add(this.btnDisconnect);
@@ -1076,8 +1038,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.ledDO4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ledDO3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ledDO1)).EndInit();
-            this.Messages.ResumeLayout(false);
-            this.Messages.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
             this.grpSettings.ResumeLayout(false);
@@ -1085,6 +1045,7 @@
             this.grpIP.ResumeLayout(false);
             this.grpIP.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -1141,14 +1102,11 @@
         private System.Windows.Forms.PictureBox ledDO4;
         private System.Windows.Forms.PictureBox ledDO3;
         private System.Windows.Forms.PictureBox ledDO1;
-        private System.Windows.Forms.TabPage Messages;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnClear;
         private System.Windows.Forms.GroupBox groupBox5;
-        private System.Windows.Forms.RadioButton radioButton3;
-        private System.Windows.Forms.RadioButton radioButton2;
-        private System.Windows.Forms.RadioButton radioButton1;
+        private System.Windows.Forms.RadioButton rdoASCII;
+        private System.Windows.Forms.RadioButton rdoBinary;
+        private System.Windows.Forms.RadioButton rdoHex;
         private System.Windows.Forms.Button btnResume;
         private System.Windows.Forms.Button btnPause;
         private System.Windows.Forms.GroupBox grpSettings;
