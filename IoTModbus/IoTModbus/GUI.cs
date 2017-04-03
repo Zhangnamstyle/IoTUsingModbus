@@ -71,11 +71,6 @@ namespace IoTModbus
             {
                 sOut = ByteArrayToBinaryString(adu);
             }
-            else if (rdoASCII.Checked)
-            {
-                sOut = ByteArrayToASCIIString(adu);
-            }
-
             txtMessages.AppendText(sOut + "\n");
             }
         }
@@ -257,22 +252,6 @@ namespace IoTModbus
                 binary.Append(Convert.ToString(b, 2).PadLeft(8, '0') + " ");
             binary.Append("\n");
             return binary.ToString();
-        }
-        // ------------------------------------------------------------------------
-        /// <summary>Converts a byte array into a ASCII string</summary>
-        private static string ByteArrayToASCIIString(byte[] ba)
-        {
-            string aString = "";
-            try
-            {
-                aString = System.Text.Encoding.UTF8.GetString(ba);
-
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            return aString;
         }
         #endregion
 
