@@ -27,8 +27,9 @@ namespace IoTModbus
 
         private ushort id = 0;
         int cnt = 0;
+        private bool first = true;
 
-        public delegate void MessageData(string message);
+        public delegate void MessageData(byte[] adu);
         /// <summary>Exception data event. This event is called when the data is incorrect</summary>
         public event MessageData OnMessage;
 
@@ -38,6 +39,8 @@ namespace IoTModbus
             gui = new GUI(this);
             gui.onConnectClick += new GUI.ConnectData(gui_onConnect);
             gui.onReportClick += new GUI.ReportData(gui_onReport);
+            gui.onWriteSend += new GUI.WriteData(gui_onWriteSend);
+            gui.onReadSend += new GUI.ReadData(gui_onReadData);
 
             if (comHandler == null)
             {
@@ -54,9 +57,19 @@ namespace IoTModbus
 
             tmr.Interval = 800;
             tmr.Tick += Tmr_Tick;
-            
+           
 
             Application.Run(gui);
+        }
+
+        private void gui_onWriteSend(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numBits, byte[] values)
+        {
+            comHandler.send(funcNr, tId, unit, startAddress, numBits, values);
+        }
+
+        private void gui_onReadData(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numInputs)
+        {
+            comHandler.send(funcNr, tId, unit, startAddress, numInputs);
         }
 
         private void gui_onReport()
@@ -67,48 +80,41 @@ namespace IoTModbus
 
         private void gui_onConnect(string _ip,string _port)
         {
+            gui.Cursor = Cursors.WaitCursor;
             IPAddress ip;
             ushort port;
             bool res1 = IPAddress.TryParse(_ip, out ip);
             bool res2 = ushort.TryParse(_port, out port);
-            if (!res1) MessageBox.Show("Error");
-            if (!res2) MessageBox.Show("Error");
+            if(!res1) MessageBox.Show("The IP provided was not valid","Port Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
+            else if(!res2) MessageBox.Show("The Port provided was not valid","Port Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
+            else
             comHandler.connect(ip.ToString(),port); //Fix toString
 
             if (ComHandler.Connected)
             {
-                activateAnalogOut();
+                if(first)activateAnalogOut();
 
-                d1 = new digitalIO(0, 0);
-                d2 = new digitalIO(1, 1);
-                d3 = new digitalIO(2, 2);
-                d4 = new digitalIO(3, 3);
+                if (gui.Tab == 0)
+                {
+                    d1 = new digitalIO(0, 0);
+                    d2 = new digitalIO(1, 1);
+                    d3 = new digitalIO(2, 2);
+                    d4 = new digitalIO(3, 3);
 
-                a1 = new analogIO(0, 0);
-                a2 = new analogIO(1, 1);
+                    a1 = new analogIO(0, 0);
+                    a2 = new analogIO(1, 1);
 
+                    tmr.Start();
+                }
 
-
-                tmr.Start();
             }
+            gui.Cursor = Cursors.Default;
         }
 
    
 
         private void MainLoop()
         {
-            //checkSingleDI(d1);
-            //Thread.Sleep(100);
-            //checkSingleDI(d2);
-            //Thread.Sleep(100);
-            //checkSingleDI(d3);
-            //Thread.Sleep(100);
-            //checkSingleDI(d4);
-            //Thread.Sleep(100);
-            //checkSingleAI(a1);
-            //Thread.Sleep(100);
-            //checkSingleAI(a2);
-            //Thread.Sleep(100);
 
             checkMultipleDI(d1, d4);
             Thread.Sleep(100);
@@ -172,7 +178,7 @@ namespace IoTModbus
             return _ioObj;
         }
 
-        private void comHandler_OnResponseData(ushort id, byte unit, byte function, byte[] data,string rawData,ushort startAddress,ushort lenght)
+        private void comHandler_OnResponseData(ushort id, byte unit, byte function, byte[] data,byte[] adu,ushort startAddress,ushort lenght)
         {
             int outVal = 0;
 
@@ -198,7 +204,7 @@ namespace IoTModbus
                     {
 
                     }
-                    OnMessage(rawData);
+                    OnMessage(adu);
                     break;
                 case 2:
                     if (lenght <= 1)
@@ -258,7 +264,7 @@ namespace IoTModbus
 
                         comHandler.send(15, getID(), unit, startAddress, 4, outData);
                     }
-                    OnMessage(rawData);
+                    OnMessage(adu);
                     break;
 
                 case 4:
@@ -326,7 +332,7 @@ namespace IoTModbus
                         comHandler.send(16, getID(), unit, a1.OutputRegister,2, holdingData);
 
                     }
-                    OnMessage(rawData);
+                    OnMessage(adu);
                     break;
             }
 
@@ -371,6 +377,7 @@ namespace IoTModbus
             bitArray.CopyTo(data, 0);
 
             comHandler.send(15, ID, unit, startAddress, (byte)num, data);
+            first = false;
         }
 
     }

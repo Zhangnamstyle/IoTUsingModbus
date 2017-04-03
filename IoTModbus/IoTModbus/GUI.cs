@@ -14,6 +14,8 @@ namespace IoTModbus
     public partial class GUI : Form
     {
         Timer tmr1 = new Timer();
+        private bool pause = false;
+        private static int tab;
 
         public delegate void ConnectData(string ip,string port);
         /// <summary>Response data event. This event is called when new data arrives</summary>
@@ -21,6 +23,13 @@ namespace IoTModbus
         public delegate void ReportData();
         /// <summary>Response data event. This event is called when new data arrives</summary>
         public event ReportData onReportClick;
+        public delegate void WriteData(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numBits, byte[] values);
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public event WriteData onWriteSend;
+        public delegate void ReadData(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numInputs);
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public event ReadData onReadSend;
+
 
 
         int cnt = 0;
@@ -31,7 +40,13 @@ namespace IoTModbus
             InitializeComponent();
 
             guiFacade.OnMessage += new GUIFacade.MessageData(guiFacade_OnMessage);
-            
+            btnPause.Enabled = true;
+            btnResume.Enabled = false;
+
+            cboIP.Enabled = false;
+            btnRefresh.Enabled = false;
+
+
             //cnt = 0;
             //tmr1.Interval = 5;
             //tmr1.Tick += Tmr1_Tick;
@@ -39,118 +54,53 @@ namespace IoTModbus
             
         }
 
-        private void guiFacade_OnMessage(string message)
+        private void guiFacade_OnMessage(byte[] adu)
         {
-            string stringOut =  "";
+            if (!pause) { 
+                string sOut = "";
             if (this.InvokeRequired)
             {
-                this.BeginInvoke(new GUIFacade.MessageData(guiFacade_OnMessage), new object[] { message });
+                this.BeginInvoke(new GUIFacade.MessageData(guiFacade_OnMessage), new object[] { adu });
                 return;
             }
             if (rdoHex.Checked)
             {
-                stringOut = message;
+                sOut = ByteArrayToHexString(adu);
             }
             else if (rdoBinary.Checked)
             {
-                //BitArray bitArray = new BitArray(message);
-                //bits = new bool[bitArray.Count];
-                //bitArray.CopyTo(bits, 0);
+                sOut = ByteArrayToBinaryString(adu);
             }
-            else if(rdoASCII.Checked)
+            else if (rdoASCII.Checked)
             {
-                try
-                {
-                    string ascii = string.Empty;
-
-                    for (int i = 0; i < message.Length; i += 2)
-                    {
-                        String hs = string.Empty;
-
-                        hs = message.Substring(i, 2);
-                        uint decval = System.Convert.ToUInt32(hs, 16);
-                        char character = System.Convert.ToChar(decval);
-                        ascii += character;
-
-                    }
-
-                    stringOut = ascii;
-                }
-                catch (Exception ex) { MessageBox.Show(ex.Message); }
-
+                sOut = ByteArrayToASCIIString(adu);
             }
-        
-            txtMessages.AppendText(stringOut + "\n");
+
+            txtMessages.AppendText(sOut + "\n");
+            }
         }
 
-        private void Tmr1_Tick(object sender, EventArgs e)
-        {
-            int num = 4;
-            ushort ID = getID();
-            byte unit = 1;
-            ushort startAddress = 50;
-            bool[] bits = new bool[num];
-
-            if (cnt == 0)
-            {
-                bits[0] = true;
-                bits[1] = true;
-                bits[2] = true;
-                bits[3] = true;
-
-                cnt = 1;
-            }
-            else if(cnt == 1)
-            {
-                bits[0] = false;
-                bits[1] = false;
-                bits[2] = false;
-                bits[3] = false;
-
-                cnt = 0;
-            }
-
-            int nBytes = (byte)(num / 8 + (num % 8 > 0 ? 1 : 0));
-            byte[] data = new Byte[nBytes];
-            BitArray bitArray = new BitArray(bits);
-            bitArray.CopyTo(data, 0);
-
-            //comHandler.send(15, ID, unit, startAddress, (byte)num, data);
-            ID = getID();
-            //comHandler.send(1, ID, 1, 0, 4);
-        }
-
-
-
+      
+        #region Button Events
         private void btnConnect_Click(object sender, EventArgs e)
         {
-           string ip = "000.000.0.0";
+            if (tbcMain.SelectedTab == tbpSimulator) tab = 0;
+            else tab = 1;
+            string ip = "000.000.0.0";
             string port = txtPort.Text.ToString();
            if(rdoAuto.Checked)
             {
-                ip = cboIP.SelectedItem.ToString();
+                if(cboIP.Items.Count > 0) ip = cboIP.SelectedItem.ToString();
             }
            else if(rdoManual.Checked)
             {
                 ip = txtIP.Text.ToString();
             }
-            onConnectClick(ip, port);
+            if (ip != "000.000.0.0") onConnectClick(ip, port);
+            else MessageBox.Show("No IP inputted");
         }
 
-        
-
-
-        // ------------------------------------------------------------------------
-        /// <summary>Writes the adu to the Modbus Slave</summary>
-        public static string ByteArrayToString(byte[] ba)
-        {
-            StringBuilder hex = new StringBuilder(ba.Length * 2);
-            foreach (byte b in ba)
-                hex.AppendFormat("{0:x2}", b);
-            return hex.ToString();
-        }
-
-
+       
         private void btnDisconnect_Click(object sender, EventArgs e)
         {
             
@@ -159,7 +109,7 @@ namespace IoTModbus
         private void btnRead_Click(object sender, EventArgs e)
         {
             ushort ID = getID();
-            //comHandler.send(1, ID, 1, 0, 4);
+            onReadSend(1, ID, 1, 0, 4);
         }
 
         private void btnWriteCoils_Click(object sender, EventArgs e)
@@ -181,7 +131,7 @@ namespace IoTModbus
             BitArray bitArray = new BitArray(bits);
             bitArray.CopyTo(data, 0);
 
-            //comHandler.send(15, ID, unit, startAddress, (byte)num, data);
+            onWriteSend(15, ID, unit, startAddress, (byte)num, data);
         }
 
         private void btnWriteHoldings_Click(object sender, EventArgs e)
@@ -205,26 +155,26 @@ namespace IoTModbus
                 data[x * 2 + 1] = tempData[1];
             }
 
-            //comHandler.send(16, ID, unit, startAddress, (byte)num, data);
+            onWriteSend(16, ID, unit, startAddress, (byte)num, data);
         }
 
         private void btnReadHoldings_Click(object sender, EventArgs e)
         {
             ushort ID = getID();
-            //comHandler.send(3, ID, 1, 0, 4);
+            onReadSend(3, ID, 1, 0, 4);
             cnt++;
         }
 
         private void btnReadDis_Click(object sender, EventArgs e)
         {
             ushort ID = getID();
-            //comHandler.send(2, ID, 1, 0, 4);
+            onReadSend(2, ID, 1, 0, 4);
         }
 
         private void btnReadInputReg_Click(object sender, EventArgs e)
         {
             ushort ID = getID();
-            //comHandler.send(4, ID, 1, 0, 2);
+            onReadSend(4, ID, 1, 0, 2);
         }
 
         private void btnWriteSCoil_Click(object sender, EventArgs e)
@@ -239,7 +189,7 @@ namespace IoTModbus
             if (bit) data[0] = 255;
             else data[0] = 0;
 
-            //comHandler.send(5, ID, unit, startAddress,(byte)num, data);
+            onWriteSend(5, ID, unit, startAddress,(byte)num, data);
         }
 
         private void btnWriteSR_Click(object sender, EventArgs e)
@@ -247,7 +197,7 @@ namespace IoTModbus
             int num = 1;
             ushort ID = getID();
             byte unit = 1;
-            ushort startAddress = 1;
+            ushort startAddress = 100;
 
             int[] temp = new int[num];
             temp[0] = 32000;
@@ -260,7 +210,7 @@ namespace IoTModbus
                 data[x * 2 + 1] = tempData[1];
             }
 
-            //comHandler.send(6, ID, unit, startAddress, (byte)num, data);
+            onWriteSend(6, ID, unit, startAddress, (byte)num, data);
         }
 
         private void btnReportSlaveID_Click(object sender, EventArgs e)
@@ -273,9 +223,8 @@ namespace IoTModbus
         private void btnGenerate_Click(object sender, EventArgs e)
         {
             onReportClick();
-            //comHandler.generateReport();
         }
-
+        #endregion
 
         private ushort getID()
         {
@@ -286,14 +235,88 @@ namespace IoTModbus
             
         }
 
-        private void btnScan_Click(object sender, EventArgs e)
+        public int Tab
+        { get { return tab; } }
+
+        #region Conversion Methods
+        // ------------------------------------------------------------------------
+        /// <summary>Converts a byte array into a hexadecimal string</summary>
+        private static string ByteArrayToHexString(byte[] ba)
+        {
+            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            foreach (byte b in ba)
+                hex.AppendFormat("{0:x2}", b);
+            return hex.ToString();
+        }
+        // ------------------------------------------------------------------------
+        /// <summary>Converts a byte array into a binary string</summary>
+        private static string ByteArrayToBinaryString(byte[] ba)
+        {
+            StringBuilder binary = new StringBuilder(ba.Length * 8);
+            foreach (byte b in ba)
+                binary.Append(Convert.ToString(b, 2).PadLeft(8, '0') + " ");
+            binary.Append("\n");
+            return binary.ToString();
+        }
+        // ------------------------------------------------------------------------
+        /// <summary>Converts a byte array into a ASCII string</summary>
+        private static string ByteArrayToASCIIString(byte[] ba)
+        {
+            string aString = "";
+            try
+            {
+                aString = System.Text.Encoding.UTF8.GetString(ba);
+
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            return aString;
+        }
+        #endregion
+
+
+        private void btnRefresh_Click(object sender, EventArgs e)
+        {
+            scanForDevice();
+        }
+
+        private void rdoAuto_CheckedChanged(object sender, EventArgs e)
+        {
+            if(rdoAuto.Checked)
+            {
+                rdoManual.Checked = false;
+                cboIP.Enabled = true;
+                btnRefresh.Enabled = true;
+
+                txtIP.Enabled = false;
+
+                scanForDevice();
+            }
+        }
+
+        private void rdoManual_CheckedChanged(object sender, EventArgs e)
+        {
+            if(rdoManual.Checked)
+            {
+                rdoAuto.Checked = false;
+                txtIP.Enabled = true;
+
+                cboIP.Enabled = false;
+                btnRefresh.Enabled = false;
+            }
+        }
+
+        private void scanForDevice()
         {
 
-                DialogResult dR = MessageBox.Show("This operation may take some time, Continue ?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (dR == DialogResult.Yes)
+            DialogResult dR = MessageBox.Show("This operation may take some time, Continue ?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (dR == DialogResult.Yes)
+            {
+                try
                 {
-                try {
-                    
+
                     List<string> list = new List<string>();
                     for (int i = 1; i < 255; i++)
                     {
@@ -313,12 +336,13 @@ namespace IoTModbus
                         }
 
                     }
-                    this.Cursor = Cursors.IBeam;
+                    this.Cursor = Cursors.Default;
                     if (list.Count < 1)
                     {
 
                         MessageBox.Show("No Slaves Found", "Scan Completed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         cboIP.DataSource = null;
+                        
                     }
                     else
                     {
@@ -332,20 +356,41 @@ namespace IoTModbus
                             message = string.Format("{0} Slaves found", list.Count);
                         }
 
-                        MessageBox.Show( message,"Scan Completed", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                        MessageBox.Show(message, "Scan Completed", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                         cboIP.DataSource = list;
-                    } 
+                        
+                    }
                 }
                 catch (SocketException ex)
                 {
                     MessageBox.Show(ex.Message);
+                    
                 }
-
-            }
-
-            
+            } 
         }
 
-        
+        private void btnPause_Click(object sender, EventArgs e)
+        {
+            pause = true;
+            btnResume.Enabled = true;
+            btnPause.Enabled = false;
+        }
+
+        private void btnResume_Click(object sender, EventArgs e)
+        {
+            pause = false;
+            btnPause.Enabled = true;
+            btnResume.Enabled = false;
+        }
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            txtMessages.Clear();
+        }
+
+        private void tpgValues_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

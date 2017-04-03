@@ -31,7 +31,7 @@ namespace IoTModbus
 
         // ------------------------------------------------------------------------
         /// <summary>Response data event. This event is called when new data arrives</summary>
-        public delegate void ResponseDataTCP(ushort id, byte unit, byte function, byte[] data,string rawData,ushort startAddress,ushort lenght);
+        public delegate void ResponseDataTCP(ushort id, byte unit, byte function, byte[] data,byte[] adu,ushort startAddress,ushort lenght);
         /// <summary>Response data event. This event is called when new data arrives</summary>
         public event ResponseDataTCP OnResponseDataTCP;
         /// <summary>Exception data event. This event is called when the data is incorrect</summary>
@@ -206,16 +206,6 @@ namespace IoTModbus
 
         // ------------------------------------------------------------------------
         /// <summary>Writes the adu to the Modbus Slave</summary>
-        public static string ByteArrayToString(byte[] ba)
-        {
-            StringBuilder hex = new StringBuilder(ba.Length * 2);
-            foreach (byte b in ba)
-                hex.AppendFormat("{0:x2}", b);
-            return hex.ToString();
-        }
-
-        // ------------------------------------------------------------------------
-        /// <summary>Writes the adu to the Modbus Slave</summary>
         private void recieveCallBack(IAsyncResult ar)
         {
             if (ar.IsCompleted == false) { } //TODO: Add Exeption
@@ -243,27 +233,25 @@ namespace IoTModbus
                 checkForTimeout();
                 _sem.Release();
 
-                byte[] trimedBuffer = new byte[7 +  tcpBuffer[5]];
+                byte[] adu = new byte[6 + tcpBuffer[5]]; //TODO: Find if is this length
                 byte[] pdu;
                 byte funcNr;
                 bool ex;
-                Buffer.BlockCopy(tcpBuffer, 0, trimedBuffer, 0, trimedBuffer.Length);
-                string rawData = ByteArrayToString(trimedBuffer);
-                byte[] mbap = ModbusADU.decodeADU(trimedBuffer, out pdu);
+                Buffer.BlockCopy(tcpBuffer, 0, adu, 0, adu.Length);
+                byte[] mbap = ModbusADU.decodeADU(adu, out pdu);
                 byte[] data = ModbusPDU.ReadPDU(pdu, out funcNr, out ex);
 
                 ushort id = SwapUInt16(BitConverter.ToUInt16(mbap, 0));
                 byte unit = mbap[6];
                 if (!ex)
                 {
-                    if (OnResponseDataTCP != null) OnResponseDataTCP(id, unit, funcNr, data,rawData,t.StartAddress,t.Length); //TODO: TRIM TCP REGISTER
+                    if (OnResponseDataTCP != null) OnResponseDataTCP(id, unit, funcNr, data,adu,t.StartAddress,t.Length);
                     System.Diagnostics.Debug.WriteLine("in" + id.ToString());
                 }
                 else if (ex)
                 {
-
                     if (OnExceptionTCP != null) OnExceptionTCP(id, unit, funcNr, data[0]);
-                    System.Diagnostics.Debug.WriteLine("ExceptionData = " + " FuncNumber = " + funcNr.ToString() + " Value " + ByteArrayToString(data));
+                    System.Diagnostics.Debug.WriteLine("ExceptionData = " + " FuncNumber = " + funcNr.ToString());
                 }
             }
             catch(Exception ex)
