@@ -29,6 +29,8 @@ namespace IoTModbus
         int cnt = 0;
         private bool first = true;
 
+        private static bool manualOveride = false;
+
         public delegate void MessageData(byte[] adu);
         /// <summary>Exception data event. This event is called when the data is incorrect</summary>
         public event MessageData OnMessage;
@@ -41,6 +43,7 @@ namespace IoTModbus
             gui.onReportClick += new GUI.ReportData(gui_onReport);
             gui.onWriteSend += new GUI.WriteData(gui_onWriteSend);
             gui.onReadSend += new GUI.ReadData(gui_onReadData);
+            gui.onInputChange += new GUI.InputData(gui_onInputChange);
 
             if (comHandler == null)
             {
@@ -55,11 +58,22 @@ namespace IoTModbus
             ioObj = createIOArray(nAnalog,nDigital);
 
 
-            tmr.Interval = 800;
+            tmr.Interval = 300;
             tmr.Tick += Tmr_Tick;
            
 
             Application.Run(gui);
+        }
+
+        private void gui_onInputChange(bool DO1, bool DO2, bool DO3, bool DO4, short AO1, short AO2)
+        {
+            d1.InputValue = DO1 ? 0 : 1;
+            d2.InputValue = DO2 ? 0 : 1;
+            d3.InputValue = DO3 ? 0 : 1;
+            d4.InputValue = DO4 ? 0 : 1;
+
+            a1.InputValue = AO1;
+            a2.InputValue = AO2;
         }
 
         private void gui_onWriteSend(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numBits, byte[] values)
@@ -74,7 +88,9 @@ namespace IoTModbus
 
         private void gui_onReport()
         {
+            
             tmr.Stop();
+            comHandler.disconnect();
             comHandler.generateReport();
         }
 
@@ -93,6 +109,7 @@ namespace IoTModbus
             if (ComHandler.Connected)
             {
                 if(first)activateAnalogOut();
+                
 
                 if (gui.Tab == 0)
                 {
@@ -115,14 +132,52 @@ namespace IoTModbus
 
         private void MainLoop()
         {
+            if (manualOveride)
+            {
+                System.Diagnostics.Debug.WriteLine("Manual Override Mode");
+                writeManualOutput();
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Normal Mode");
+                checkMultipleDI(d1, d4);
+                Thread.Sleep(80);
+                checkMultipleAI(a1, a2);
+                Thread.Sleep(80);
+            }
+        }
 
-            checkMultipleDI(d1, d4);
-            Thread.Sleep(100);
-            checkMultipleAI(a1, a2);
-            Thread.Sleep(100);
+        private void writeManualOutput()
+        {
+            bool[] outDataBool = new bool[4];
+            outDataBool[0] = Convert.ToBoolean(d1.GetOutputValue());
+            outDataBool[1] = Convert.ToBoolean(d2.GetOutputValue());
+            outDataBool[2] = Convert.ToBoolean(d3.GetOutputValue());
+            outDataBool[3] = Convert.ToBoolean(d4.GetOutputValue());
 
+            int nBytes = (byte)(4 / 8 + (4 % 8 > 0 ? 1 : 0));
+            byte[] outData = new Byte[nBytes];
+            BitArray bitA = new BitArray(outDataBool);
+            bitA.CopyTo(outData, 0);
 
+            comHandler.send(15, getID(), 1, d1.OutputRegister, 4, outData); //TODO: FIX HARD CODED CODE
 
+            Thread.Sleep(80);
+
+            int[] temp = new int[2];
+            temp[0] = a1.GetOutputValue();
+            temp[1] = a2.GetOutputValue();
+
+            byte[] holdingData = new Byte[2 * 2];
+            for (int x = 0; x < 2; x++)
+            {
+                byte[] tempData = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)temp[x]));
+                holdingData[x * 2] = tempData[0];
+                holdingData[x * 2 + 1] = tempData[1];
+            }
+            comHandler.send(16, getID(), 1, a1.OutputRegister, 2, holdingData);//TODO: FIX HARD CODED CODE
+
+            Thread.Sleep(80);
         }
 
         private void checkMultipleAI(analogIO aStart, analogIO aEnd)
@@ -316,8 +371,6 @@ namespace IoTModbus
                         a1.InputValue = inVal1;
                         a2.InputValue = inVal2;
 
-                        
-
                         int[] temp = new int[2];
                         temp[0] = a1.GetOutputValue();
                         temp[1] = a2.GetOutputValue();
@@ -335,13 +388,7 @@ namespace IoTModbus
                     OnMessage(adu);
                     break;
             }
-
-
-
-
-
-
-            
+         
         }
 
         private void comHandler_OnException(ushort id, byte unit, byte function, string exMessage)
@@ -379,6 +426,13 @@ namespace IoTModbus
             comHandler.send(15, ID, unit, startAddress, (byte)num, data);
             first = false;
         }
+
+        public static bool ManualOverride
+        {
+            get { return manualOveride; }
+            set { manualOveride = value; }
+        }
+            
 
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Drawing;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -29,6 +30,9 @@ namespace IoTModbus
         public delegate void ReadData(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numInputs);
         /// <summary>Response data event. This event is called when new data arrives</summary>
         public event ReadData onReadSend;
+        public delegate void InputData(bool d1,bool d2,bool d3,bool d4,short a1,short a2);
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public event InputData onInputChange;
 
 
 
@@ -45,13 +49,19 @@ namespace IoTModbus
 
             cboIP.Enabled = false;
             btnRefresh.Enabled = false;
+            pnl1.Enabled = false;
+            pnl2.Enabled = false;
+            trkA1.Enabled = false;
+            trkA2.Enabled = false;
+
+            txtMessages.Font = new Font(txtMessages.Font.FontFamily, 8);
 
 
             //cnt = 0;
             //tmr1.Interval = 5;
             //tmr1.Tick += Tmr1_Tick;
             //id = 0;
-            
+
         }
 
         private void guiFacade_OnMessage(byte[] adu)
@@ -91,7 +101,11 @@ namespace IoTModbus
             {
                 ip = txtIP.Text.ToString();
             }
-            if (ip != "000.000.0.0") onConnectClick(ip, port);
+            if (ip != "000.000.0.0")
+            {
+                onConnectClick(ip, port);
+                if (ComHandler.Connected) tbcMain.Enabled = true;
+            }
             else MessageBox.Show("No IP inputted");
         }
 
@@ -371,5 +385,121 @@ namespace IoTModbus
         {
 
         }
+        #region Manual Control
+        private void chkControl_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkControl.Checked)
+            {
+                GUIFacade.ManualOverride = true;
+                inputChanged();
+                pnl1.Enabled = true;
+                pnl2.Enabled = true;
+                trkA1.Enabled = true;
+                trkA2.Enabled = true;
+            }
+            else
+            {
+                GUIFacade.ManualOverride = false;
+                pnl1.Enabled = false;
+                pnl2.Enabled = false;
+                trkA1.Enabled = false;
+                trkA2.Enabled = false;
+            }
+        }
+ 
+        private void inputChanged()
+        {
+            if (chkControl.Checked)
+            {
+                bool d1 = rdoD1.Checked;
+                bool d2 = rdoD2.Checked;
+                bool d3 = rdoD3.Checked;
+                bool d4 = rdoD4.Checked;
+
+                short a1 = (short)trkA1.Value;
+                short a2 = (short)trkA2.Value;
+
+                onInputChange(d1, d2, d3, d4, a1, a2);
+            }
+        }
+
+        private void rdo01_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rdo01.Checked)
+            {
+                inputChanged();
+                ledDO1.Image = Properties.Resources.greenOff;
+                ledDO2.Image = Properties.Resources.greenOff;
+            }
+        }
+        private void rdo02_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rdo02.Checked)
+            {
+                inputChanged();
+                ledDO3.Image = Properties.Resources.greenOff;
+                ledDO4.Image = Properties.Resources.greenOff;
+            }
+        }
+
+        private void rdoD1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rdoD1.Checked)
+            {
+                inputChanged();
+                ledDO1.Image = Properties.Resources.greenOn;
+                ledDO2.Image = Properties.Resources.greenOff;
+            }
+        }
+
+ 
+        private void rdoD2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rdoD2.Checked)
+            {
+                inputChanged();
+                ledDO1.Image = Properties.Resources.greenOff;
+                ledDO2.Image = Properties.Resources.greenOn;
+            }
+        }
+
+        private void rdoD3_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rdoD3.Checked)
+            {
+                inputChanged();
+                ledDO3.Image = Properties.Resources.greenOn;
+                ledDO4.Image = Properties.Resources.greenOff;
+            }
+        }
+
+
+
+        private void rdoD4_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rdoD4.Checked)
+            {
+                inputChanged();
+                ledDO3.Image = Properties.Resources.greenOff;
+                ledDO4.Image = Properties.Resources.greenOn;
+            }
+        }
+
+        private void trkA1_Scroll(object sender, EventArgs e)
+        {
+            inputChanged();
+            if (trkA1.Value <= -10) ledAO1.Image = Properties.Resources.redOn;
+            else if (trkA1.Value >= 10) ledAO1.Image = Properties.Resources.greenOn;
+            else ledAO1.Image = Properties.Resources.greyOff;
+        }
+
+        private void trkA2_Scroll(object sender, EventArgs e)
+        {
+            inputChanged();
+            if (trkA2.Value <= -10) ledAO2.Image = Properties.Resources.redOn;
+            else if (trkA2.Value >= 10) ledAO2.Image = Properties.Resources.greenOn;
+            else ledAO2.Image = Properties.Resources.greyOff;
+        }
+        #endregion
     }
 }
