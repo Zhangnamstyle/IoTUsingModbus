@@ -86,10 +86,10 @@ namespace IoTModbus
                 case 2:
                     bits = toBoolBits(data);
 
-                    txtReadCoilsV1.Text = Convert.ToString(bits[0] ? 1 : 0);
-                    txtReadCoilsV2.Text = Convert.ToString(bits[1] ? 1 : 0);
-                    txtReadCoilsV3.Text = Convert.ToString(bits[2] ? 1 : 0);
-                    txtReadCoilsV4.Text = Convert.ToString(bits[3] ? 1 : 0);
+                    txtReadDV1.Text = Convert.ToString(bits[0] ? 1 : 0);
+                    txtReadDV2.Text = Convert.ToString(bits[1] ? 1 : 0);
+                    txtReadDV3.Text = Convert.ToString(bits[2] ? 1 : 0);
+                    txtReadDV4.Text = Convert.ToString(bits[3] ? 1 : 0);
                     break;
                 case 3:
                     Buffer.BlockCopy(data, 1, tempValue1, 0, 2);
@@ -313,7 +313,7 @@ namespace IoTModbus
         private void btnReadDis_Click(object sender, EventArgs e)
         {
             ushort num = isNumbericuShort(txtReadDNum.Text.ToString());
-            if (num > 0 && num <= 2)
+            if (num > 0 && num <= 4)
             {
                 ushort startAddress;
                 if (ushort.TryParse(txtReadDStartA.Text.ToString(), out startAddress))
