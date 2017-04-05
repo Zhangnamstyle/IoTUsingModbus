@@ -21,7 +21,7 @@ namespace IoTModbus
         private DateTime startTime;
         private DateTime stopTime;
         private DateTime connectedTime;
-        private SemaphoreSlim _sem; //TODO: Test out Sempahore
+        private SemaphoreSlim _sem;
         
 
         // ------------------------------------------------------------------------

@@ -23,7 +23,6 @@ namespace IoTModbus
                 DialogResult result = wForm.ShowDialog();
                 if (result == DialogResult.OK)
                 {
-
                     GUIFacade guiFacade = new GUIFacade(wForm.SName,wForm.SNumber);
                 }
             }

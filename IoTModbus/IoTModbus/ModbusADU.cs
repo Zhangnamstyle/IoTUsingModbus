@@ -41,7 +41,6 @@ namespace IoTModbus
         /// <summary>Decodes the ADU(Application Data Unit) recived using Modbus TCP/IP </summary>
         /// <param name="adu">Modbus ADU(Application Data Unit)</param>
         /// <param name="_pdu">Modbus PDU(Protocol Data Unit)</param>
-
         public static byte[] decodeADU(byte[] adu, out byte[] _pdu)
         {
                 byte[] header = new byte[7];

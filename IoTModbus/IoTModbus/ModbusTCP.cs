@@ -25,6 +25,7 @@ namespace IoTModbus
 
         private string ip;
         private ushort port;
+        private int timeoutCounter = 0;
 
         List<Transaction> transactions = new List<Transaction>();
         static SemaphoreSlim _sem = new SemaphoreSlim(1);
@@ -112,12 +113,6 @@ namespace IoTModbus
         /// <param name="port">Port number of modbus slave. Usually port 502 is used.</param>
         private void connectTCP()
         {
-                //TODO: CHECK IP IN GUI
-                //if (IPAddress.TryParse(ip, out _ip) == false)
-                //{
-                //    IPHostEntry hst = Dns.GetHostEntry(ip);
-                //    ip = hst.AddressList[0].ToString();
-                //}
 
                 tcpClient = new TcpClient();
                 tcpClient.Connect(IPAddress.Parse(ip), port);
@@ -190,12 +185,8 @@ namespace IoTModbus
                     _sem.Wait();
                         bool notUnique = transactions.Any(l => l.TId == txn.TId);
                     _sem.Release();
-                        if (notUnique) { }    //TODO: Create Error handling 
-                        else
-                        {
-
-                            //string s = ByteArrayToString(adu);
-                            //System.Diagnostics.Debug.WriteLine(s); //Remove when release      
+                        if (!notUnique)
+                        {    
                             netStream.BeginWrite(adu, 0, adu.Length, new AsyncCallback(recieveCallBack), txn);
                             netStream.BeginRead(tcpBuffer, 0, tcpBuffer.Length, new AsyncCallback(OnReceive), txn);
                         }
@@ -208,7 +199,7 @@ namespace IoTModbus
         /// <summary>Writes the adu to the Modbus Slave</summary>
         private void recieveCallBack(IAsyncResult ar)
         {
-            if (ar.IsCompleted == false) { } //TODO: Add Exeption
+            if (ar.IsCompleted == false) { } 
             Transaction t = (Transaction)ar.AsyncState;
             _sem.Wait();
             transactions.Add(t);
@@ -224,7 +215,7 @@ namespace IoTModbus
         {
             try
             {
-                if (ar.IsCompleted == false) { } //TODO: Add Exeption
+                if (ar.IsCompleted == false) { }
 
                 Transaction t = (Transaction)ar.AsyncState;
                 _sem.Wait();
@@ -263,12 +254,11 @@ namespace IoTModbus
 
         private void checkForTimeout()
         {
-
             var itemToRemove = transactions.FirstOrDefault(p => p.tDiff >= 5);
             if (itemToRemove != null)
             {
-                //TODO: Report Id and timeouttime and FIX issue
-                System.Diagnostics.Debug.WriteLine("Timeout: " + itemToRemove.TId);
+                timeoutCounter++;
+                if(timeoutCounter > 3) { OnExceptionTCP(itemToRemove.TId, itemToRemove.Unit, itemToRemove.FuncNr, 0); } 
                 transactions.Remove(itemToRemove);
             }
 
@@ -280,7 +270,5 @@ namespace IoTModbus
                      ((inValue & 0x00ff) << 8));
         }
 
-        
-
     }
-    }
+}

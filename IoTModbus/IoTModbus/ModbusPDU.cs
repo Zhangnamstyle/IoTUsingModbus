@@ -96,7 +96,7 @@ namespace IoTModbus
             return pdu;
         }
 
-        public static byte[] ReadPDU(byte[] pdu,out byte _funcNr,out bool _ex) //TODO: Add test for exeption code
+        public static byte[] ReadPDU(byte[] pdu,out byte _funcNr,out bool _ex)
         {
             byte[] data = new byte[pdu.Length - 1];
             byte funcNr = pdu[0];

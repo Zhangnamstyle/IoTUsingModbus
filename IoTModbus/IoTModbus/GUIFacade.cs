@@ -26,24 +26,31 @@ namespace IoTModbus
         SemaphoreSlim s = new SemaphoreSlim(1);
 
         private ushort id = 0;
-        int cnt = 0;
         private bool first = true;
+        private int currentTab = 0;
 
         private static bool manualOveride = false;
 
         public delegate void MessageData(byte[] adu);
         /// <summary>Exception data event. This event is called when the data is incorrect</summary>
         public event MessageData OnMessage;
+        public delegate void UpdateGUIData(byte function, ushort lenght, byte[] data);
+        /// <summary>Exception data event. This event is called when the data is incorrect</summary>
+        public event UpdateGUIData OnUpdateGUIData;
+        public delegate void DisconnectData();
+        /// <summary>Exception data event. This event is called when the data is incorrect</summary>
+        public event DisconnectData OnDisconnect;
 
 
         public GUIFacade(string _sName,int _sNumber)
         {
             gui = new GUI(this);
-            gui.onConnectClick += new GUI.ConnectData(gui_onConnect);
-            gui.onReportClick += new GUI.ReportData(gui_onReport);
-            gui.onWriteSend += new GUI.WriteData(gui_onWriteSend);
-            gui.onReadSend += new GUI.ReadData(gui_onReadData);
-            gui.onInputChange += new GUI.InputData(gui_onInputChange);
+            gui.OnConnectClick += new GUI.ConnectData(gui_onConnect);
+            gui.OnReportClick += new GUI.ReportData(gui_onReport);
+            gui.OnWriteSend += new GUI.WriteData(gui_onWriteSend);
+            gui.OnReadSend += new GUI.ReadData(gui_onReadData);
+            gui.OnInputChange += new GUI.InputData(gui_onInputChange);
+            gui.OnTabChange += new GUI.TabData(gui_OnTabCHange);
 
             if (comHandler == null)
             {
@@ -57,11 +64,17 @@ namespace IoTModbus
             int nDigital = 4;
             ioObj = createIOArray(nAnalog,nDigital);
 
+            d1 = new digitalIO(0, 0);
+            d2 = new digitalIO(1, 1);
+            d3 = new digitalIO(2, 2);
+            d4 = new digitalIO(3, 3);
+
+            a1 = new analogIO(0, 0);
+            a2 = new analogIO(1, 1);
 
             tmr.Interval = 300;
             tmr.Tick += Tmr_Tick;
            
-
             Application.Run(gui);
         }
 
@@ -76,22 +89,22 @@ namespace IoTModbus
             a2.InputValue = AO2;
         }
 
-        private void gui_onWriteSend(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numBits, byte[] values)
+        private void gui_onWriteSend(byte funcNr, byte unit, ushort startAddress, ushort numBits, byte[] values)
         {
-            comHandler.send(funcNr, tId, unit, startAddress, numBits, values);
+            comHandler.send(funcNr, getID(), unit, startAddress, numBits, values);
         }
 
-        private void gui_onReadData(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numInputs)
+        private void gui_onReadData(byte funcNr, byte unit, ushort startAddress, ushort numInputs)
         {
-            comHandler.send(funcNr, tId, unit, startAddress, numInputs);
+            comHandler.send(funcNr, getID(), unit, startAddress, numInputs);
         }
 
         private void gui_onReport()
         {
-            
             tmr.Stop();
             comHandler.disconnect();
             comHandler.generateReport();
+            if(OnDisconnect != null) OnDisconnect();
         }
 
         private void gui_onConnect(string _ip,string _port)
@@ -109,21 +122,6 @@ namespace IoTModbus
             if (ComHandler.Connected)
             {
                 if(first)activateAnalogOut();
-                
-
-                if (gui.Tab == 0)
-                {
-                    d1 = new digitalIO(0, 0);
-                    d2 = new digitalIO(1, 1);
-                    d3 = new digitalIO(2, 2);
-                    d4 = new digitalIO(3, 3);
-
-                    a1 = new analogIO(0, 0);
-                    a2 = new analogIO(1, 1);
-
-                    tmr.Start();
-                }
-
             }
             gui.Cursor = Cursors.Default;
         }
@@ -132,19 +130,23 @@ namespace IoTModbus
 
         private void MainLoop()
         {
-            if (manualOveride)
+            if (ComHandler.Connected)
             {
-                System.Diagnostics.Debug.WriteLine("Manual Override Mode");
-                writeManualOutput();
+                if (manualOveride)
+                {
+                    System.Diagnostics.Debug.WriteLine("Manual Override Mode");
+                    writeManualOutput();
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Normal Mode");
+                    checkMultipleDI(d1, d4);
+                    Thread.Sleep(80);
+                    checkMultipleAI(a1, a2);
+                    Thread.Sleep(80);
+                }
             }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("Normal Mode");
-                checkMultipleDI(d1, d4);
-                Thread.Sleep(80);
-                checkMultipleAI(a1, a2);
-                Thread.Sleep(80);
-            }
+            else tmr.Stop();
         }
 
         private void writeManualOutput()
@@ -159,8 +161,7 @@ namespace IoTModbus
             byte[] outData = new Byte[nBytes];
             BitArray bitA = new BitArray(outDataBool);
             bitA.CopyTo(outData, 0);
-
-            comHandler.send(15, getID(), 1, d1.OutputRegister, 4, outData); //TODO: FIX HARD CODED CODE
+            comHandler.send(15, getID(), gui.getUnit(), d1.OutputRegister, 4, outData);
 
             Thread.Sleep(80);
 
@@ -175,7 +176,7 @@ namespace IoTModbus
                 holdingData[x * 2] = tempData[0];
                 holdingData[x * 2 + 1] = tempData[1];
             }
-            comHandler.send(16, getID(), 1, a1.OutputRegister, 2, holdingData);//TODO: FIX HARD CODED CODE
+            comHandler.send(16, getID(), gui.getUnit(), a1.OutputRegister, 2, holdingData);
 
             Thread.Sleep(80);
         }
@@ -196,23 +197,9 @@ namespace IoTModbus
             comHandler.send(2, getID(), unit, startAddress, (byte)num);
         }
 
-        private void checkSingleDI(digitalIO dIO)
-        {
-            int num = 1;
-            byte unit = 1;
-            ushort startAddress = dIO.InputRegister;
-            comHandler.send(2, getID(), unit, startAddress, (byte)num);
-        }
-        private void checkSingleAI(analogIO aIO)
-        {
-            
-        }
-
         private void Tmr_Tick(object sender, EventArgs e)
         {
             MainLoop();
-            System.Diagnostics.Debug.WriteLine(cnt.ToString());
-            
         }
 
 
@@ -242,57 +229,11 @@ namespace IoTModbus
             {
 
                 case 1:
-                    if (lenght <= 1)
-                    {
-                        if (startAddress == d1.InputRegister)
-                        {
-                            d1.InputValue = data[1];
-                            outVal = d1.GetOutputValue();
-                        }
-                        else if (startAddress == d2.InputRegister)
-                        {
-                            d2.InputValue = data[1];
-                            outVal = d2.GetOutputValue();
-                        }
-                    }
-                    else
-                    {
-
-                    }
-                    OnMessage(adu);
+                    if(currentTab == 1) if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, data);
+                    if(OnMessage != null) OnMessage(adu);
                     break;
                 case 2:
-                    if (lenght <= 1)
-                    {
-                        if (startAddress == d1.InputRegister)
-                        {
-                            d1.InputValue = data[1];
-                            outVal = d1.GetOutputValue();
-                            outReg = d1.OutputRegister;
-                        }
-                        else if (startAddress == d2.InputRegister)
-                        {
-                            d2.InputValue = data[1];
-                            outVal = d2.GetOutputValue();
-                            outReg = d2.OutputRegister;
-                        }
-                        else if (startAddress == d3.InputRegister)
-                        {
-                            d3.InputValue = data[1];
-                            outVal = d3.GetOutputValue();
-                            outReg = d3.OutputRegister;
-                        }
-                        else if (startAddress == d4.InputRegister)
-                        {
-                            d4.InputValue = data[1];
-                            outVal = d4.GetOutputValue();
-                            outReg = d4.OutputRegister;
-                        }
-                        byte[] outData = new byte[1];
-                        outData[0] = (byte)outVal;
-                        comHandler.send(5, getID(), unit, outReg, 1, outData);
-                    }
-                    else
+                    if(currentTab == 0)
                     {
                         bool[] bits = new bool[1];
                         byte[] tempData = new byte[1];
@@ -319,45 +260,15 @@ namespace IoTModbus
 
                         comHandler.send(15, getID(), unit, startAddress, 4, outData);
                     }
-                    OnMessage(adu);
+                    else if (currentTab == 1) if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, data);
+                    if (OnMessage != null) OnMessage(adu);
                     break;
-
+                case 3:
+                    if (currentTab == 1) if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, data);
+                    if (OnMessage != null) OnMessage(adu);
+                    break;
                 case 4:
-                    if (lenght <= 1)
-                    {
-                        byte[] tempValue = new byte[2];
-                        Buffer.BlockCopy(data, 1, tempValue, 0, 2);
-                        Array.Reverse(tempValue);
-                        int inVal = BitConverter.ToInt16(tempValue, 0);
-
-                        if (startAddress == a1.InputRegister)
-                        {
-                            a1.InputValue = inVal;
-                            outVal = a1.GetOutputValue();
-                            outReg = a1.OutputRegister;
-                        }
-                        else if (startAddress == a2.InputRegister)
-                        {
-                            a2.InputValue = inVal;
-                            outVal = a2.GetOutputValue();
-                            outReg = a2.OutputRegister;
-                        }
-
-                        int num = 1;
-
-                        int[] temp = new int[num];
-                        temp[0] = outVal;
-
-                        byte[] outAData = new Byte[num * 2];
-                        for (int x = 0; x < num; x++)
-                        {
-                            byte[] tempData = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)temp[x]));
-                            outAData[x * 2] = tempData[0];
-                            outAData[x * 2 + 1] = tempData[1];
-                        }
-                        comHandler.send(6, getID(), unit, outReg, 1, outAData);
-                    }
-                    else
+                    if (currentTab == 0)
                     {
                         byte[] tempValue1 = new byte[2];
                         byte[] tempValue2 = new byte[2];
@@ -383,9 +294,9 @@ namespace IoTModbus
                             holdingData[x * 2 + 1] = tempData[1];
                         }
                         comHandler.send(16, getID(), unit, a1.OutputRegister,2, holdingData);
-
                     }
-                    OnMessage(adu);
+                    else if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, data);
+                    if (OnMessage != null) OnMessage(adu);
                     break;
             }
          
@@ -393,18 +304,21 @@ namespace IoTModbus
 
         private void comHandler_OnException(ushort id, byte unit, byte function, string exMessage)
         {
-            MessageBox.Show(exMessage, "Modbus Exception");
+            if (OnDisconnect != null) OnDisconnect();
+            MessageBox.Show(exMessage, "Modbus Exception",MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
         }
         private void comHandler_OnError(Exception ex)
         {
-            MessageBox.Show(ex.Message);
+            if (OnDisconnect != null) OnDisconnect();
+            MessageBox.Show(ex.Message,"Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
+
         }
         private ushort getID()
         {
             ushort ID = id;
             id++;
             return ID;
-
         }
 
         private void activateAnalogOut()
@@ -432,7 +346,21 @@ namespace IoTModbus
             get { return manualOveride; }
             set { manualOveride = value; }
         }
-            
+
+        private void gui_OnTabCHange(int tabId)
+        {
+            currentTab = tabId;
+            if (currentTab == 0)
+            {   
+                if (tmr != null) tmr.Start();
+            }
+            else
+            {
+                if (tmr != null) tmr.Stop();
+            }
+        }
+
+
 
     }
 }

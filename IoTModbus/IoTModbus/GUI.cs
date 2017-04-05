@@ -14,239 +14,394 @@ namespace IoTModbus
 {
     public partial class GUI : Form
     {
-        Timer tmr1 = new Timer();
-        private bool pause = false;
-        private static int tab;
-
-        public delegate void ConnectData(string ip,string port);
         /// <summary>Response data event. This event is called when new data arrives</summary>
-        public event ConnectData onConnectClick;
+        public delegate void ConnectData(string ip, string port);
+        public event ConnectData OnConnectClick;
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public delegate void DisconnectData();
+        public event DisconnectData OnDisconnectClick;
         public delegate void ReportData();
         /// <summary>Response data event. This event is called when new data arrives</summary>
-        public event ReportData onReportClick;
-        public delegate void WriteData(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numBits, byte[] values);
+        public event ReportData OnReportClick;
+        public delegate void WriteData(byte funcNr, byte unit, ushort startAddress, ushort numBits, byte[] values);
         /// <summary>Response data event. This event is called when new data arrives</summary>
-        public event WriteData onWriteSend;
-        public delegate void ReadData(byte funcNr, ushort tId, byte unit, ushort startAddress, ushort numInputs);
+        public event WriteData OnWriteSend;
+        public delegate void ReadData(byte funcNr, byte unit, ushort startAddress, ushort numInputs);
         /// <summary>Response data event. This event is called when new data arrives</summary>
-        public event ReadData onReadSend;
-        public delegate void InputData(bool d1,bool d2,bool d3,bool d4,short a1,short a2);
+        public event ReadData OnReadSend;
+        public delegate void InputData(bool d1, bool d2, bool d3, bool d4, short a1, short a2);
         /// <summary>Response data event. This event is called when new data arrives</summary>
-        public event InputData onInputChange;
+        public event InputData OnInputChange;
+        public delegate void TabData(int tabId);
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public event TabData OnTabChange;
 
 
+        private bool pause = false;
 
-        int cnt = 0;
-        
+        private string ipAdress = "000.000.0.0";
+        private string port = "502";
+
+
 
         public GUI(GUIFacade guiFacade)
         {
             InitializeComponent();
 
             guiFacade.OnMessage += new GUIFacade.MessageData(guiFacade_OnMessage);
+            guiFacade.OnUpdateGUIData += new GUIFacade.UpdateGUIData(guiFacade_OnUpdateGUI);
+            guiFacade.OnDisconnect += new GUIFacade.DisconnectData(guiFacade_OnDisconnect);
             btnPause.Enabled = true;
             btnResume.Enabled = false;
-
             cboIP.Enabled = false;
             btnRefresh.Enabled = false;
-            pnl1.Enabled = false;
-            pnl2.Enabled = false;
-            trkA1.Enabled = false;
-            trkA2.Enabled = false;
+
+            disableControls();
 
             txtMessages.Font = new Font(txtMessages.Font.FontFamily, 8);
+        }
+
+        #region GUIFacade Events
+        private void guiFacade_OnUpdateGUI(byte function, ushort lenght, byte[] data)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new GUIFacade.UpdateGUIData(guiFacade_OnUpdateGUI), new object[] { function, lenght, data });
+                return;
+            }
+            bool[] bits;
+            byte[] tempValue1 = new byte[2];
+            byte[] tempValue2 = new byte[2];
+
+            switch (function)
+            {
+                case 1:
+                    bits = toBoolBits(data);
+
+                    txtReadCoilsV1.Text = Convert.ToString(bits[0] ? 1 : 0);
+                    txtReadCoilsV2.Text = Convert.ToString(bits[1] ? 1 : 0);
+                    txtReadCoilsV3.Text = Convert.ToString(bits[2] ? 1 : 0);
+                    txtReadCoilsV4.Text = Convert.ToString(bits[3] ? 1 : 0);
+                    break;
+                case 2:
+                    bits = toBoolBits(data);
+
+                    txtReadCoilsV1.Text = Convert.ToString(bits[0] ? 1 : 0);
+                    txtReadCoilsV2.Text = Convert.ToString(bits[1] ? 1 : 0);
+                    txtReadCoilsV3.Text = Convert.ToString(bits[2] ? 1 : 0);
+                    txtReadCoilsV4.Text = Convert.ToString(bits[3] ? 1 : 0);
+                    break;
+                case 3:
+                    Buffer.BlockCopy(data, 1, tempValue1, 0, 2);
+                    Buffer.BlockCopy(data, 3, tempValue2, 0, 2);
+                    Array.Reverse(tempValue1);
+                    Array.Reverse(tempValue2);
+                    txtReadHV1.Text = BitConverter.ToInt16(tempValue1, 0).ToString();
+                    txtReadHV2.Text = BitConverter.ToInt16(tempValue2, 0).ToString();
+                    break;
+                case 4:
+                    Buffer.BlockCopy(data, 1, tempValue1, 0, 2);
+                    Buffer.BlockCopy(data, 3, tempValue2, 0, 2);
+                    Array.Reverse(tempValue1);
+                    Array.Reverse(tempValue2);
+                    txtReadIRegV1.Text = BitConverter.ToInt16(tempValue1, 0).ToString();
+                    txtReadIRegV2.Text = BitConverter.ToInt16(tempValue2, 0).ToString();
+                    break;
+            }
+        }
 
 
-            //cnt = 0;
-            //tmr1.Interval = 5;
-            //tmr1.Tick += Tmr1_Tick;
-            //id = 0;
-
+        
+        private void guiFacade_OnDisconnect()
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new GUIFacade.DisconnectData(guiFacade_OnDisconnect), new object[] { });
+                return;
+            }
+            disableControls();
         }
 
         private void guiFacade_OnMessage(byte[] adu)
         {
-            if (!pause) { 
+            if (!pause)
+            {
                 string sOut = "";
-            if (this.InvokeRequired)
-            {
-                this.BeginInvoke(new GUIFacade.MessageData(guiFacade_OnMessage), new object[] { adu });
-                return;
-            }
-            if (rdoHex.Checked)
-            {
-                sOut = ByteArrayToHexString(adu);
-            }
-            else if (rdoBinary.Checked)
-            {
-                sOut = ByteArrayToBinaryString(adu);
-            }
-            txtMessages.AppendText(sOut + "\n");
+                if (this.InvokeRequired)
+                {
+                    this.BeginInvoke(new GUIFacade.MessageData(guiFacade_OnMessage), new object[] { adu });
+                    return;
+                }
+                if (rdoHex.Checked)
+                {
+                    sOut = ByteArrayToHexString(adu);
+                }
+                else if (rdoBinary.Checked)
+                {
+                    sOut = ByteArrayToBinaryString(adu);
+                }
+                txtMessages.AppendText(sOut + "\n");
             }
         }
-
-      
+        #endregion
         #region Button Events
         private void btnConnect_Click(object sender, EventArgs e)
         {
-            if (tbcMain.SelectedTab == tbpSimulator) tab = 0;
-            else tab = 1;
             string ip = "000.000.0.0";
             string port = txtPort.Text.ToString();
-           if(rdoAuto.Checked)
+            if (rdoAuto.Checked)
             {
-                if(cboIP.Items.Count > 0) ip = cboIP.SelectedItem.ToString();
+                if (cboIP.Items.Count > 0) ip = cboIP.SelectedItem.ToString();
             }
-           else if(rdoManual.Checked)
+            else if (rdoManual.Checked)
             {
                 ip = txtIP.Text.ToString();
             }
             if (ip != "000.000.0.0")
             {
-                onConnectClick(ip, port);
-                if (ComHandler.Connected) tbcMain.Enabled = true;
+                if (OnConnectClick != null) OnConnectClick(ip, port);
+                if (ComHandler.Connected)
+                {
+                    enableControls();
+                    if (OnTabChange != null) OnTabChange(tbcMain.SelectedIndex);
+                }
             }
             else MessageBox.Show("No IP inputted");
         }
 
-       
+
         private void btnDisconnect_Click(object sender, EventArgs e)
         {
-            
+            if (OnDisconnectClick != null) OnDisconnectClick();
         }
 
-        private void btnRead_Click(object sender, EventArgs e)
+        private void btnReadCoils_Click(object sender, EventArgs e)
         {
-            ushort ID = getID();
-            onReadSend(1, ID, 1, 0, 4);
+            ushort num = isNumbericuShort(txtReadCoilsNum.Text.ToString());
+            if (num > 0 && num <= 4)
+            {
+                ushort startAddress;
+                if (ushort.TryParse(txtReadCoilsStartA.Text.ToString(), out startAddress))
+                {
+                    if (OnReadSend != null) OnReadSend(1, getUnit(), startAddress, num);
+                }
+                else MessageBox.Show("Not a valid Start Address", "Error");
+            }
+            else MessageBox.Show("Textbox num has not a valid number", "Error");
         }
 
         private void btnWriteCoils_Click(object sender, EventArgs e)
         {
-            int num = 4;
-            ushort ID = getID();
-            byte unit = 1;
-            ushort startAddress = 50;
+            ushort num = isNumbericuShort(txtWriteCNum.Text.ToString());
+            if (num > 0 && num <= 4)
+            {
+                ushort startAddress;
+                if (ushort.TryParse(txtWriteCStartA.Text.ToString(), out startAddress))
+                {
+                    bool[] bits = new bool[num];
+                    switch (num)
+                    {
+                        case 1:
+                            bits[0] = chkWriteCV1.Checked;
+                            break;
+                        case 2:
+                            bits[0] = chkWriteCV1.Checked;
+                            bits[1] = chkWriteCV2.Checked;
+                            break;
+                        case 3:
+                            bits[0] = chkWriteCV1.Checked;
+                            bits[1] = chkWriteCV2.Checked;
+                            bits[2] = chkWriteCV3.Checked;
+                            break;
+                        case 4:
+                            bits[0] = chkWriteCV1.Checked;
+                            bits[1] = chkWriteCV2.Checked;
+                            bits[2] = chkWriteCV3.Checked;
+                            bits[3] = chkWriteCV4.Checked;
+                            break;
+                    }
+                    int nBytes = (byte)(num / 8 + (num % 8 > 0 ? 1 : 0));
+                    byte[] data = new Byte[nBytes];
+                    BitArray bitArray = new BitArray(bits);
+                    bitArray.CopyTo(data, 0);
 
-            bool[] bits = new bool[num];
-            bits[0] = true;
-            bits[1] = false;
-            bits[2] = false;
-            bits[3] = false;
+                    if (OnWriteSend != null) OnWriteSend(15, getUnit(), startAddress, num, data);
 
-            
-            int nBytes = (byte)(num / 8 + (num % 8 > 0 ? 1 : 0));
-            byte[] data = new Byte[nBytes];
-            BitArray bitArray = new BitArray(bits);
-            bitArray.CopyTo(data, 0);
+                }
+                else MessageBox.Show("Not a valid Start Address", "Error");
+            }
+            else MessageBox.Show("Textbox num has not a valid number", "Error");
 
-            onWriteSend(15, ID, unit, startAddress, (byte)num, data);
+
+
         }
 
         private void btnWriteHoldings_Click(object sender, EventArgs e)
         {
-            int num = 4;
-            ushort ID = getID();
-            byte unit = 1;
-            ushort startAddress = 0;
-
-            int[] temp = new int[num];
-            for(int i = 0; i<num;i++)
+            ushort num = isNumbericuShort(txtWriteHNum.Text.ToString());
+            if (num > 0 && num <= 2)
             {
-                temp[i] = 0;
-            }
+                ushort startAddress;
+                if (ushort.TryParse(txtWriteHStartA.Text.ToString(), out startAddress))
+                {
+                    short[] temp = new short[num];
+                    bool error = false;
+                    short tempval;
+                    short tempval1;
+                    short tempval2;
+                    switch (num)
+                    {
+                        case 1:
+                            if (short.TryParse(txtWriteHV1.Text.ToString(), out tempval))
+                            {
+                                temp[0] = tempval;
+                            }
+                            else
+                            {
+                                MessageBox.Show("Not a valid numeric value");
+                                error = true;
+                            }
+                            break;
+                        case 2:
+                            if (short.TryParse(txtWriteHV1.Text.ToString(), out tempval1) && (short.TryParse(txtWriteHV2.Text.ToString(), out tempval2)))
+                            {
+                                temp[0] = tempval1;
+                                temp[1] = tempval2;
+                            }
+                            else
+                            {
+                                MessageBox.Show("Not a valid numeric value");
+                                error = true;
+                            }
+                            break;
+                    }
+                    if (!error)
+                    {
+                        byte[] data = new Byte[num * 2];
+                        for (int x = 0; x < num; x++)
+                        {
+                            byte[] tempData = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)temp[x]));
+                            data[x * 2] = tempData[0];
+                            data[x * 2 + 1] = tempData[1];
+                        }
+                        if (OnWriteSend != null) OnWriteSend(16, getUnit(), startAddress, (byte)num, data);
+                    }
 
-            byte[] data = new Byte[num * 2];
-            for (int x = 0; x < num; x++)
-            {
-                byte[] tempData = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)temp[x]));
-                data[x * 2] = tempData[0];
-                data[x * 2 + 1] = tempData[1];
+                }
+                else MessageBox.Show("Not a valid Start Address", "Error");
             }
+            else MessageBox.Show("Textbox num has not a valid number", "Error");
 
-            onWriteSend(16, ID, unit, startAddress, (byte)num, data);
+
         }
 
         private void btnReadHoldings_Click(object sender, EventArgs e)
         {
-            ushort ID = getID();
-            onReadSend(3, ID, 1, 0, 4);
-            cnt++;
+            ushort num = isNumbericuShort(txtReadHNum.Text.ToString());
+            if (num > 0 && num <= 2)
+            {
+                ushort startAddress;
+                if (ushort.TryParse(txtReadHStartA.Text.ToString(), out startAddress))
+                {
+                    if (OnReadSend != null) OnReadSend(3, getUnit(), startAddress, num);
+                }
+                else MessageBox.Show("Not a valid Start Address", "Error");
+            }
+            else MessageBox.Show("Textbox num has not a valid number", "Error");
         }
 
         private void btnReadDis_Click(object sender, EventArgs e)
         {
-            ushort ID = getID();
-            onReadSend(2, ID, 1, 0, 4);
+            ushort num = isNumbericuShort(txtReadDNum.Text.ToString());
+            if (num > 0 && num <= 2)
+            {
+                ushort startAddress;
+                if (ushort.TryParse(txtReadDStartA.Text.ToString(), out startAddress))
+                {
+                    if (OnReadSend != null) OnReadSend(2, getUnit(), startAddress, num);
+                }
+                else MessageBox.Show("Not a valid Start Address", "Error");
+            }
+            else MessageBox.Show("Textbox num has not a valid number", "Error");
+
         }
 
         private void btnReadInputReg_Click(object sender, EventArgs e)
         {
-            ushort ID = getID();
-            onReadSend(4, ID, 1, 0, 2);
+            ushort num = isNumbericuShort(txtReadIRegNum.Text.ToString());
+            if (num > 0 && num <= 2)
+            {
+                ushort startAddress;
+                if (ushort.TryParse(txtReadIRegStartA.Text.ToString(), out startAddress))
+                {
+                    if (OnReadSend != null) OnReadSend(4, getUnit(), startAddress, num);
+                }
+                else MessageBox.Show("Not a valid Start Address", "Error");
+            }
+            else MessageBox.Show("Textbox num has not a valid number", "Error");
         }
 
         private void btnWriteSCoil_Click(object sender, EventArgs e)
         {
             int num = 1;
-            ushort ID = getID();
-            byte unit = 1;
-            ushort startAddress = 1;
+            ushort startAddress;
+            if (ushort.TryParse(txtWriteSCStartA.Text.ToString(), out startAddress))
+            {
+                bool bit = chkWriteSCV1.Checked;
+                byte[] data = new byte[1];
+                if (bit) data[0] = 255;
+                else data[0] = 0;
 
-            bool bit = true;
-            byte[] data = new byte[1];
-            if (bit) data[0] = 255;
-            else data[0] = 0;
-
-            onWriteSend(5, ID, unit, startAddress,(byte)num, data);
+                if (OnWriteSend != null) OnWriteSend(5, getUnit(), startAddress, (byte)num, data);
+            }
+            else MessageBox.Show("Not a valid Start Address", "Error");
         }
 
         private void btnWriteSR_Click(object sender, EventArgs e)
         {
             int num = 1;
-            ushort ID = getID();
-            byte unit = 1;
-            ushort startAddress = 100;
 
-            int[] temp = new int[num];
-            temp[0] = 32000;
-
-            byte[] data = new Byte[num * 2];
-            for (int x = 0; x < num; x++)
+            ushort startAddress;
+            if (ushort.TryParse(txtWriteSHStartA.Text.ToString(), out startAddress))
             {
-                byte[] tempData = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)temp[x]));
-                data[x * 2] = tempData[0];
-                data[x * 2 + 1] = tempData[1];
+                short[] temp = new short[num];
+                bool error = false;
+
+                short tempval;
+
+                if (short.TryParse(txtWriteSHV.Text.ToString(), out tempval))
+                {
+                    temp[0] = tempval;
+                }
+                else
+                {
+                    MessageBox.Show("Not a valid numeric value");
+                    error = true;
+                }
+
+                if (!error)
+                {
+                    byte[] data = new Byte[num * 2];
+                    for (int x = 0; x < num; x++)
+                    {
+                        byte[] tempData = BitConverter.GetBytes((short)IPAddress.HostToNetworkOrder((short)temp[x]));
+                        data[x * 2] = tempData[0];
+                        data[x * 2 + 1] = tempData[1];
+                    }
+
+                    if (OnWriteSend != null) OnWriteSend(6, getUnit(), startAddress, (byte)num, data);
+                }
+
             }
-
-            onWriteSend(6, ID, unit, startAddress, (byte)num, data);
+            else MessageBox.Show("Not a valid Start Address", "Error");
         }
 
-        private void btnReportSlaveID_Click(object sender, EventArgs e)
-        {
-            //comHandler.reportSlaveID(9, 1);
-            tmr1.Start();
-
-        }
 
         private void btnGenerate_Click(object sender, EventArgs e)
         {
-            onReportClick();
+            if (OnReportClick != null) OnReportClick();
         }
         #endregion
-
-        private ushort getID()
-        {
-            ushort ID = 2;
-            //ushort ID = id;
-            //id++;
-            return ID;
-            
-        }
-
-        public int Tab
-        { get { return tab; } }
-
         #region Conversion Methods
         // ------------------------------------------------------------------------
         /// <summary>Converts a byte array into a hexadecimal string</summary>
@@ -277,7 +432,7 @@ namespace IoTModbus
 
         private void rdoAuto_CheckedChanged(object sender, EventArgs e)
         {
-            if(rdoAuto.Checked)
+            if (rdoAuto.Checked)
             {
                 rdoManual.Checked = false;
                 cboIP.Enabled = true;
@@ -291,7 +446,7 @@ namespace IoTModbus
 
         private void rdoManual_CheckedChanged(object sender, EventArgs e)
         {
-            if(rdoManual.Checked)
+            if (rdoManual.Checked)
             {
                 rdoAuto.Checked = false;
                 txtIP.Enabled = true;
@@ -309,7 +464,6 @@ namespace IoTModbus
             {
                 try
                 {
-
                     List<string> list = new List<string>();
                     for (int i = 1; i < 255; i++)
                     {
@@ -335,7 +489,7 @@ namespace IoTModbus
 
                         MessageBox.Show("No Slaves Found", "Scan Completed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         cboIP.DataSource = null;
-                        
+
                     }
                     else
                     {
@@ -351,15 +505,15 @@ namespace IoTModbus
 
                         MessageBox.Show(message, "Scan Completed", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                         cboIP.DataSource = list;
-                        
+
                     }
                 }
                 catch (SocketException ex)
                 {
                     MessageBox.Show(ex.Message);
-                    
+
                 }
-            } 
+            }
         }
 
         private void btnPause_Click(object sender, EventArgs e)
@@ -381,10 +535,7 @@ namespace IoTModbus
             txtMessages.Clear();
         }
 
-        private void tpgValues_Click(object sender, EventArgs e)
-        {
 
-        }
         #region Manual Control
         private void chkControl_CheckedChanged(object sender, EventArgs e)
         {
@@ -406,7 +557,7 @@ namespace IoTModbus
                 trkA2.Enabled = false;
             }
         }
- 
+
         private void inputChanged()
         {
             if (chkControl.Checked)
@@ -419,7 +570,7 @@ namespace IoTModbus
                 short a1 = (short)trkA1.Value;
                 short a2 = (short)trkA2.Value;
 
-                onInputChange(d1, d2, d3, d4, a1, a2);
+                if (OnInputChange != null) OnInputChange(d1, d2, d3, d4, a1, a2);
             }
         }
 
@@ -452,7 +603,7 @@ namespace IoTModbus
             }
         }
 
- 
+
         private void rdoD2_CheckedChanged(object sender, EventArgs e)
         {
             if (rdoD2.Checked)
@@ -501,5 +652,72 @@ namespace IoTModbus
             else ledAO2.Image = Properties.Resources.greyOff;
         }
         #endregion
+
+        private void tbcMain_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (OnTabChange != null) OnTabChange(tbcMain.SelectedIndex);
+        }
+
+        private void disableControls()
+        {
+            btnConnect.Enabled = true;
+            btnDisconnect.Enabled = false;
+            tbcMain.Enabled = false;
+            tbpSimulator.BackColor = SystemColors.ControlDark;
+        }
+
+        public void enableControls()
+        {
+            btnConnect.Enabled = false;
+            btnDisconnect.Enabled = true;
+            tbcMain.Enabled = true;
+            tbpSimulator.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(242)))), ((int)(((byte)(211)))), ((int)(((byte)(0)))));
+            if (chkControl.Checked)
+            {
+                GUIFacade.ManualOverride = true;
+                inputChanged();
+                pnl1.Enabled = true;
+                pnl2.Enabled = true;
+                trkA1.Enabled = true;
+                trkA2.Enabled = true;
+            }
+            else
+            {
+                GUIFacade.ManualOverride = false;
+                pnl1.Enabled = false;
+                pnl2.Enabled = false;
+                trkA1.Enabled = false;
+                trkA2.Enabled = false;
+            }
+        }
+
+        public byte getUnit()
+        {
+            byte _unit;
+            bool res = byte.TryParse(this.txtUnit.Text.ToString(), out _unit);
+            if (res) return _unit;
+            else return 1;
+        }
+        public ushort isNumbericuShort(string s)
+        {
+            ushort v;
+            if (ushort.TryParse(s, out v))
+            {
+                return v;
+            }
+            else return 0;
+        }
+        private bool[] toBoolBits(byte[] data)
+        {
+            byte[] tempData = new byte[1];
+            Buffer.BlockCopy(data, 1, tempData, 0, 1);
+            BitArray bitArray = new BitArray(tempData);
+            bool[] tempBits = new bool[bitArray.Count];
+            bitArray.CopyTo(tempBits, 0);
+
+            return tempBits;
+
+        }
     }
 }
+
