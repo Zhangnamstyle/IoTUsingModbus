@@ -51,6 +51,7 @@ namespace IoTModbus
             gui.OnReadSend += new GUI.ReadData(gui_onReadData);
             gui.OnInputChange += new GUI.InputData(gui_onInputChange);
             gui.OnTabChange += new GUI.TabData(gui_OnTabCHange);
+            gui.OnDisconnectClick += new GUI.DisconnectData(gui_OnDisconnectClick);
 
             if (comHandler == null)
             {
@@ -72,10 +73,16 @@ namespace IoTModbus
             a1 = new analogIO(0, 0);
             a2 = new analogIO(1, 1);
 
-            tmr.Interval = 300;
+            tmr.Interval = 500;
             tmr.Tick += Tmr_Tick;
            
             Application.Run(gui);
+        }
+
+        private void gui_OnDisconnectClick()
+        {
+            comHandler.disconnect();
+            if (OnDisconnect != null) OnDisconnect();
         }
 
         private void gui_onInputChange(bool DO1, bool DO2, bool DO3, bool DO4, short AO1, short AO2)
@@ -101,8 +108,8 @@ namespace IoTModbus
 
         private void gui_onReport()
         {
-            tmr.Stop();
             comHandler.disconnect();
+            tmr.Stop();
             comHandler.generateReport();
             if(OnDisconnect != null) OnDisconnect();
         }
@@ -130,23 +137,30 @@ namespace IoTModbus
 
         private void MainLoop()
         {
-            if (ComHandler.Connected)
+            try
             {
-                if (manualOveride)
+                if (ComHandler.Connected)
                 {
-                    System.Diagnostics.Debug.WriteLine("Manual Override Mode");
-                    writeManualOutput();
+                    if (manualOveride)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Manual Override Mode");
+                        writeManualOutput();
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("Normal Mode");
+                        checkMultipleDI(d1, d4);
+                        Thread.Sleep(80);
+                        checkMultipleAI(a1, a2);
+                        Thread.Sleep(80);
+                    }
                 }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("Normal Mode");
-                    checkMultipleDI(d1, d4);
-                    Thread.Sleep(80);
-                    checkMultipleAI(a1, a2);
-                    Thread.Sleep(80);
-                }
+                else tmr.Stop();
             }
-            else tmr.Stop();
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void writeManualOutput()
@@ -222,18 +236,16 @@ namespace IoTModbus
 
         private void comHandler_OnResponseData(ushort id, byte unit, byte function, byte[] data,byte[] adu,ushort startAddress,ushort lenght)
         {
-            int outVal = 0;
-
-            ushort outReg = 0;
             switch (function)
             {
 
                 case 1:
+                    
                     if(currentTab == 1) if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, data);
                     if(OnMessage != null) OnMessage(adu);
                     break;
                 case 2:
-                    if(currentTab == 0)
+                    if (currentTab == 0)
                     {
                         bool[] bits = new bool[1];
                         byte[] tempData = new byte[1];
@@ -259,8 +271,12 @@ namespace IoTModbus
                         bitA.CopyTo(outData, 0);
 
                         comHandler.send(15, getID(), unit, startAddress, 4, outData);
+                        if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, outData);
                     }
-                    else if (currentTab == 1) if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, data);
+                    else if (currentTab == 1)
+                    {
+                        if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, data);
+                    }
                     if (OnMessage != null) OnMessage(adu);
                     break;
                 case 3:
@@ -294,8 +310,21 @@ namespace IoTModbus
                             holdingData[x * 2 + 1] = tempData[1];
                         }
                         comHandler.send(16, getID(), unit, a1.OutputRegister,2, holdingData);
+                        if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, holdingData);
                     }
                     else if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, data);
+                    if (OnMessage != null) OnMessage(adu);
+                    break;
+                case 5:
+                    if (OnMessage != null) OnMessage(adu);
+                    break;
+                case 6:
+                    if (OnMessage != null) OnMessage(adu);
+                    break;
+                case 15:
+                    if (OnMessage != null) OnMessage(adu);
+                    break;
+                case 16:
                     if (OnMessage != null) OnMessage(adu);
                     break;
             }
@@ -325,7 +354,6 @@ namespace IoTModbus
         {
             int num = 2;
             ushort ID = getID();
-            byte unit = 1;
             ushort startAddress = 4;
             bool[] bits = new bool[num];
 
@@ -337,7 +365,7 @@ namespace IoTModbus
             BitArray bitArray = new BitArray(bits);
             bitArray.CopyTo(data, 0);
 
-            comHandler.send(15, ID, unit, startAddress, (byte)num, data);
+            comHandler.send(15, ID, gui.getUnit(), startAddress, (byte)num, data);
             first = false;
         }
 
@@ -359,8 +387,6 @@ namespace IoTModbus
                 if (tmr != null) tmr.Stop();
             }
         }
-
-
 
     }
 }

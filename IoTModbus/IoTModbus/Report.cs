@@ -31,7 +31,6 @@ namespace IoTModbus
             functionTable = getFunctionTable();
             exceptionTable = getExceptionTable();
             _sem = new SemaphoreSlim(1);
-
         }
 
         // ------------------------------------------------------------------------
@@ -113,11 +112,9 @@ namespace IoTModbus
             }
             set
             {
-                if (!ComHandler.Connected)
-                {
+
                     this.startTime = value;
                     System.Diagnostics.Debug.WriteLine("Start Time: " + this.startTime.ToString());
-                }
             }
         }
 
@@ -131,14 +128,11 @@ namespace IoTModbus
             }
             set
             {
-                if (ComHandler.Connected)
-                {
                     this.stopTime = value;
                     TimeSpan duration = this.stopTime - this.startTime;
                     this.connectedTime += duration;
                     System.Diagnostics.Debug.WriteLine("Stop Time: " + this.stopTime.ToString());
                     System.Diagnostics.Debug.WriteLine("Duration: " + duration.ToString());
-                }
             }
         }
         public DateTime OpenTime

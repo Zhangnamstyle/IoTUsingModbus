@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,11 +40,6 @@ namespace IoTModbus
 
         private bool pause = false;
 
-        private string ipAdress = "000.000.0.0";
-        private string port = "502";
-
-
-
         public GUI(GUIFacade guiFacade)
         {
             InitializeComponent();
@@ -76,20 +72,36 @@ namespace IoTModbus
             switch (function)
             {
                 case 1:
-                    bits = toBoolBits(data);
-
-                    txtReadCoilsV1.Text = Convert.ToString(bits[0] ? 1 : 0);
-                    txtReadCoilsV2.Text = Convert.ToString(bits[1] ? 1 : 0);
-                    txtReadCoilsV3.Text = Convert.ToString(bits[2] ? 1 : 0);
-                    txtReadCoilsV4.Text = Convert.ToString(bits[3] ? 1 : 0);
+                    bits = toBoolBits(data,1);
+                        txtReadCoilsV1.Text = Convert.ToString(bits[0] ? 1 : 0);
+                        txtReadCoilsV2.Text = Convert.ToString(bits[1] ? 1 : 0);
+                        txtReadCoilsV3.Text = Convert.ToString(bits[2] ? 1 : 0);
+                        txtReadCoilsV4.Text = Convert.ToString(bits[3] ? 1 : 0);
                     break;
                 case 2:
-                    bits = toBoolBits(data);
+                    if (tbcMain.SelectedIndex == 0)   
+                    {
+                        bits = toBoolBits(data, 0);
+                        if (bits[0]) ledDO1.Image = Properties.Resources.greenOn;
+                        else if (!bits[0]) ledDO1.Image = Properties.Resources.greenOff;
 
-                    txtReadDV1.Text = Convert.ToString(bits[0] ? 1 : 0);
-                    txtReadDV2.Text = Convert.ToString(bits[1] ? 1 : 0);
-                    txtReadDV3.Text = Convert.ToString(bits[2] ? 1 : 0);
-                    txtReadDV4.Text = Convert.ToString(bits[3] ? 1 : 0);
+                        if (bits[1]) ledDO2.Image = Properties.Resources.greenOn;
+                        else if (!bits[1]) ledDO2.Image = Properties.Resources.greenOff;
+
+                        if (bits[2]) ledDO3.Image = Properties.Resources.greenOn;
+                        else if (!bits[2]) ledDO3.Image = Properties.Resources.greenOff;
+
+                        if (bits[3]) ledDO4.Image = Properties.Resources.greenOn;
+                        else if (!bits[3]) ledDO4.Image = Properties.Resources.greenOff;
+                    }
+                    else if (tbcMain.SelectedIndex == 1)
+                    {
+                        bits = toBoolBits(data, 1);
+                        txtReadDV1.Text = Convert.ToString(bits[0] ? 1 : 0);
+                        txtReadDV2.Text = Convert.ToString(bits[1] ? 1 : 0);
+                        txtReadDV3.Text = Convert.ToString(bits[2] ? 1 : 0);
+                        txtReadDV4.Text = Convert.ToString(bits[3] ? 1 : 0);
+                    }
                     break;
                 case 3:
                     Buffer.BlockCopy(data, 1, tempValue1, 0, 2);
@@ -100,12 +112,30 @@ namespace IoTModbus
                     txtReadHV2.Text = BitConverter.ToInt16(tempValue2, 0).ToString();
                     break;
                 case 4:
-                    Buffer.BlockCopy(data, 1, tempValue1, 0, 2);
-                    Buffer.BlockCopy(data, 3, tempValue2, 0, 2);
-                    Array.Reverse(tempValue1);
-                    Array.Reverse(tempValue2);
-                    txtReadIRegV1.Text = BitConverter.ToInt16(tempValue1, 0).ToString();
-                    txtReadIRegV2.Text = BitConverter.ToInt16(tempValue2, 0).ToString();
+                    if(tbcMain.SelectedIndex == 0)
+                    {
+                        Buffer.BlockCopy(data, 0, tempValue1, 0, 2);
+                        Buffer.BlockCopy(data, 2, tempValue2, 0, 2);
+                        Array.Reverse(tempValue1);
+                        Array.Reverse(tempValue2);
+                        int temp1 = BitConverter.ToInt16(tempValue1, 0);
+                        int temp2 = BitConverter.ToInt16(tempValue2, 0);
+                        if (temp1 <= -1000) ledAO1.Image = Properties.Resources.redOn;
+                        else if (temp1 >= 1000) ledAO1.Image = Properties.Resources.greenOn;
+                        else ledAO1.Image = Properties.Resources.greyOff;
+                        if (temp2 <= -1000) ledAO2.Image = Properties.Resources.redOn;
+                        else if (temp2 >= 1000) ledAO2.Image = Properties.Resources.greenOn;
+                        else ledAO2.Image = Properties.Resources.greyOff;
+                    }
+                    else if (tbcMain.SelectedIndex == 1)
+                    {
+                        Buffer.BlockCopy(data, 1, tempValue1, 0, 2);
+                        Buffer.BlockCopy(data, 3, tempValue2, 0, 2);
+                        Array.Reverse(tempValue1);
+                        Array.Reverse(tempValue2);
+                        txtReadIRegV1.Text = BitConverter.ToInt16(tempValue1, 0).ToString();
+                        txtReadIRegV2.Text = BitConverter.ToInt16(tempValue2, 0).ToString();
+                    }
                     break;
             }
         }
@@ -464,24 +494,42 @@ namespace IoTModbus
             {
                 try
                 {
-                    List<string> list = new List<string>();
-                    for (int i = 1; i < 255; i++)
+                    this.Cursor = Cursors.WaitCursor;
+                    int timeout = 20;
+                    Ping pingSender = new Ping();
+                    List<string> ipList = new List<string>();
+                    for (int i = 100; i < 150; i++)
                     {
                         this.Cursor = Cursors.WaitCursor;
                         var hostname = "192.168.1." + i;
-                        var port = Convert.ToInt16(txtPort.Text);
-                        var timeout = TimeSpan.FromSeconds(0.01);
-                        var client = new TcpClient();
-                        if (!client.ConnectAsync(hostname, port).Wait(timeout))
+                        PingReply reply = pingSender.Send(hostname, timeout);
+                        System.Diagnostics.Debug.Write("Pinging " + hostname);
+                        if (reply.Status == IPStatus.Success)
                         {
-                            System.Diagnostics.Debug.Write(hostname + " is not open \r\n");
+                            ipList.Add(hostname);
                         }
-                        else
+                    }
+                    List<string> list = new List<string>();
+                    if (ipList.Count > 0)
+                    {
+                        
+                        for (int i = 1; i < ipList.Count; i++)
                         {
-                            list.Add(hostname);
-                            client.Close();
+                            this.Cursor = Cursors.WaitCursor;
+                            var hostname = ipList[i].ToString();
+                            var port = Convert.ToInt16(txtPort.Text);
+                            var timeoutConnect = TimeSpan.FromSeconds(0.1);
+                            var client = new TcpClient();
+                            if (!client.ConnectAsync(hostname, port).Wait(timeoutConnect))
+                            {
+                                System.Diagnostics.Debug.Write(hostname + " is not open \r\n");
+                            }
+                            else
+                            {
+                                list.Add(hostname);
+                                client.Close();
+                            }
                         }
-
                     }
                     this.Cursor = Cursors.Default;
                     if (list.Count < 1)
@@ -639,16 +687,16 @@ namespace IoTModbus
         private void trkA1_Scroll(object sender, EventArgs e)
         {
             inputChanged();
-            if (trkA1.Value <= -10) ledAO1.Image = Properties.Resources.redOn;
-            else if (trkA1.Value >= 10) ledAO1.Image = Properties.Resources.greenOn;
+            if (trkA1.Value <= -100) ledAO1.Image = Properties.Resources.redOn;
+            else if (trkA1.Value >= 100) ledAO1.Image = Properties.Resources.greenOn;
             else ledAO1.Image = Properties.Resources.greyOff;
         }
 
         private void trkA2_Scroll(object sender, EventArgs e)
         {
             inputChanged();
-            if (trkA2.Value <= -10) ledAO2.Image = Properties.Resources.redOn;
-            else if (trkA2.Value >= 10) ledAO2.Image = Properties.Resources.greenOn;
+            if (trkA2.Value <= -100) ledAO2.Image = Properties.Resources.redOn;
+            else if (trkA2.Value >= 100) ledAO2.Image = Properties.Resources.greenOn;
             else ledAO2.Image = Properties.Resources.greyOff;
         }
         #endregion
@@ -664,6 +712,8 @@ namespace IoTModbus
             btnDisconnect.Enabled = false;
             tbcMain.Enabled = false;
             tbpSimulator.BackColor = SystemColors.ControlDark;
+
+            grpIP.Enabled = true;
         }
 
         public void enableControls()
@@ -672,6 +722,9 @@ namespace IoTModbus
             btnDisconnect.Enabled = true;
             tbcMain.Enabled = true;
             tbpSimulator.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(242)))), ((int)(((byte)(211)))), ((int)(((byte)(0)))));
+
+            grpIP.Enabled = false;
+
             if (chkControl.Checked)
             {
                 GUIFacade.ManualOverride = true;
@@ -707,10 +760,10 @@ namespace IoTModbus
             }
             else return 0;
         }
-        private bool[] toBoolBits(byte[] data)
+        private bool[] toBoolBits(byte[] data,int place)
         {
             byte[] tempData = new byte[1];
-            Buffer.BlockCopy(data, 1, tempData, 0, 1);
+            Buffer.BlockCopy(data, place, tempData, 0, 1);
             BitArray bitArray = new BitArray(tempData);
             bool[] tempBits = new bool[bitArray.Count];
             bitArray.CopyTo(tempBits, 0);

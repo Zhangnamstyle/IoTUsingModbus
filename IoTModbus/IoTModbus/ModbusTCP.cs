@@ -39,6 +39,10 @@ namespace IoTModbus
         public delegate void ExceptionDataTCP(ushort id, byte unit, byte function, byte exception);
         /// <summary>Exception data event. This event is called when the data is incorrect</summary>
         public event ExceptionDataTCP OnExceptionTCP;
+        /// <summary>Exception data event. This event is called when the data is incorrect</summary>
+        public delegate void ErrorDataTCP(Exception ex);
+        /// <summary>Exception data event. This event is called when the data is incorrect</summary>
+        public event ErrorDataTCP OnErrorTCP;
 
         // ------------------------------------------------------------------------
         /// <summary>Write multiple registers in slave asynchronous. The result is given in the response function.</summary>
@@ -131,6 +135,7 @@ namespace IoTModbus
         {
             if (tcpClient != null)
             {
+                _report.StopTime = DateTime.Now;  
                 if (tcpClient.Connected)
                 {
                     netStream.Close();
@@ -138,10 +143,10 @@ namespace IoTModbus
                 }
                 netStream = null;
                 tcpClient = null;
-                _report.StopTime = DateTime.Now;
+                            
             }
         }
-
+ 
         // ------------------------------------------------------------------------
         /// <summary>Returns a Modbus Application Header for writing registers as a byte array</summary>
         private byte[] createMBAP(ushort id, byte unit, ushort numBytes)
@@ -199,14 +204,20 @@ namespace IoTModbus
         /// <summary>Writes the adu to the Modbus Slave</summary>
         private void recieveCallBack(IAsyncResult ar)
         {
-            if (ar.IsCompleted == false) { } 
-            Transaction t = (Transaction)ar.AsyncState;
-            _sem.Wait();
-            transactions.Add(t);
-            _sem.Release();
-            _report.recordFunctionTransaction(t.FuncNr, t.StartAddress, t.Length);
-            netStream.EndWrite(ar);
-            System.Diagnostics.Debug.WriteLine("out" + t.TId.ToString());
+            if (netStream != null)
+            {
+                if (ar.IsCompleted == false) { }
+                else
+                {
+                    Transaction t = (Transaction)ar.AsyncState;
+                    _sem.Wait();
+                    transactions.Add(t);
+                    _sem.Release();
+                    _report.recordFunctionTransaction(t.FuncNr, t.StartAddress, t.Length);
+                    if(netStream != null) netStream.EndWrite(ar);
+                    System.Diagnostics.Debug.WriteLine("out" + t.TId.ToString());
+                }
+            }
         }
 
         // ------------------------------------------------------------------------
@@ -247,7 +258,7 @@ namespace IoTModbus
             }
             catch(Exception ex)
             {
-                throw (ex);
+                OnErrorTCP(ex);
             }
 
         }

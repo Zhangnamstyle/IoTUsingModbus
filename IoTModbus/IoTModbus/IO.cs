@@ -58,8 +58,6 @@ namespace IoTModbus
 
     class  analogIO : IO
     {
-        private double maxV = 10;
-        private double minV = -10;
 
         public analogIO(ushort _inputReg, ushort _outputReg) :base(_inputReg,_outputReg)
         {
