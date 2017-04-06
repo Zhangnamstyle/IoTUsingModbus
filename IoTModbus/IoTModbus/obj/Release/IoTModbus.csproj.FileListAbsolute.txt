@@ -9,3 +9,14 @@ C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\obj\
 C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\bin\Release\itextsharp.dll
 C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\obj\Release\IoTModbus.csprojResolveAssemblyReference.cache
 C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\IoTModbus\obj\Release\IoTModbus.welcomeForm.resources
+C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus\bin\Release\IoTModbus.exe.config
+C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus\obj\Release\IoTModbus.exe
+C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus\obj\Release\IoTModbus.pdb
+C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus\bin\Release\IoTModbus.exe
+C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus\bin\Release\IoTModbus.pdb
+C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus\bin\Release\itextsharp.dll
+C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus\obj\Release\IoTModbus.csprojResolveAssemblyReference.cache
+C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus\obj\Release\IoTModbus.GUI.resources
+C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus\obj\Release\IoTModbus.Properties.Resources.resources
+C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus\obj\Release\IoTModbus.welcomeForm.resources
+C:\Users\alexa\Dropbox\Master Thesis\Software\IoTUsingModbus\IoTModbus\IoTModbus\obj\Release\IoTModbus.csproj.GenerateResource.Cache

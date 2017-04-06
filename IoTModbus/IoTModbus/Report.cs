@@ -75,24 +75,26 @@ namespace IoTModbus
         {
             _sem.Wait(); //SEMPAHORE
 
-            DataRow[] funcRow = functionTable.Select("[Function Code] =" + funcNr);
-
-            if (funcRow[0]["Start Address"].ToString().Length == 0 || funcRow[0]["Start Address"] == null)
+            if (funcNr != 17)
             {
-                funcRow[0]["Start Address"] = startAddress;
+                DataRow[] funcRow = functionTable.Select("[Function Code] =" + funcNr);
+
+                if (funcRow[0]["Start Address"].ToString().Length == 0 || funcRow[0]["Start Address"] == null)
+                {
+                    funcRow[0]["Start Address"] = startAddress;
+                }
+                else if ((ushort)funcRow[0]["Start Address"] > startAddress) funcRow[0]["Start Address"] = startAddress;
+
+                if (funcRow[0]["End Address"].ToString().Length == 0 || funcRow[0]["End Address"] == null)
+                {
+                    funcRow[0]["End Address"] = startAddress + length;
+                }
+                else if ((ushort)funcRow[0]["End Address"] < startAddress + length) funcRow[0]["Start Address"] = startAddress + length;
+
+                int tempCount = (int)funcRow[0]["Number of Function Calls"];
+
+                funcRow[0]["Number of Function Calls"] = tempCount + 1;
             }
-            else if ((ushort)funcRow[0]["Start Address"] > startAddress) funcRow[0]["Start Address"] = startAddress;
-            
-            if (funcRow[0]["End Address"].ToString().Length == 0 || funcRow[0]["End Address"] == null)
-            {
-                funcRow[0]["End Address"] = startAddress + length;
-            }
-            else if ((ushort)funcRow[0]["End Address"] < startAddress + length ) funcRow[0]["Start Address"] = startAddress + length ;
-
-            int tempCount = (int)funcRow[0]["Number of Function Calls"];
-
-            funcRow[0]["Number of Function Calls"] = tempCount + 1;
-
             _sem.Release(); //SEMPAHORE
 
         }

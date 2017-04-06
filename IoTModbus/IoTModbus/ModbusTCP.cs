@@ -36,6 +36,10 @@ namespace IoTModbus
         /// <summary>Response data event. This event is called when new data arrives</summary>
         public event ResponseDataTCP OnResponseDataTCP;
         /// <summary>Exception data event. This event is called when the data is incorrect</summary>
+        public delegate void OutgoingDataTCP(byte[] adu);
+        /// <summary>Exception data event. This event is called when the data is incorrect</summary>
+        public event OutgoingDataTCP OnOutgoingDataTCP;
+        /// <summary>Exception data event. This event is called when the data is incorrect</summary>
         public delegate void ExceptionDataTCP(ushort id, byte unit, byte function, byte exception);
         /// <summary>Exception data event. This event is called when the data is incorrect</summary>
         public event ExceptionDataTCP OnExceptionTCP;
@@ -43,6 +47,7 @@ namespace IoTModbus
         public delegate void ErrorDataTCP(Exception ex);
         /// <summary>Exception data event. This event is called when the data is incorrect</summary>
         public event ErrorDataTCP OnErrorTCP;
+
 
         // ------------------------------------------------------------------------
         /// <summary>Write multiple registers in slave asynchronous. The result is given in the response function.</summary>
@@ -130,7 +135,7 @@ namespace IoTModbus
         }
 
         // ------------------------------------------------------------------------
-        /// <summary>Write multiple coils in slave asynchronous. The result is given in the response function.</summary>
+        /// <summary>Closes the active connection.</summary>
         public void disconnect()
         {
             if (tcpClient != null)
@@ -193,6 +198,7 @@ namespace IoTModbus
                         if (!notUnique)
                         {    
                             netStream.BeginWrite(adu, 0, adu.Length, new AsyncCallback(recieveCallBack), txn);
+                            if(txn.FuncNr != 17) OnOutgoingDataTCP(adu);
                             netStream.BeginRead(tcpBuffer, 0, tcpBuffer.Length, new AsyncCallback(OnReceive), txn);
                         }
                     }
@@ -201,7 +207,7 @@ namespace IoTModbus
         }
 
         // ------------------------------------------------------------------------
-        /// <summary>Writes the adu to the Modbus Slave</summary>
+        /// <summary>Called after adu has been sent</summary>
         private void recieveCallBack(IAsyncResult ar)
         {
             if (netStream != null)
@@ -221,11 +227,11 @@ namespace IoTModbus
         }
 
         // ------------------------------------------------------------------------
-        /// <summary>Handles the response from modbus slave</summary>
+        /// <summary>Handles the response from Modbus slave</summary>
         private void OnReceive(System.IAsyncResult ar)
         {
             try
-            {
+            {   
                 if (ar.IsCompleted == false) { }
 
                 Transaction t = (Transaction)ar.AsyncState;
@@ -262,19 +268,21 @@ namespace IoTModbus
             }
 
         }
-
+        // ------------------------------------------------------------------------
+        /// <summary>Checks if any of transactions in list has been in list longer than a given time</summary>
         private void checkForTimeout()
         {
             var itemToRemove = transactions.FirstOrDefault(p => p.tDiff >= 5);
             if (itemToRemove != null)
             {
                 timeoutCounter++;
-                if(timeoutCounter > 3) { OnExceptionTCP(itemToRemove.TId, itemToRemove.Unit, itemToRemove.FuncNr, 0); } 
+                if(timeoutCounter > 3) { OnExceptionTCP(itemToRemove.TId, itemToRemove.Unit, itemToRemove.FuncNr,0); } 
                 transactions.Remove(itemToRemove);
             }
 
         }
-
+        // ------------------------------------------------------------------------
+        /// <summary>Returns a swapped unit16</summary>
         internal static UInt16 SwapUInt16(UInt16 inValue)
         {
             return (UInt16)(((inValue & 0xff00) >> 8) |

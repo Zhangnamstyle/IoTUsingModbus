@@ -54,7 +54,7 @@ namespace IoTModbus
 
             disableControls();
 
-            txtMessages.Font = new Font(txtMessages.Font.FontFamily, 8);
+            txtMessages.Font = new Font(FontFamily.GenericMonospace, 8);
         }
 
         #region GUIFacade Events
@@ -120,6 +120,8 @@ namespace IoTModbus
                         Array.Reverse(tempValue2);
                         int temp1 = BitConverter.ToInt16(tempValue1, 0);
                         int temp2 = BitConverter.ToInt16(tempValue2, 0);
+                        trkA1.Value = temp1;
+                        trkA2.Value = temp2;
                         if (temp1 <= -1000) ledAO1.Image = Properties.Resources.redOn;
                         else if (temp1 >= 1000) ledAO1.Image = Properties.Resources.greenOn;
                         else ledAO1.Image = Properties.Resources.greyOff;
@@ -152,25 +154,30 @@ namespace IoTModbus
             disableControls();
         }
 
-        private void guiFacade_OnMessage(byte[] adu)
+        private void guiFacade_OnMessage(byte[] adu,bool tx)
         {
             if (!pause)
             {
-                string sOut = "";
-                if (this.InvokeRequired)
-                {
-                    this.BeginInvoke(new GUIFacade.MessageData(guiFacade_OnMessage), new object[] { adu });
-                    return;
-                }
-                if (rdoHex.Checked)
-                {
-                    sOut = ByteArrayToHexString(adu);
-                }
-                else if (rdoBinary.Checked)
-                {
-                    sOut = ByteArrayToBinaryString(adu);
-                }
-                txtMessages.AppendText(sOut + "\n");
+                    string sOut = "";
+                    string type = "";
+                    if (this.InvokeRequired)
+                    {
+                        this.BeginInvoke(new GUIFacade.MessageData(guiFacade_OnMessage), new object[] { adu, tx });
+                        return;
+                    }
+                if (tx) type = "T:";
+                else if (!tx) type = "R:";
+                    if (rdoHex.Checked)
+                    {
+                        sOut = ByteArrayToHexString(adu);
+                    }
+                    else if (rdoBinary.Checked)
+                    {
+                        sOut = ByteArrayToBinaryString(adu);
+                    }
+                
+                    txtMessages.AppendText(type + sOut + "\n");
+                
             }
         }
         #endregion
@@ -439,7 +446,10 @@ namespace IoTModbus
         {
             StringBuilder hex = new StringBuilder(ba.Length * 2);
             foreach (byte b in ba)
+            {
                 hex.AppendFormat("{0:x2}", b);
+                hex.Append(" ");
+            }
             return hex.ToString();
         }
         // ------------------------------------------------------------------------
@@ -770,6 +780,12 @@ namespace IoTModbus
 
             return tempBits;
 
+        }
+
+        private void chkKeepAlive_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkKeepAlive.Checked) GUIFacade.KeepAlive = true;
+            else GUIFacade.KeepAlive = false;
         }
     }
 }

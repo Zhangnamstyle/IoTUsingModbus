@@ -13,6 +13,7 @@ namespace IoTModbus
     public class GUIFacade
     {
         System.Windows.Forms.Timer tmr = new System.Windows.Forms.Timer();
+        System.Windows.Forms.Timer tmrKeepAlive = new System.Windows.Forms.Timer();
         ComHandler comHandler;
         GUI gui;
         IO[] ioObj;
@@ -30,8 +31,9 @@ namespace IoTModbus
         private int currentTab = 0;
 
         private static bool manualOveride = false;
+        private static bool keepAlive = true;
 
-        public delegate void MessageData(byte[] adu);
+        public delegate void MessageData(byte[] adu,bool tx);
         /// <summary>Exception data event. This event is called when the data is incorrect</summary>
         public event MessageData OnMessage;
         public delegate void UpdateGUIData(byte function, ushort lenght, byte[] data);
@@ -52,12 +54,14 @@ namespace IoTModbus
             gui.OnInputChange += new GUI.InputData(gui_onInputChange);
             gui.OnTabChange += new GUI.TabData(gui_OnTabCHange);
             gui.OnDisconnectClick += new GUI.DisconnectData(gui_OnDisconnectClick);
+        
 
             if (comHandler == null)
             {
                 comHandler = new ComHandler(_sName, _sNumber);
                 comHandler.OnResponseData += new IoTModbus.ComHandler.ResponseData(comHandler_OnResponseData);
                 comHandler.OnException += new IoTModbus.ComHandler.ExceptionData(comHandler_OnException);
+                comHandler.OnOutData += new ComHandler.OutData(comHandler_OnOutData);
                 comHandler.OnError += new IoTModbus.ComHandler.ErrorData(comHandler_OnError);
             }
 
@@ -75,8 +79,22 @@ namespace IoTModbus
 
             tmr.Interval = 500;
             tmr.Tick += Tmr_Tick;
+
+            tmrKeepAlive.Interval = 1000;
+            tmrKeepAlive.Tick += TmrKeepAlive_Tick;
            
             Application.Run(gui);
+        }
+
+        private void TmrKeepAlive_Tick(object sender, EventArgs e)
+        {
+            if (!keepAlive) tmrKeepAlive.Stop();
+            comHandler.reportSlaveID((byte)getID(),gui.getUnit());
+        }
+
+        private void comHandler_OnOutData(byte[] adu)
+        {
+            OnMessage(adu, true);
         }
 
         private void gui_OnDisconnectClick()
@@ -109,7 +127,8 @@ namespace IoTModbus
         private void gui_onReport()
         {
             comHandler.disconnect();
-            tmr.Stop();
+            if(tmr != null) tmr.Stop();
+            if (tmrKeepAlive != null) tmrKeepAlive.Stop();
             comHandler.generateReport();
             if(OnDisconnect != null) OnDisconnect();
         }
@@ -129,6 +148,7 @@ namespace IoTModbus
             if (ComHandler.Connected)
             {
                 if(first)activateAnalogOut();
+                if (currentTab == 1 && keepAlive) tmrKeepAlive.Start();
             }
             gui.Cursor = Cursors.Default;
         }
@@ -242,7 +262,7 @@ namespace IoTModbus
                 case 1:
                     
                     if(currentTab == 1) if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, data);
-                    if(OnMessage != null) OnMessage(adu);
+                    if(OnMessage != null) OnMessage(adu,false);
                     break;
                 case 2:
                     if (currentTab == 0)
@@ -277,11 +297,11 @@ namespace IoTModbus
                     {
                         if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, data);
                     }
-                    if (OnMessage != null) OnMessage(adu);
+                    if (OnMessage != null) OnMessage(adu,false);
                     break;
                 case 3:
                     if (currentTab == 1) if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, data);
-                    if (OnMessage != null) OnMessage(adu);
+                    if (OnMessage != null) OnMessage(adu,false);
                     break;
                 case 4:
                     if (currentTab == 0)
@@ -313,19 +333,19 @@ namespace IoTModbus
                         if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, holdingData);
                     }
                     else if (OnUpdateGUIData != null) OnUpdateGUIData(function, lenght, data);
-                    if (OnMessage != null) OnMessage(adu);
+                    if (OnMessage != null) OnMessage(adu,false);
                     break;
                 case 5:
-                    if (OnMessage != null) OnMessage(adu);
+                    if (OnMessage != null) OnMessage(adu,false);
                     break;
                 case 6:
-                    if (OnMessage != null) OnMessage(adu);
+                    if (OnMessage != null) OnMessage(adu,false);
                     break;
                 case 15:
-                    if (OnMessage != null) OnMessage(adu);
+                    if (OnMessage != null) OnMessage(adu,false);
                     break;
                 case 16:
-                    if (OnMessage != null) OnMessage(adu);
+                    if (OnMessage != null) OnMessage(adu,false);
                     break;
             }
          
@@ -374,6 +394,11 @@ namespace IoTModbus
             get { return manualOveride; }
             set { manualOveride = value; }
         }
+        public static bool KeepAlive
+        {
+            get { return keepAlive; }
+            set { keepAlive = value; }
+        }
 
         private void gui_OnTabCHange(int tabId)
         {
@@ -381,10 +406,12 @@ namespace IoTModbus
             if (currentTab == 0)
             {   
                 if (tmr != null) tmr.Start();
+                if (tmrKeepAlive != null) tmrKeepAlive.Stop();
             }
             else
             {
                 if (tmr != null) tmr.Stop();
+                if (KeepAlive) if (tmrKeepAlive != null) tmrKeepAlive.Start();
             }
         }
 

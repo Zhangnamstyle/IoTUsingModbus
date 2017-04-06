@@ -34,6 +34,7 @@ namespace IoTModbus
         private const byte exGatewayPathUnavailable = 10;
         private const byte exGatewayTargetNoResponse = 11;
         private const byte exTimeout = 12;
+        private const byte transactionTimeout = 0;
 
         // ------------------------------------------------------------------------
         /// <summary>Exception data event. This event is called when the data is incorrect</summary>
@@ -44,6 +45,10 @@ namespace IoTModbus
         public delegate void ResponseData(ushort id, byte unit, byte function, byte[] data,byte[] adu,ushort startAddress,ushort lenght);
         /// <summary>Response data event. This event is called when new data arrives</summary>
         public event ResponseData OnResponseData;
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public delegate void OutData(byte[] adu);
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public event OutData OnOutData;
         /// <summary>Response data event. This event is called when new data arrives</summary>
         public delegate void ErrorData(Exception ex);
         /// <summary>Response data event. This event is called when new data arrives</summary>
@@ -69,6 +74,7 @@ namespace IoTModbus
                 modbusTCP = new ModbusTCP(ip, port, report);
                 modbusTCP.OnResponseDataTCP += new ModbusTCP.ResponseDataTCP(ModbusTCP_OnResponseData);
                 modbusTCP.OnExceptionTCP += new ModbusTCP.ExceptionDataTCP(ModbusTCP_OnException);
+                modbusTCP.OnOutgoingDataTCP += new ModbusTCP.OutgoingDataTCP(ModbusTCP_OnOutgoingData);
                 connected = true;
             }
             catch(Exception ex)
@@ -79,10 +85,15 @@ namespace IoTModbus
             }
         }
 
+        private void ModbusTCP_OnOutgoingData(byte[] adu)
+        {
+            OnOutData(adu);
+        }
+
         private void ModbusTCP_OnException(ushort id, byte unit, byte function, byte exception)
         {
             string exM = exMessage(exception);
-            report.recordException(id, function, exception, exM);
+            if(exception != transactionTimeout) report.recordException(id, function, exception, exM);
             disconnect();
             if (OnException != null) OnException(id, unit, function, exM);
         }
@@ -123,7 +134,6 @@ namespace IoTModbus
                         throw new System.ArgumentException("Can't write to holding register above register 99", "startAddress");
                     }
                     modbusTCP.sendTCP(funcNr, tId, unit, startAddress, numBits, values);
-
                 }
                 catch (Exception ex)
                 {
@@ -229,6 +239,9 @@ namespace IoTModbus
                     break;
                 case exGatewayTargetNoResponse:
                     ex = "Gateway Target Device Failed to Respond";
+                    break;
+                case transactionTimeout:
+                    ex = "Transaction timed out";
                     break;
                 default:
                     ex = "Unkown Exeption Code";
