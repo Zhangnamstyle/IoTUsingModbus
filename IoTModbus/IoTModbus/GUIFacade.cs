@@ -33,6 +33,9 @@ namespace IoTModbus
         private static bool manualOveride = false;
         private static bool keepAlive = true;
 
+        private string ip;
+        private ushort port;
+
         public delegate void MessageData(byte[] adu,bool tx);
         /// <summary>Exception data event. This event is called when the data is incorrect</summary>
         public event MessageData OnMessage;
@@ -53,6 +56,7 @@ namespace IoTModbus
             gui.OnReadSend += new GUI.ReadData(gui_onReadData);
             gui.OnInputChange += new GUI.InputData(gui_onInputChange);
             gui.OnTabChange += new GUI.TabData(gui_OnTabCHange);
+            gui.OnCheckChanged += new GUI.CheckboxData(gui_OnCheckChange);
             gui.OnDisconnectClick += new GUI.DisconnectData(gui_OnDisconnectClick);
         
 
@@ -86,10 +90,15 @@ namespace IoTModbus
             Application.Run(gui);
         }
 
+
         private void TmrKeepAlive_Tick(object sender, EventArgs e)
         {
-            if (!keepAlive) tmrKeepAlive.Stop();
-            comHandler.reportSlaveID((byte)getID(),gui.getUnit());
+            if (ComHandler.Connected)
+            {
+                if (!keepAlive) tmrKeepAlive.Stop();
+                comHandler.reportSlaveID((byte)getID(), gui.getUnit());
+            }
+            else tmrKeepAlive.Stop();
         }
 
         private void comHandler_OnOutData(byte[] adu)
@@ -99,6 +108,7 @@ namespace IoTModbus
 
         private void gui_OnDisconnectClick()
         {
+            
             comHandler.disconnect();
             if (OnDisconnect != null) OnDisconnect();
         }
@@ -136,18 +146,25 @@ namespace IoTModbus
         private void gui_onConnect(string _ip,string _port)
         {
             gui.Cursor = Cursors.WaitCursor;
-            IPAddress ip;
-            ushort port;
-            bool res1 = IPAddress.TryParse(_ip, out ip);
-            bool res2 = ushort.TryParse(_port, out port);
-            if(!res1) MessageBox.Show("The IP provided was not valid","Port Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
-            else if(!res2) MessageBox.Show("The Port provided was not valid","Port Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
+            IPAddress tempIP;
+            ushort tempPort;
+            bool res1 = IPAddress.TryParse(_ip, out tempIP);
+            bool res2 = ushort.TryParse(_port, out tempPort);
+            if (!res1) MessageBox.Show("The IP provided was not valid", "Port Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            else if (!res2) MessageBox.Show("The Port provided was not valid", "Port Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             else
-            comHandler.connect(ip.ToString(),port); //Fix toString
+                ip = tempIP.ToString();
+                port = tempPort;
+                connect();
+        }
+
+        private void connect()
+        {
+            comHandler.connect(ip.ToString(), port); //Fix toString
 
             if (ComHandler.Connected)
             {
-                if(first)activateAnalogOut();
+                if (first) activateAnalogOut();
                 if (currentTab == 1 && keepAlive) tmrKeepAlive.Start();
             }
             gui.Cursor = Cursors.Default;
@@ -404,7 +421,7 @@ namespace IoTModbus
         {
             currentTab = tabId;
             if (currentTab == 0)
-            {   
+            {
                 if (tmr != null) tmr.Start();
                 if (tmrKeepAlive != null) tmrKeepAlive.Stop();
             }
@@ -412,6 +429,17 @@ namespace IoTModbus
             {
                 if (tmr != null) tmr.Stop();
                 if (KeepAlive) if (tmrKeepAlive != null) tmrKeepAlive.Start();
+            }
+        }
+
+        private void gui_OnCheckChange(bool IsChecked)
+        {
+            if (!tmrKeepAlive.Enabled && IsChecked == true)
+            {
+                    comHandler.disconnect();
+                    connect();
+                    tmrKeepAlive.Start();
+            
             }
         }
 

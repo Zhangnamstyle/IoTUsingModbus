@@ -36,6 +36,10 @@ namespace IoTModbus
         public delegate void TabData(int tabId);
         /// <summary>Response data event. This event is called when new data arrives</summary>
         public event TabData OnTabChange;
+        public delegate void CheckboxData(bool IsChecked);
+        /// <summary>Response data event. This event is called when new data arrives</summary>
+        public event CheckboxData OnCheckChanged;
+
 
 
         private bool pause = false;
@@ -752,6 +756,11 @@ namespace IoTModbus
                 trkA1.Enabled = false;
                 trkA2.Enabled = false;
             }
+            if (tbcMain.SelectedIndex == 1)
+            {
+                if (chkKeepAlive.Checked) GUIFacade.KeepAlive = true;
+                else GUIFacade.KeepAlive = false;
+            }
         }
 
         public byte getUnit()
@@ -784,8 +793,17 @@ namespace IoTModbus
 
         private void chkKeepAlive_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkKeepAlive.Checked) GUIFacade.KeepAlive = true;
-            else GUIFacade.KeepAlive = false;
+            if (chkKeepAlive.Checked)
+            {
+                GUIFacade.KeepAlive = true;
+                OnCheckChanged(true);
+            }
+            else
+            {
+                GUIFacade.KeepAlive = false;
+                OnCheckChanged(false);
+            }
+
         }
     }
 }
