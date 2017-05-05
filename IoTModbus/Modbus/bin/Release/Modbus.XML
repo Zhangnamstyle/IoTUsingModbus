@@ -1,0 +1,223 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Modbus</name>
+    </assembly>
+    <members>
+        <member name="T:Modbus.ComHandler.ExceptionData">
+            <summary>Exception data event. This event is called when the data is incorrect</summary>
+        </member>
+        <member name="E:Modbus.ComHandler.OnException">
+            <summary>Exception data event. This event is called when the data is incorrect</summary>
+        </member>
+        <member name="T:Modbus.ComHandler.ResponseData">
+            <summary>Response data event. This event is called when new data arrives</summary>
+        </member>
+        <member name="E:Modbus.ComHandler.OnResponseData">
+            <summary>Response data event. This event is called when new data arrives</summary>
+        </member>
+        <member name="T:Modbus.ComHandler.OutData">
+            <summary>Response data event. This event is called when new data arrives</summary>
+        </member>
+        <member name="E:Modbus.ComHandler.OnOutData">
+            <summary>Response data event. This event is called when new data arrives</summary>
+        </member>
+        <member name="T:Modbus.ComHandler.ErrorData">
+            <summary>Response data event. This event is called when new data arrives</summary>
+        </member>
+        <member name="E:Modbus.ComHandler.OnError">
+            <summary>Response data event. This event is called when new data arrives</summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Modbus.ComHandler.#ctor(System.String,System.Int32)" -->
+        <member name="M:Modbus.ComHandler.connect(System.String,System.UInt16)">
+            <summary>Connects to the Modbus slave</summary>
+        </member>
+        <member name="M:Modbus.ComHandler.disconnect">
+            <summary>Disconnect from the Modbus slave</summary>
+        </member>
+        <member name="M:Modbus.ComHandler.send(System.Byte,System.UInt16,System.Byte,System.UInt16,System.UInt16,System.Byte[])">
+            <summary>Sends a write message to IoT Device </summary>
+            <param name="funcNr">Modbus Function Code.</param>
+            <param name="tId">Transaction Id. This needs to be unique</param>
+            <param name="unit"></param>
+            <param name="startAddress"></param>
+            <param name="numBits"></param>
+            <param name="values"></param>
+        </member>
+        <member name="M:Modbus.ComHandler.send(System.Byte,System.UInt16,System.Byte,System.UInt16,System.UInt16)">
+            <summary>Sends a read message to IoT Device </summary>
+            <param name="funcNr">Modbus Function Code.</param>
+            <param name="tId">Transaction Id. This needs to be unique</param>
+            <param name="unit"></param>
+            <param name="startAddress"></param>
+            <param name="numBits"></param>
+            <param name="values"></param>
+        </member>
+        <member name="M:Modbus.ComHandler.exMessage(System.Byte)">
+            <summary>Returns the exeption type </summary>
+            <param name="FuncEx">Modbus Exeption Code.</param>
+        </member>
+        <member name="T:Modbus.ModbusADU">
+            <summary>
+            Static Class for creating and decode Modbus Application Data Unit(ADU)
+            </summary>
+        </member>
+        <member name="M:Modbus.ModbusADU.createADU(System.Byte[],System.Byte[])">
+            <summary>Creates the ADU(Application Data Unit) to send for Modbus TCP/IP</summary>
+            <param name="header">Modbus Function Code.</param>
+            <param name="pdu">Unique id that marks the transaction. In asynchonous mode this id is given to the callback function.</param>
+        </member>
+        <member name="M:Modbus.ModbusADU.decodeADU(System.Byte[],System.Byte[]@)">
+            <summary>Decodes the ADU(Application Data Unit) recived using Modbus TCP/IP </summary>
+            <param name="adu">Modbus ADU(Application Data Unit)</param>
+            <param name="_pdu">Modbus PDU(Protocol Data Unit)</param>
+        </member>
+        <member name="T:Modbus.ModbusPDU">
+            <summary>
+            Static Class for creating and decode Modbus Protocol Data Unit(PDU)
+            </summary>
+        </member>
+        <member name="M:Modbus.ModbusPDU.CreatePDU(System.Byte,System.UInt16,System.UInt16,System.UInt16,System.Byte[],System.UInt16@,System.UInt16@)">
+            <summary>Returns a PDU for Writing to registers</summary>
+            <param name="funcNr">Modbus Function Code.</param>
+            <param name="startAddress">Address from where the data write begins.</param>
+            <param name="numBytes">Specifys number of bytes.</param>
+            <param name="numData">Specifys number of Data.</param>
+            <param name="values">Contains the bit information in byte format.</param>
+        </member>
+        <member name="M:Modbus.ModbusPDU.CreatePDU(System.Byte,System.UInt16,System.UInt16)">
+            <summary>Returns a PDU for Reading from registers </summary>
+            <param name="funcNr">Modbus Function Code.</param>
+            <param name="startAddress">Address from where the data read begins.</param>
+            <param name="length">Number of data to read</param>
+        </member>
+        <member name="T:Modbus.ModbusTCP">
+            <summary>
+            Facade class for Modbus Communication using TCP/IP portocol.
+            </summary>
+        </member>
+        <member name="T:Modbus.ModbusTCP.ResponseDataTCP">
+            <summary>Response data event. This event is called when new data arrives</summary>
+        </member>
+        <member name="E:Modbus.ModbusTCP.OnResponseDataTCP">
+            <summary>Response data event. This event is called when new data arrives</summary>
+        </member>
+        <member name="T:Modbus.ModbusTCP.OutgoingDataTCP">
+            <summary>Exception data event. This event is called when the data is incorrect</summary>
+        </member>
+        <member name="E:Modbus.ModbusTCP.OnOutgoingDataTCP">
+            <summary>Exception data event. This event is called when the data is incorrect</summary>
+        </member>
+        <member name="T:Modbus.ModbusTCP.ExceptionDataTCP">
+            <summary>Exception data event. This event is called when the data is incorrect</summary>
+        </member>
+        <member name="E:Modbus.ModbusTCP.OnExceptionTCP">
+            <summary>Exception data event. This event is called when the data is incorrect</summary>
+        </member>
+        <member name="T:Modbus.ModbusTCP.ErrorDataTCP">
+            <summary>Exception data event. This event is called when the data is incorrect</summary>
+        </member>
+        <member name="E:Modbus.ModbusTCP.OnErrorTCP">
+            <summary>Exception data event. This event is called when the data is incorrect</summary>
+        </member>
+        <member name="M:Modbus.ModbusTCP.#ctor(System.String,System.UInt16,Modbus.Report)">
+            <summary>Write multiple registers in slave asynchronous. The result is given in the response function.</summary>
+            <param name="ip">IP adress of modbus slave.</param>
+            <param name="port">Port number of modbus slave. Usually port 502 is used.</param>
+            <param name="report">Object of class Report.</param>
+        </member>
+        <member name="M:Modbus.ModbusTCP.sendTCP(System.Byte,System.UInt16,System.Byte,System.UInt16,System.UInt16)">
+            <summary>Send modbus message for reading over TCP</summary>
+            <param name="funcNr">Modbus Function Code.</param>
+            <param name="id">Unique id that marks the transaction. In asynchonous mode this id is given to the callback function.</param>
+            <param name="unit">Unit identifier (previously slave address). In asynchonous mode this unit is given to the callback function.</param>
+            <param name="startAddress">Address from where the data read begins.</param>
+            <param name="numInputs">Length of data.</param>
+        </member>
+        <member name="M:Modbus.ModbusTCP.sendTCP(System.Byte,System.UInt16,System.Byte,System.UInt16,System.UInt16,System.Byte[])">
+            <summary>Send modbus message for writing over TCP</summary>
+            <param name="funcNr">Modbus Function Code.</param>
+            <param name="id">Unique id that marks the transaction. In asynchonous mode this id is given to the callback function.</param>
+            <param name="unit">Unit identifier (previously slave address). In asynchonous mode this unit is given to the callback function.</param>
+            <param name="startAddress">Address from where the data read begins.</param>
+            <param name="numBits">Specifys number of bits.</param>
+            <param name="values">Contains the bit information in byte format.</param>
+        </member>
+        <member name="M:Modbus.ModbusTCP.connectTCP">
+            <summary>Connects to the Modbus slave</summary>
+            <param name="ip">IP adress of modbus slave.</param>
+            <param name="port">Port number of modbus slave. Usually port 502 is used.</param>
+        </member>
+        <member name="M:Modbus.ModbusTCP.disconnect">
+            <summary>Closes the active connection.</summary>
+        </member>
+        <member name="M:Modbus.ModbusTCP.createMBAP(System.UInt16,System.Byte,System.UInt16)">
+            <summary>Returns a Modbus Application Header for writing registers as a byte array</summary>
+        </member>
+        <member name="M:Modbus.ModbusTCP.createMBAP(System.UInt16,System.Byte)">
+            <summary>Returns a Modbus Application Header for reading registers as a byte array</summary>
+        </member>
+        <member name="M:Modbus.ModbusTCP.WriteData(System.Byte[],Modbus.Transaction)">
+            <summary>Writes the adu to the Modbus Slave</summary>
+        </member>
+        <member name="M:Modbus.ModbusTCP.recieveCallBack(System.IAsyncResult)">
+            <summary>Called after adu has been sent</summary>
+        </member>
+        <member name="M:Modbus.ModbusTCP.OnReceive(System.IAsyncResult)">
+            <summary>Handles the response from Modbus slave</summary>
+        </member>
+        <member name="M:Modbus.ModbusTCP.checkForTimeout">
+            <summary>Checks if any of transactions in list has been in list longer than a given time</summary>
+        </member>
+        <member name="M:Modbus.ModbusTCP.SwapUInt16(System.UInt16)">
+            <summary>Returns a swapped unit16</summary>
+        </member>
+        <member name="M:Modbus.PDF.createPDF(System.Data.DataTable,System.Data.DataTable,System.DateTime[])">
+             ------------------------------------------------------------------------
+            <summary>Creates a PDF report on the desktop.</summary>
+            <param name="_dtFunc">DataTable with data on Function Calls.</param>
+            <param name="_dtExce">DataTable with data on Modbus Exceptions.</param>
+            <param name="_times">Array of DateTimes.</param>
+        </member>
+        <member name="T:Modbus.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Modbus.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Modbus.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Modbus.Properties.Resources.Modbus_IoT">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="M:Modbus.Report.#ctor">
+            <summary>Constructor for Report class.</summary>
+        </member>
+        <member name="M:Modbus.Report.getFunctionTable">
+            <summary>Returns a DataTable filled with the supported Modbus Function Codes.</summary>
+        </member>
+        <member name="M:Modbus.Report.getExceptionTable">
+            <summary>Returns a DataTable filled with the supported Modbus Exception Codes.</summary>
+        </member>
+        <member name="M:Modbus.Report.recordFunctionTransaction(System.Byte,System.UInt16,System.UInt16)">
+            <summary>Records the function transaction in the report.</summary>
+            <param name="funcNr">Function Code</param>
+        </member>
+        <member name="P:Modbus.Report.StartTime">
+            <summary>Method for getting and setting a DateTime connectionTime used for logging when the connection was started</summary>
+        </member>
+        <member name="P:Modbus.Report.StopTime">
+            <summary>Method for getting and setting a DateTime connectionTime used for logging when the connection was started</summary>
+        </member>
+    </members>
+</doc>

@@ -7,10 +7,10 @@ using System.Threading;
 using System.Net;
 using System.Collections;
 
-namespace IoTModbus
+namespace Modbus
 {
     
-    class ComHandler 
+    public class ComHandler 
     {        
         // ------------------------------------------------------------------------
         // Private declarations
@@ -87,7 +87,7 @@ namespace IoTModbus
 
         private void ModbusTCP_OnOutgoingData(byte[] adu)
         {
-            if (OnOutData != null) OnOutData(adu);
+            if(OnOutData != null) OnOutData(adu);
         }
 
         private void ModbusTCP_OnException(ushort id, byte unit, byte function, byte exception)
@@ -177,7 +177,7 @@ namespace IoTModbus
             catch(Exception ex)
             {
                 disconnect();
-                if(OnError != null) OnError(ex);
+                if (OnError != null) OnError(ex);
             }
         }
         public void generateReport()

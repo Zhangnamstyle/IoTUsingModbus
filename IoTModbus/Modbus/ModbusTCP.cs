@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace IoTModbus
+namespace Modbus
 {
     /// <summary>
     /// Facade class for Modbus Communication using TCP/IP portocol.
@@ -264,7 +264,7 @@ namespace IoTModbus
             }
             catch(Exception ex)
             {
-                if(OnErrorTCP != null) OnErrorTCP(ex);
+                OnErrorTCP(ex);
             }
 
         }

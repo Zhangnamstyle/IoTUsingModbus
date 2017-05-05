@@ -1,0 +1,10 @@
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\Modbus\bin\Release\Modbus.dll
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\Modbus\bin\Release\Modbus.pdb
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\Modbus\bin\Release\itextsharp.dll
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\Modbus\bin\Release\itextsharp.xml
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\Modbus\obj\Release\Modbus.Properties.Resources.resources
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\Modbus\obj\Release\Modbus.csproj.GenerateResource.Cache
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\Modbus\obj\Release\Modbus.dll
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\Modbus\obj\Release\Modbus.pdb
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\Modbus\bin\Release\Modbus.XML
+C:\Users\alexa\OneDrive\Documents\GitHub\IoTUsingModbus\IoTModbus\Modbus\obj\Release\Modbus.csprojResolveAssemblyReference.cache
