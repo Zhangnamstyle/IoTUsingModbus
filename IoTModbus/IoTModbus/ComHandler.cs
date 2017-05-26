@@ -168,6 +168,18 @@ namespace IoTModbus
             }   
         }
 
+        public void reportSlaveID(byte tId,byte unit)
+        {
+            try
+            {
+                modbusTCP.reportSlaveID(tId, unit);
+            }
+            catch(Exception ex)
+            {
+                disconnect();
+                if(OnError != null) OnError(ex);
+            }
+        }
         public void generateReport()
         {
             try

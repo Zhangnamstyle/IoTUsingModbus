@@ -105,17 +105,16 @@ namespace IoTModbus
             WriteData(adu, t);
         }
 
-        ///Not usefull
-        //public void reportSlaveID(ushort tId,byte unit)
-        //{
-        //    byte funcNr = 17;
-        //    byte[] head = createMBAP(tId, unit,1);
-        //    byte[] pdu = new byte[1];
-        //    pdu[0] = funcNr;
-        //    byte[] adu = ModbusADU.createADU(head, pdu);
-        //    Transaction txn = new Transaction(tId, funcNr, unit, 0, 0);
-        //    WriteData(adu, txn);
-        //}
+        public void reportSlaveID(ushort tId,byte unit)
+        {
+            byte funcNr = 17;
+            byte[] head = createMBAP(tId, unit,1);
+            byte[] pdu = new byte[1];
+            pdu[0] = funcNr;
+            byte[] adu = ModbusADU.createADU(head, pdu);
+            Transaction txn = new Transaction(tId, funcNr, unit, 0, 0);
+            WriteData(adu, txn);
+        }
 
         // ------------------------------------------------------------------------
         /// <summary>Connects to the Modbus slave</summary>
